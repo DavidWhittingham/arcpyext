@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3810e691-fcc0-463f-8db2-da7896ac1335}</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>
+    </StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>arcpyext</Name>
+    <RootNamespace>arcpyext</RootNamespace>
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="exceptions\arc_py_ext_error.py" />
+    <Compile Include="exceptions\change_data_sources_error.py" />
+    <Compile Include="exceptions\data_source_update_error.py" />
+    <Compile Include="exceptions\map_data_sources_broken_error.py" />
+    <Compile Include="exceptions\map_layer_error.py" />
+    <Compile Include="exceptions\serv_def_draft_create_error.py" />
+    <Compile Include="exceptions\unmapped_data_source_error.py" />
+    <Compile Include="exceptions\unsupported_layer_error.py" />
+    <Compile Include="exceptions\__init__.py" />
+    <Compile Include="mapping\_mapping.py" />
+    <Compile Include="mapping\_sddraft.py" />
+    <Compile Include="mapping\__init__.py" />
+    <Compile Include="data\_data_management.py" />
+    <Compile Include="data\__init__.py" />
+    <Compile Include="__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="exceptions\" />
+    <Folder Include="mapping\" />
+    <Folder Include="data\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "arcpyext", "Source\arcpyext\arcpyext.pyproj", "{3810E691-FCC0-463F-8DB2-DA7896AC1335}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "tests_arcpyext", "Source\tests\tests_arcpyext.pyproj", "{64B19575-E3B9-40B4-AF6F-5D0E9DFBC975}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9AD23A92-3785-400C-976C-813CDE8ADB6A}"
+	ProjectSection(SolutionItems) = preProject
+		Source\LICENSE = Source\LICENSE
+		Source\MANIFEST.in = Source\MANIFEST.in
+		Source\README.rst = Source\README.rst
+		Source\setup.py = Source\setup.py
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3810E691-FCC0-463F-8DB2-DA7896AC1335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3810E691-FCC0-463F-8DB2-DA7896AC1335}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3810E691-FCC0-463F-8DB2-DA7896AC1335}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3810E691-FCC0-463F-8DB2-DA7896AC1335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64B19575-E3B9-40B4-AF6F-5D0E9DFBC975}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64B19575-E3B9-40B4-AF6F-5D0E9DFBC975}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64B19575-E3B9-40B4-AF6F-5D0E9DFBC975}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64B19575-E3B9-40B4-AF6F-5D0E9DFBC975}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,1259 @@
+<?xml version="1.0" ?>
+<SVCManifest xmlns:typens="http://www.esri.com/schemas/ArcGIS/10.1" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="typens:SVCManifest">
+	<Databases xsi:type="typens:ArrayOfSVCDatabase"/>
+	<Resources xsi:type="typens:ArrayOfSVCResource">
+		<SVCResource xsi:type="typens:SVCResource">
+			<ID>{564BC3DB-A3C9-4868-A4DA-3CF4B13E3088}</ID>
+			<Name>psl_test.mxd</Name>
+			<OnPremisePath>D:\psl_test.mxd</OnPremisePath>
+			<StagingPath/>
+			<ServerPath/>
+			<InPackagePath/>
+			<OnServerName/>
+			<ClientName>NIX00300</ClientName>
+		</SVCResource>
+	</Resources>
+	<ID>{C8ADC695-8F8D-4AF7-A0CB-966CF34BAC45}</ID>
+	<Name>psl_test</Name>
+	<OnPremisePath>D:\psl_test.sddraft</OnPremisePath>
+	<StagingPath/>
+	<ServerPath/>
+	<InPackagePath/>
+	<ByReference>true</ByReference>
+	<Type>esriServiceDefinitionType_Replacement</Type>
+	<State>esriSDState_Draft</State>
+	<ServerType>esriSVCServerType_FullServer</ServerType>
+	<DataFolder/>
+	<StagingSettings xsi:type="typens:PropertySet">
+		<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+			<PropertySetProperty xsi:type="typens:PropertySetProperty">
+				<Key>HasCache</Key>
+				<Value xsi:type="xs:string">false</Value>
+			</PropertySetProperty>
+			<PropertySetProperty xsi:type="typens:PropertySetProperty">
+				<Key>PackageUnderMyContent</Key>
+				<Value xsi:type="xs:string">false</Value>
+			</PropertySetProperty>
+			<PropertySetProperty xsi:type="typens:PropertySetProperty">
+				<Key>PackageIsPublic</Key>
+				<Value xsi:type="xs:string">false</Value>
+			</PropertySetProperty>
+			<PropertySetProperty xsi:type="typens:PropertySetProperty">
+				<Key>PackageShareGroups</Key>
+				<Value xsi:type="xs:string">false</Value>
+			</PropertySetProperty>
+			<PropertySetProperty xsi:type="typens:PropertySetProperty">
+				<Key>PackageGroupIDs</Key>
+				<Value xsi:type="xs:string"/>
+			</PropertySetProperty>
+			<PropertySetProperty xsi:type="typens:PropertySetProperty">
+				<Key>IncludeDataInSDFile</Key>
+				<Value xsi:type="xs:string">FALSE</Value>
+			</PropertySetProperty>
+		</PropertyArray>
+	</StagingSettings>
+	<KeepExistingData>false</KeepExistingData>
+	<KeepExistingMapCache>false</KeepExistingMapCache>
+	<ClientHostName>NIX00300</ClientHostName>
+	<OnServerName/>
+	<Configurations xsi:type="typens:ArrayOfSVCConfiguration">
+		<SVCConfiguration xsi:type="typens:SVCConfiguration">
+			<ID>DDB19B6F-C571-459B-B046-CBF15516417D</ID>
+			<Name>psl_test</Name>
+			<TypeName>MapServer</TypeName>
+			<ResourceID>{564BC3DB-A3C9-4868-A4DA-3CF4B13E3088}</ResourceID>
+			<ServiceFolder/>
+			<DataFolder/>
+			<Definition xsi:type="typens:SVCConfigurationDefinition">
+				<Description/>
+				<ConfigurationProperties xsi:type="typens:PropertySet">
+					<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>FilePath</Key>
+							<Value xsi:type="xs:string"/>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>supportedImageReturnTypes</Key>
+							<Value xsi:type="xs:string">URL</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>maxRecordCount</Key>
+							<Value xsi:type="xs:string">1000</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>cacheDir</Key>
+							<Value xsi:type="xs:string"/>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>useLocalCacheDir</Key>
+							<Value xsi:type="xs:string">true</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>MaxImageHeight</Key>
+							<Value xsi:type="xs:string">2048</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>maxBufferCount</Key>
+							<Value xsi:type="xs:string">100</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>MaxImageWidth</Key>
+							<Value xsi:type="xs:string">2048</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>enableDynamicLayers</Key>
+							<Value xsi:type="xs:string">false</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>dynamicDataWorkspaces</Key>
+							<Value xsi:type="xs:string"/>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>disableIdentifyRelates</Key>
+							<Value xsi:type="xs:string">false</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>schemaLockingEnabled</Key>
+							<Value xsi:type="xs:string">true</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>maxDomainCodeCount</Key>
+							<Value xsi:type="xs:string">25000</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>isCached</Key>
+							<Value xsi:type="xs:string">false</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>cacheOnDemand</Key>
+							<Value xsi:type="xs:string">false</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>ignoreCache</Key>
+							<Value xsi:type="xs:string">false</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>clientCachingAllowed</Key>
+							<Value xsi:type="xs:string">true</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>antialiasingMode</Key>
+							<Value xsi:type="xs:string">Fastest</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>textAntialiasingMode</Key>
+							<Value xsi:type="xs:string">Force</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>minScale</Key>
+							<Value xsi:type="xs:double">4622324.4343090001</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>maxScale</Key>
+							<Value xsi:type="xs:double">4513.9887049999998</Value>
+						</PropertySetProperty>
+					</PropertyArray>
+				</ConfigurationProperties>
+				<Info xsi:type="typens:PropertySet">
+					<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>WebEnabled</Key>
+							<Value xsi:type="xs:string">true</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>WebCapabilities</Key>
+							<Value xsi:type="xs:string">Map,Query,Data</Value>
+						</PropertySetProperty>
+					</PropertyArray>
+				</Info>
+				<Props xsi:type="typens:PropertySet">
+					<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>IsRunning</Key>
+							<Value xsi:type="xs:string">false</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>MinInstances</Key>
+							<Value xsi:type="xs:string">1</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>MaxInstances</Key>
+							<Value xsi:type="xs:string">2</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>InstancesPerContainer</Key>
+							<Value xsi:type="xs:string">1</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>WaitTimeout</Key>
+							<Value xsi:type="xs:string">60</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>IdleTimeout</Key>
+							<Value xsi:type="xs:string">1800</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>UsageTimeout</Key>
+							<Value xsi:type="xs:string">600</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>CleanupTimeout</Key>
+							<Value xsi:type="xs:string">30</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>keepAliveInterval</Key>
+							<Value xsi:type="xs:string">1800</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>StartupTimeout</Key>
+							<Value xsi:type="xs:string">300</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>Isolation</Key>
+							<Value xsi:type="xs:string">high</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>configuredState</Key>
+							<Value xsi:type="xs:string">STARTED</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>recycleStartTime</Key>
+							<Value xsi:type="xs:string"/>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>recycleInterval</Key>
+							<Value xsi:type="xs:string"/>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>IgnoreCache</Key>
+							<Value xsi:type="xs:string">true</Value>
+						</PropertySetProperty>
+						<PropertySetProperty xsi:type="typens:PropertySetProperty">
+							<Key>IsCached</Key>
+							<Value xsi:type="xs:string">false</Value>
+						</PropertySetProperty>
+					</PropertyArray>
+				</Props>
+				<RecyclingInterval/>
+				<RecyclingStart>0</RecyclingStart>
+				<Extensions xsi:type="typens:ArrayOfSVCExtension">
+					<SVCExtension xsi:type="typens:SVCExtension">
+						<Enabled>false</Enabled>
+						<Info xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebEnabled</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebCapabilities</Key>
+									<Value xsi:type="xs:string">Query,Create,Update,Delete,Uploads,Editing</Value>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Info>
+						<Props xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>maxRecordCount</Key>
+									<Value xsi:type="xs:string">1000</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>enableZDefaults</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>zDefaultValue</Key>
+									<Value xsi:type="xs:string">0</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>enableOwnershipBasedAccessControl</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>allowOthersToQuery</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>allowOthersToUpdate</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>allowOthersToDelete</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>realm</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>editorTrackingTimeZoneID</Key>
+									<Value xsi:type="xs:string">UTC</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>editorTrackingRespectsDayLightSavingTime</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>editorTrackingTimeInUTC</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>allowGeometryUpdates</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>allowTrueCurvesUpdates</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>xssPreventionEnabled</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Props>
+						<TypeName>FeatureServer</TypeName>
+					</SVCExtension>
+					<SVCExtension xsi:type="typens:SVCExtension">
+						<Enabled>false</Enabled>
+						<Info xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebEnabled</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebCapabilities</Key>
+									<Value xsi:type="xs:string">Uploads</Value>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Info>
+						<Props xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty"/>
+						</Props>
+						<TypeName>MobileServer</TypeName>
+					</SVCExtension>
+					<SVCExtension xsi:type="typens:SVCExtension">
+						<Enabled>false</Enabled>
+						<Info xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebEnabled</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebCapabilities</Key>
+									<Value xsi:nil="true"/>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Info>
+						<Props xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>onlineResource</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>customGetCapabilities</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>pathToCustomGetCapabilitiesFiles</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>pathToCustomSLDFile</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>inheritLayerNames</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>name</Key>
+									<Value xsi:type="xs:string">WMS</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>title</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>abstract</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>keyword</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>contactPerson</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>contactPosition</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>contactOrganization</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>address</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>addressType</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>city</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>stateOrProvince</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>postCode</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>country</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>contactVoiceTelephone</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>contactFacsimileTelephone</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>contactElectronicMailAddress</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>fees</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>accessConstraints</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Props>
+						<TypeName>WMSServer</TypeName>
+					</SVCExtension>
+					<SVCExtension xsi:type="typens:SVCExtension">
+						<Enabled>true</Enabled>
+						<Info xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebEnabled</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebCapabilities</Key>
+									<Value xsi:type="xs:string">SingleImage,SeparateImages,Vectors</Value>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Info>
+						<Props xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>imageSize</Key>
+									<Value xsi:type="xs:string">1024</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>featureLimit</Key>
+									<Value xsi:type="xs:string">1000000</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>dpi</Key>
+									<Value xsi:type="xs:string">96</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>minRefreshPeriod</Key>
+									<Value xsi:type="xs:string">30</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>compatibilityMode</Key>
+									<Value xsi:type="xs:string">GoogleEarth</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>composite</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>useNetworkLinkControlTag</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>endPointURL</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>linkDescription</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>linkName</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>message</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>useDefaultSnippets</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Props>
+						<TypeName>KmlServer</TypeName>
+					</SVCExtension>
+					<SVCExtension xsi:type="typens:SVCExtension">
+						<Enabled>false</Enabled>
+						<Info xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebEnabled</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebCapabilities</Key>
+									<Value xsi:nil="true"/>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Info>
+						<Props xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>saveLayerOnServerWhenError</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>defaultOutputGeometryPrecision</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>route_MaxBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>route_MaxFeaturesInLineBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>route_MaxFeaturesInPolygonBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>route_MaxStops</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>route_ForceHierarchyBeyondDistance</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_MaxBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_MaxFeaturesInLineBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_MaxFeaturesInPolygonBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_MaxFacilities</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_MaxBreakValue_Time</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_MaxBreakValue_Length</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_MaxBreakValue_Other</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_ForceHierarchyBeyondTime</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_ForceHierarchyBeyondDistance</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceArea_ForceHierarchyBeyondOther</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>closestFacility_MaxBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>closestFacility_MaxIncidents</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>closestFacility_MaxFeaturesInLineBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>closestFacility_MaxFacilitiesToFind</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>closestFacility_MaxFeaturesInPolygonBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>closestFacility_MaxFacilities</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>closestFacility_ForceHierarchyBeyondDistance</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>oDCostMatrix_MaxBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>oDCostMatrix_MaxFeaturesInLineBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>oDCostMatrix_MaxDestinationsToFind</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>oDCostMatrix_MaxFeaturesInPolygonBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>oDCostMatrix_MaxDestinations</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>oDCostMatrix_MaxOrigins</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>oDCostMatrix_ForceHierarchyBeyondDistance</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>vRP_MaxBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>vRP_MaxFeaturesInLineBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>vRP_MaxFeaturesInPolygonBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>vRP_MaxOrders</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>vRP_MaxRoutes</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>vRP_ForceHierarchyBeyondDistance</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>locationAllocation_MaxBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>locationAllocation_MaxFeaturesInLineBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>locationAllocation_MaxFeaturesInPolygonBarriers</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>locationAllocation_MaxDemandPoints</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>locationAllocation_MaxFacilities</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>locationAllocation_ForceHierarchyBeyondDistance</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Props>
+						<TypeName>NAServer</TypeName>
+					</SVCExtension>
+					<SVCExtension xsi:type="typens:SVCExtension">
+						<Enabled>false</Enabled>
+						<Info xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebEnabled</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebCapabilities</Key>
+									<Value xsi:nil="true"/>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Info>
+						<Props xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>onlineResource</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>appSchemaURI</Key>
+									<Value xsi:type="xs:string">WFS</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>appSchemaPrefix</Key>
+									<Value xsi:type="xs:string">psl_test</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>customGetCapabilities</Key>
+									<Value xsi:type="xs:string">false</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>pathToCustomGetCapabilitiesFiles</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>enableTransactions</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>axisOrderWFS10</Key>
+									<Value xsi:type="xs:string">LongLat</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>axisOrderWFS11</Key>
+									<Value xsi:type="xs:string">LatLong</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>name</Key>
+									<Value xsi:type="xs:string">psl_test</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>title</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>abstract</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>keyword</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceType</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceTypeVersion</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>fees</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>accessConstraints</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>providerName</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>providerSite</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>individualName</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>positionName</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>phone</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>facsimile</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>deliveryPoint</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>city</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>administrativeArea</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>postalCode</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>country</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>electronicMailAddress</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>hoursOfService</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>contactInstructions</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>role</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Props>
+						<TypeName>WFSServer</TypeName>
+					</SVCExtension>
+					<SVCExtension xsi:type="typens:SVCExtension">
+						<Enabled>false</Enabled>
+						<Info xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebEnabled</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebCapabilities</Key>
+									<Value xsi:nil="true"/>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Info>
+						<Props xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>onlineResource</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>customGetCapabilities</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>pathToCustomGetCapabilitiesFiles</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>name</Key>
+									<Value xsi:type="xs:string">psl_test</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>title</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>abstract</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>keywords</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>fees</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>accessConstraints</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>maxImageWidth</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>maxImageHeight</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>providerName</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>providerWebsite</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>responsiblePerson</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>responsiblePosition</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>phone</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>fax</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>email</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>address</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>city</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>province</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>zipcode</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>country</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>serviceHour</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>contactInstructions</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>role</Key>
+									<Value xsi:type="xs:string"/>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Props>
+						<TypeName>WCSServer</TypeName>
+					</SVCExtension>
+					<SVCExtension xsi:type="typens:SVCExtension">
+						<Enabled>false</Enabled>
+						<Info xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebEnabled</Key>
+									<Value xsi:type="xs:string">true</Value>
+								</PropertySetProperty>
+								<PropertySetProperty xsi:type="typens:PropertySetProperty">
+									<Key>WebCapabilities</Key>
+									<Value xsi:type="xs:string">Query</Value>
+								</PropertySetProperty>
+							</PropertyArray>
+						</Info>
+						<Props xsi:type="typens:PropertySet">
+							<PropertyArray xsi:type="typens:ArrayOfPropertySetProperty"/>
+						</Props>
+						<TypeName>SchematicsServer</TypeName>
+					</SVCExtension>
+				</Extensions>
+				<Cluster>default</Cluster>
+			</Definition>
+		</SVCConfiguration>
+	</Configurations>
+	<CacheSchema xsi:type="typens:CacheInfo">
+		<TileCacheInfo xsi:type="typens:TileCacheInfo">
+			<SpatialReference xsi:type="typens:ProjectedCoordinateSystem">
+				<WKT>PROJCS[&quot;WGS_1984_Web_Mercator_Auxiliary_Sphere&quot;,GEOGCS[&quot;GCS_WGS_1984&quot;,DATUM[&quot;D_WGS_1984&quot;,SPHEROID[&quot;WGS_1984&quot;,6378137.0,298.257223563]],PRIMEM[&quot;Greenwich&quot;,0.0],UNIT[&quot;Degree&quot;,0.0174532925199433]],PROJECTION[&quot;Mercator_Auxiliary_Sphere&quot;],PARAMETER[&quot;False_Easting&quot;,0.0],PARAMETER[&quot;False_Northing&quot;,0.0],PARAMETER[&quot;Central_Meridian&quot;,0.0],PARAMETER[&quot;Standard_Parallel_1&quot;,0.0],PARAMETER[&quot;Auxiliary_Sphere_Type&quot;,0.0],UNIT[&quot;Meter&quot;,1.0],AUTHORITY[&quot;EPSG&quot;,3857]]</WKT>
+				<XOrigin>-20037700</XOrigin>
+				<YOrigin>-30241100</YOrigin>
+				<XYScale>148923141.92838538</XYScale>
+				<ZOrigin>-100000</ZOrigin>
+				<ZScale>10000</ZScale>
+				<MOrigin>-100000</MOrigin>
+				<MScale>10000</MScale>
+				<XYTolerance>0.001</XYTolerance>
+				<ZTolerance>0.001</ZTolerance>
+				<MTolerance>0.001</MTolerance>
+				<HighPrecision>true</HighPrecision>
+				<WKID>102100</WKID>
+				<LatestWKID>3857</LatestWKID>
+			</SpatialReference>
+			<TileOrigin xsi:type="typens:PointN">
+				<X>-20037508.342787001</X><Y>20037508.342787001</Y>
+			</TileOrigin>
+			<TileCols>256</TileCols>
+			<TileRows>256</TileRows>
+			<DPI>96</DPI>
+			<PreciseDPI>96</PreciseDPI>
+			<LODInfos xsi:type="typens:ArrayOfLODInfo">
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>0</LevelID>
+					<Scale>591657527.591555</Scale>
+					<Resolution>156543.03392799999</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>1</LevelID>
+					<Scale>295828763.79577702</Scale>
+					<Resolution>78271.516963999893</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>2</LevelID>
+					<Scale>147914381.89788899</Scale>
+					<Resolution>39135.758482000099</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>3</LevelID>
+					<Scale>73957190.948944002</Scale>
+					<Resolution>19567.879240999901</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>4</LevelID>
+					<Scale>36978595.474472001</Scale>
+					<Resolution>9783.9396204999593</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>5</LevelID>
+					<Scale>18489297.737236001</Scale>
+					<Resolution>4891.9698102499797</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>6</LevelID>
+					<Scale>9244648.8686180003</Scale>
+					<Resolution>2445.9849051249898</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>7</LevelID>
+					<Scale>4622324.4343090001</Scale>
+					<Resolution>1222.9924525624899</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>8</LevelID>
+					<Scale>2311162.2171550002</Scale>
+					<Resolution>611.49622628138002</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>9</LevelID>
+					<Scale>1155581.108577</Scale>
+					<Resolution>305.74811314055802</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>10</LevelID>
+					<Scale>577790.55428899999</Scale>
+					<Resolution>152.874056570411</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>11</LevelID>
+					<Scale>288895.27714399999</Scale>
+					<Resolution>76.437028285073197</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>12</LevelID>
+					<Scale>144447.638572</Scale>
+					<Resolution>38.218514142536598</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>13</LevelID>
+					<Scale>72223.819285999998</Scale>
+					<Resolution>19.109257071268299</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>14</LevelID>
+					<Scale>36111.909642999999</Scale>
+					<Resolution>9.5546285356341496</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>15</LevelID>
+					<Scale>18055.954822</Scale>
+					<Resolution>4.7773142679493699</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>16</LevelID>
+					<Scale>9027.9774109999998</Scale>
+					<Resolution>2.38865713397468</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>17</LevelID>
+					<Scale>4513.9887049999998</Scale>
+					<Resolution>1.1943285668550501</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>18</LevelID>
+					<Scale>2256.994353</Scale>
+					<Resolution>0.59716428355981699</Resolution>
+				</LODInfo>
+				<LODInfo xsi:type="typens:LODInfo">
+					<LevelID>19</LevelID>
+					<Scale>1128.4971760000001</Scale>
+					<Resolution>0.29858214164761698</Resolution>
+				</LODInfo>
+			</LODInfos>
+		</TileCacheInfo>
+		<TileImageInfo xsi:type="typens:TileImageInfo">
+			<CacheTileFormat>PNG</CacheTileFormat>
+			<CompressionQuality>0</CompressionQuality>
+			<Antialiasing>false</Antialiasing>
+		</TileImageInfo>
+		<CacheStorageInfo xsi:type="typens:CacheStorageInfo">
+			<StorageFormat>esriMapCacheStorageModeCompact</StorageFormat>
+			<PacketSize>128</PacketSize>
+		</CacheStorageInfo>
+	</CacheSchema>
+	<ItemInfo xsi:type="typens:ItemInfo">
+		<Name/>
+		<GUID/>
+		<Type/>
+		<TypeKeywords xsi:nil="true"/>
+		<CatalogPath/>
+		<Title/>
+		<Description>Testing the additional arguments capabilities</Description>
+		<Snippet>Test Summary</Snippet>
+		<AccessInformation/>
+		<MinScale>0</MinScale>
+		<MaxScale>0</MaxScale>
+		<Credits/>
+		<spatialReference/>
+	</ItemInfo>
+	<InitCacheLevels xsi:type="typens:SVCInitialCache">
+		<Extent xsi:type="typens:EnvelopeN">
+			<XMin>147.65525495898387</XMin>
+			<YMin>-28.427591254589814</YMin>
+			<XMax>151.59688603320313</XMax>
+			<YMax>-20.819279977832085</YMax>
+			<SpatialReference xsi:type="typens:GeographicCoordinateSystem">
+				<WKT>GEOGCS[&quot;GCS_GDA_1994&quot;,DATUM[&quot;D_GDA_1994&quot;,SPHEROID[&quot;GRS_1980&quot;,6378137.0,298.257222101]],PRIMEM[&quot;Greenwich&quot;,0.0],UNIT[&quot;Degree&quot;,0.0174532925199433],AUTHORITY[&quot;EPSG&quot;,4283]]</WKT>
+				<XOrigin>-400</XOrigin>
+				<YOrigin>-400</YOrigin>
+				<XYScale>11258999068426.24</XYScale>
+				<ZOrigin>0</ZOrigin>
+				<ZScale>1</ZScale>
+				<MOrigin>-100000</MOrigin>
+				<MScale>10000</MScale>
+				<XYTolerance>8.9831528411952133e-009</XYTolerance>
+				<ZTolerance>2</ZTolerance>
+				<MTolerance>2</MTolerance>
+				<HighPrecision>true</HighPrecision>
+				<LeftLongitude>-180</LeftLongitude>
+				<WKID>4283</WKID>
+				<LatestWKID>4283</LatestWKID>
+			</SpatialReference>
+		</Extent>
+		<ExtentsSourceFeatureClass/>
+		<InitialCacheInfos xsi:type="typens:ArrayOfSVCInitialCacheInfo">
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>7</LevelID>
+				<Scale>4622324.4343090001</Scale>
+				<Size>0</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>8</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>8</LevelID>
+				<Scale>2311162.2171550002</Scale>
+				<Size>0</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>28</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>9</LevelID>
+				<Scale>1155581.108577</Scale>
+				<Size>0</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>91</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>10</LevelID>
+				<Scale>577790.55428899999</Scale>
+				<Size>0</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>325</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>11</LevelID>
+				<Scale>288895.27714399999</Scale>
+				<Size>3</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>1152</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>12</LevelID>
+				<Scale>144447.638572</Scale>
+				<Size>12</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>4416</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>13</LevelID>
+				<Scale>72223.819285999998</Scale>
+				<Size>51</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>17472</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>14</LevelID>
+				<Scale>36111.909642999999</Scale>
+				<Size>202</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>69142</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>15</LevelID>
+				<Scale>18055.954822</Scale>
+				<Size>804</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>274680</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>16</LevelID>
+				<Scale>9027.9774109999998</Scale>
+				<Size>3214</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>1097194</NumberOfTiles>
+			</SVCInitialCacheInfo>
+			<SVCInitialCacheInfo xsi:type="typens:SVCInitialCacheInfo">
+				<LevelID>17</LevelID>
+				<Scale>4513.9887049999998</Scale>
+				<Size>12835</Size>
+				<IsStatisticalEstimate>false</IsStatisticalEstimate>
+				<NumberOfTiles>4381236</NumberOfTiles>
+			</SVCInitialCacheInfo>
+		</InitialCacheInfos>
+		<CacheMethod>0</CacheMethod>
+		<IsFullExtent>true</IsFullExtent>
+	</InitCacheLevels>
+</SVCManifest>
