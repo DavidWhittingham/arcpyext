@@ -3,8 +3,10 @@ from .arc_py_ext_error import ArcPyExtError
 class ChangeDataSourcesError(ArcPyExtError):
     """description of class"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, message, errors = None):
+        super(ChangeDataSourcesError, self).__init__(message)
+        self._errors = errors
 
-        self.errors = kwargs.pop("errors", None)
-
-        return super(ChangeDataSourcesError, self).__init__(*args, **kwargs)
+    @property
+    def errors(self):
+        return self._errors
