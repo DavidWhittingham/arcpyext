@@ -1,4 +1,5 @@
 from .map_layer_error import MapLayerError
 
 class DataSourceUpdateError(MapLayerError):
-    """description of class"""
+    """Error raised when a datasource fails to change for a given layer."""
+    pass

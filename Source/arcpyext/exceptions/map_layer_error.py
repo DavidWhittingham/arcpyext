@@ -1,10 +1,12 @@
 from .arc_py_ext_error import ArcPyExtError
 
 class MapLayerError(ArcPyExtError):
-    """description of class"""
+    """ArcPyExt exception for errors involving map layers."""
 
-    def __init__(self, *args, **kwargs):
-
-        self.layer = kwargs.pop("layer", None)
-
-        return super(MapLayerError, self).__init__(*args, **kwargs)
+    def __init__(self, message, layer, innerError = None):
+        super(MapLayerError, self).__init__(message, innerError)
+        self._layer = layer
+        
+    @property
+    def layer(self):
+        return self._layer
