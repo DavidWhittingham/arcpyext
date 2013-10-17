@@ -1,14 +1,21 @@
-from ez_setup import use_setuptools
-use_setuptools()
-    
 import arcpyext
 
-from setuptools import setup, find_packages
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
+packages = [
+    "arcpyext",
+    "arcpyext.data",
+    "arcpyext.exceptions",
+    "arcpyext.mapping"
+]
 
 setup(
     name = "arcpyext",
     version = arcpyext.__version__,
-    packages = find_packages(),
+    packages = packages,
     
     #misc files to include
     package_data = {
