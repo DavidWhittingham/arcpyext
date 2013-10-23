@@ -27,7 +27,7 @@ setup(
     description = "Extended functionality for Esri's ArcPy site-package",
     license = "BSD 3-Clause",
     keywords = "arcgis esri arcpy",
-    url = "https://github.com/DavidWhittingham/agstools",
+    url = "https://github.com/DavidWhittingham/arcpyext",
     classifiers=(
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
