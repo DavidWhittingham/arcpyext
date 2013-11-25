@@ -28,7 +28,7 @@ setup(
     license = "BSD 3-Clause",
     keywords = "arcgis esri arcpy",
     url = "https://github.com/DavidWhittingham/arcpyext",
-    classifiers=(
+    classifiers = (
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Natural Language :: English",
