@@ -37,7 +37,7 @@ def change_data_sources(map, data_sources):
                     print(u"Layer '{0}': Current datasource: '{1}'".format(layer.longName, layer.dataSource))
 
                 print(u"Layer '{0}': Attempting to change workspace path".format(layer.longName))
-                _change_data_source(layer, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"))
+                _change_data_source(layer, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("userName"))
                 print(u"Layer '{0}': Workspace path updated to: '{1}'".format(layer.name, layer_source["workspacePath"]))
 
                 if layer.supports("dataSource"):
@@ -57,7 +57,7 @@ def change_data_sources(map, data_sources):
                 continue
 
             print(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name))
-            _change_data_source(data_table, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"))
+            _change_data_source(data_table, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("userName"))
             print(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source["workspacePath"]))
 
         except MapLayerError as mle:
@@ -85,7 +85,7 @@ def create_replacement_data_sources_list(document_data_sources_list, data_source
     
     return {
         "layers": [[match_new_data_source(layer) for layer in df] for df in document_data_sources_list["layers"]],
-        "tableViews": [[match_new_data_source(table) for table in df] for df in document_data_sources_list["tableViews"]]
+        "tableViews": [match_new_data_source(table) for table in document_data_sources_list["tableViews"]]
     }
 
 def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None):
@@ -208,9 +208,10 @@ def validate_map(map):
         
     return True
         
-def _change_data_source(layer, workspace_path, dataset_name = None, workspace_type = None):
+def _change_data_source(layer, workspace_path, dataset_name = None, workspace_type = None, user_name = None):
     try:
-        if (isinstance(layer, arcpy.mapping.TableView) or layer.supports("workspacePath")) and (dataset_name == None and workspace_type == None):
+        if ((isinstance(layer, arcpy.mapping.TableView) or layer.supports("workspacePath")) and 
+            (dataset_name == None and workspace_type == None and user_name == None)):
             # if just changing workspace path (e.g. new database connection)
             layer.findAndReplaceWorkspacePath("", workspace_path, validate = False)
             return
@@ -221,6 +222,14 @@ def _change_data_source(layer, workspace_path, dataset_name = None, workspace_ty
         kwargs = { "validate": False }
         
         if dataset_name != None:
+            if (user_name != None):
+                ds_user, ds_name, fc_user, fc_name = _parse_data_source(dataset_name)
+                
+                if (ds_name != None):
+                    dataset_name = "\\{0}.{1}\\{0}.{2}".format(user_name, ds_name, fc_name)
+                else:
+                    dataset_name = "{0}.{1}".format(user_name, fc_name)
+
             kwargs["dataset_name"] = dataset_name
             
         if workspace_type != None:
@@ -233,6 +242,7 @@ def _change_data_source(layer, workspace_path, dataset_name = None, workspace_ty
     
     if layer.isBroken:
         raise DataSourceUpdateError("Layer is now broken.", layer)
+
         
 def _get_layer_details(layer):
     if layer.isGroupLayer:
@@ -270,3 +280,26 @@ def _get_table_details(table):
         "definitionQuery": table.definitionQuery,
         "workspacePath": table.workspacePath
     }
+
+def _parse_data_source(data_source):
+    """Takes a string describing a data source and returns a four-part tuple describing the dataset username, dataset 
+    name, feature class username and feature class name"""
+
+    dataset_regex = re.compile(
+                        r"^(?:\\\\)?(?P<ds_user>[\w]*?)(?:\.)?(?P<ds_name>[\w]*?(?=\\\\))(?:\\\\)?(?P<fc_user>[\w]*?(?=\.))(?:\.)(?P<fc_name>[\w]*?)$",
+                        re.IGNORECASE)
+
+    r = dataset_regex.search(data_source)
+
+    if r == None:
+        feature_class_regex = re.compile(
+                                r"^(?:\\\\)?(?P<fc_user>[\w]*?(?=\.))(?:\.)(?P<fc_name>[\w]*?)$",
+                                re.IGNORECASE)
+        r = feature_class_regex.search(data_source)
+
+    if r == None:
+        return (None, None, None, data_source)
+
+    r = r.groupdict()
+
+    return (r.get("ds_user"), r.get("ds_name"), r.get("fc_user"), r.get("fc_name"))
