@@ -37,7 +37,7 @@ def change_data_sources(map, data_sources):
                     print(u"Layer '{0}': Current datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
 
                 print(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode("ascii", "ignore"))
-                _change_data_source(layer, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("userName"))
+                _change_data_source(layer, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("schema"))
                 print(u"Layer '{0}': Workspace path updated to: '{1}'".format(layer.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
 
                 if layer.supports("dataSource"):
@@ -57,7 +57,7 @@ def change_data_sources(map, data_sources):
                 continue
 
             print(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode("ascii", "ignore"))
-            _change_data_source(data_table, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("userName"))
+            _change_data_source(data_table, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("schema"))
             print(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
 
         except MapLayerError as mle:
@@ -208,10 +208,10 @@ def validate_map(map):
         
     return True
         
-def _change_data_source(layer, workspace_path, dataset_name = None, workspace_type = None, user_name = None):
+def _change_data_source(layer, workspace_path, dataset_name = None, workspace_type = None, schema = None):
     try:
         if ((isinstance(layer, arcpy.mapping.TableView) or layer.supports("workspacePath")) and 
-            (dataset_name == None and workspace_type == None and user_name == None)):
+            (dataset_name == None and workspace_type == None and schema == None)):
             # if just changing workspace path (e.g. new database connection)
             layer.findAndReplaceWorkspacePath("", workspace_path, validate = False)
             return
@@ -222,13 +222,13 @@ def _change_data_source(layer, workspace_path, dataset_name = None, workspace_ty
         kwargs = { "validate": False }
         
         if dataset_name != None:
-            if (user_name != None):
+            if (schema != None):
                 ds_user, ds_name, fc_user, fc_name = _parse_data_source(dataset_name)
                 
                 if (ds_name != None):
-                    dataset_name = "\\{0}.{1}\\{0}.{2}".format(user_name, ds_name, fc_name)
+                    dataset_name = "\\{0}.{1}\\{0}.{2}".format(schema, ds_name, fc_name)
                 else:
-                    dataset_name = "{0}.{1}".format(user_name, fc_name)
+                    dataset_name = "{0}.{1}".format(schema, fc_name)
 
             kwargs["dataset_name"] = dataset_name
             
