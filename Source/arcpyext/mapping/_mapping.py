@@ -34,14 +34,14 @@ def change_data_sources(map, data_sources):
 
 
                 if layer.supports("dataSource"):
-                    print(u"Layer '{0}': Current datasource: '{1}'".format(layer.longName, layer.dataSource))
+                    print(u"Layer '{0}': Current datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
 
-                print(u"Layer '{0}': Attempting to change workspace path".format(layer.longName))
+                print(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode("ascii", "ignore"))
                 _change_data_source(layer, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("userName"))
-                print(u"Layer '{0}': Workspace path updated to: '{1}'".format(layer.name, layer_source["workspacePath"]))
+                print(u"Layer '{0}': Workspace path updated to: '{1}'".format(layer.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
 
                 if layer.supports("dataSource"):
-                    print(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource))
+                    print(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
 
             except MapLayerError as mle:
                 errors.append(mle)
@@ -56,9 +56,9 @@ def change_data_sources(map, data_sources):
             if layer_source == None:
                 continue
 
-            print(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name))
+            print(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode("ascii", "ignore"))
             _change_data_source(data_table, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("userName"))
-            print(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source["workspacePath"]))
+            print(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
 
         except MapLayerError as mle:
             errors.append(mle)
