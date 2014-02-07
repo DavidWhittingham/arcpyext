@@ -16,7 +16,7 @@ def change_data_sources(map, data_sources):
     layers_by_df = [arcpy.mapping.ListLayers(df) for df in arcpy.mapping.ListDataFrames(map)]
     
     if not 'layers' in data_sources or not 'tableViews' in data_sources:
-            raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
+        raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
     
     for layers, layer_sources in izip_longest(layers_by_df, data_sources["layers"]):
         
@@ -210,9 +210,13 @@ def validate_map(map):
         
 def _change_data_source(layer, workspace_path, dataset_name = None, workspace_type = None, schema = None):
     try:
-        if ((isinstance(layer, arcpy.mapping.TableView) or layer.supports("workspacePath")) and 
+        if ((not hasattr(layer, "supports") or layer.supports("workspacePath")) and
             (dataset_name == None and workspace_type == None and schema == None)):
-            # if just changing workspace path (e.g. new database connection)
+
+            # Tests if layer is actually a layer object (i.e. has a "support" function) or table view (which doesn't, 
+            # but always supports "workspacePath").  Can't test on type (arcpy.mapping.TableView) as that doesn't work 
+            # on ArcPy 10.0
+
             layer.findAndReplaceWorkspacePath("", workspace_path, validate = False)
             return
         
@@ -240,7 +244,7 @@ def _change_data_source(layer, workspace_path, dataset_name = None, workspace_ty
     except Exception, e:
         raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
     
-    if layer.isBroken:
+    if hasattr(layer, "isBroken") and layer.isBroken:
         raise DataSourceUpdateError("Layer is now broken.", layer)
 
         
