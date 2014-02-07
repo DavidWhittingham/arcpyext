@@ -219,11 +219,14 @@ def _change_data_source(layer, workspace_path, dataset_name = None, workspace_ty
 
             layer.findAndReplaceWorkspacePath("", workspace_path, validate = False)
             return
-        
-        if layer.supports("datasetName") and dataset_name == None:
-            dataset_name = layer.datasetName
             
         kwargs = { "validate": False }
+
+        if dataset_name == None and hasattr(layer, "supports") and layer.supports("datasetName"):
+            if layer.supports("workspacePath"):
+                dataset_name = layer.dataSource.replace(layer.workspacePath, "")
+            else:
+                dataset_name = layer.datasetName
         
         if dataset_name != None:
             if (schema != None):
@@ -290,14 +293,14 @@ def _parse_data_source(data_source):
     name, feature class username and feature class name"""
 
     dataset_regex = re.compile(
-                        r"^(?:\\\\)?(?P<ds_user>[\w]*?)(?:\.)?(?P<ds_name>[\w]*?(?=\\\\))(?:\\\\)?(?P<fc_user>[\w]*?(?=\.))(?:\.)(?P<fc_name>[\w]*?)$",
+                        r"^(?:\\)?(?P<ds_user>[\w]*?)(?:\.)?(?P<ds_name>[\w]*?(?=\\))(?:\\)?(?P<fc_user>[\w]*?(?=\.))(?:\.)(?P<fc_name>[\w]*?)$",
                         re.IGNORECASE)
 
     r = dataset_regex.search(data_source)
 
     if r == None:
         feature_class_regex = re.compile(
-                                r"^(?:\\\\)?(?P<fc_user>[\w]*?(?=\.))(?:\.)(?P<fc_name>[\w]*?)$",
+                                r"^(?:\\)?(?P<fc_user>[\w]*?(?=\.))(?:\.)(?P<fc_name>[\w]*?)$",
                                 re.IGNORECASE)
         r = feature_class_regex.search(data_source)
 
