@@ -232,10 +232,7 @@ def _change_data_source(layer, workspace_path, dataset_name = None, workspace_ty
             if (schema != None):
                 ds_user, ds_name, fc_user, fc_name = _parse_data_source(dataset_name)
                 
-                if (ds_name != None):
-                    dataset_name = "\\{0}.{1}\\{0}.{2}".format(schema, ds_name, fc_name)
-                else:
-                    dataset_name = "{0}.{1}".format(schema, fc_name)
+                dataset_name = "{0}.{1}".format(schema, fc_name)
 
             kwargs["dataset_name"] = dataset_name
             
