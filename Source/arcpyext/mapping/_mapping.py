@@ -98,7 +98,7 @@ def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name =
                     err_message_list.append("{message} (CODE {code})".format(message = message, code = code))
                 else:
                     err_message_list.append("{message} (CODE {code}) applies to: {layers}".format(
-                                                message = message, code = code, layers = ", ".join(layerlist)))
+                                                message = message, code = code, layers = ", ".join([layer.name for layer in layerlist])))
             raise ServDefDraftCreateError("Analysis Errors: \n{errs}".format(errs = "\n".join(err_message_list)))
 
     if not validate_map(map):
