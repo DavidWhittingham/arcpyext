@@ -28,8 +28,8 @@ class SDDraft(object):
     def anti_aliasing_mode(self, value):
         aa = self._get_anti_aliasing_element()
         self._set_element_value(aa, value)
-
-
+        
+    
     @property
     def cluster(self):
         return self._get_element_value(self._get_first_element_by_tag("Cluster"))
@@ -38,7 +38,7 @@ class SDDraft(object):
     def cluster(self, value):
         self._set_element_value(self._get_first_element_by_tag("Cluster"), value)
 
-
+        
     @property
     def description(self):
         description_props = self._get_description_elements()
@@ -48,7 +48,8 @@ class SDDraft(object):
     def description(self, value):
         for prop in self._get_description_elements():
             self._set_element_value(prop, value)
-
+    
+    
     @property
     def enabled_extensions(self):
         """Gets a list of the extensions (by type name) that are currently enabled for the service."""
@@ -66,16 +67,8 @@ class SDDraft(object):
     @property
     def file_path(self):
         return self._path
-
-    @property
-    def instances_per_container(self):
-        return self._get_element_value(self._get_instances_per_container_element())
-
-    @instances_per_container.setter
-    def instances_per_container(self, value):
-        self._set_element_value(self._get_instances_per_container_element(), value)
-
-
+    
+    
     @property
     def high_isolation(self):
         """Gets a boolean value that describes if the service is set to high isolation (true) or low isolation 
@@ -90,7 +83,31 @@ class SDDraft(object):
         self._set_element_value(self._get_isolation_element(), 
             "HIGH" if value == True else "LOW")
 
+    
+    @property
+    def instances_per_container(self):
+        return self._get_element_value(self._get_instances_per_container_element())
 
+    @instances_per_container.setter
+    def instances_per_container(self, value):
+        self._set_element_value(self._get_instances_per_container_element(), value)
+
+
+    @property
+    def keep_cache(self):
+        """Gets a boolean value that describes if the service is set to high isolation (true) or low isolation 
+        (false)."""
+        keep_cache_xml = self._get_first_element_by_tag("KeepExistingMapCache")
+        return True if keep_cache_xml.upper() == "TRUE" else False
+
+    @keep_cache.setter
+    def keep_cache(self, value):
+        """Sets a boolean value that describes if the service is set to high isolation (true) or low isolation 
+        (false)."""
+        self._set_element_value(self._get_first_element_by_tag("KeepExistingMapCache"), 
+            "true" if value == True else "false")
+    
+    
     @property
     def min_instances(self):
         return self._get_element_value(self._get_min_instances_element())
