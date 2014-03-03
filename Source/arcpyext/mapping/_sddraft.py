@@ -95,15 +95,19 @@ class SDDraft(object):
 
     @property
     def keep_cache(self):
-        """Gets a boolean value that describes if the service is set to high isolation (true) or low isolation 
-        (false)."""
-        keep_cache_xml = self._get_first_element_by_tag("KeepExistingMapCache")
-        return True if keep_cache_xml.upper() == "TRUE" else False
+        """Gets a boolean value that describes if the service should keep its cache on publish."""
+        keep_cache_value = self._get_element_value(self._get_first_element_by_tag("KeepExistingMapCache"))
+        return True if keep_cache_value.upper() == "TRUE" else False
 
     @keep_cache.setter
     def keep_cache(self, value):
-        """Sets a boolean value that describes if the service is set to high isolation (true) or low isolation 
-        (false)."""
+        """Sets a boolean value that describes if the service should keep its cache on publish."""
+        try:
+            value = value.upper()
+            value = True if value in ["TRUE", "T"] else False
+        except AttributeError:
+            pass
+            
         self._set_element_value(self._get_first_element_by_tag("KeepExistingMapCache"), 
             "true" if value == True else "false")
     
