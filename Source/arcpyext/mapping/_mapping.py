@@ -178,7 +178,7 @@ def list_document_data_sources(map):
     
     return {
         "layers": [[_get_layer_details(layer) for layer in arcpy.mapping.ListLayers(df)] for df in arcpy.mapping.ListDataFrames(map)],
-        "tableViews": [_get_table_details(layer) for table in arcpy.mapping.ListTableViews(map)]
+        "tableViews": [_get_table_details(table) for table in arcpy.mapping.ListTableViews(map)]
     }
         
 def validate_map(map):
