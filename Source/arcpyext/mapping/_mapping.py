@@ -67,7 +67,6 @@ def change_data_sources(map, data_sources):
         raise ChangeDataSourcesError("A number of errors were encountered whilst change layer data sources.", errors)
         
 def create_replacement_data_sources_list(document_data_sources_list, data_source_templates, raise_exception_no_change = False):
-    result = { "layers": [], "tableViews": [] }
     template_sets = [dict(template.items() + [("matchCriteria", set(template["matchCriteria"].items()))]) for template in data_source_templates]
     
     def match_new_data_source(item):
