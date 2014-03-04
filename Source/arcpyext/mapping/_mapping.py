@@ -45,13 +45,11 @@ def change_data_sources(map, data_sources):
 
             except MapLayerError as mle:
                 errors.append(mle)
-    
-    data_table_sources = data_sources['tableViews']
 
-    if not len(data_tables) == len(data_table_sources):
+    if not len(data_tables) == len(data_sources['tableViews']):
         raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
 
-    for data_table, layer_source in izip_longest(data_tables, data_table_sources):
+    for data_table, layer_source in izip_longest(data_tables, data_sources['tableViews']):
         try:
             if layer_source == None:
                 continue
