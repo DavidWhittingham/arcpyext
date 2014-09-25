@@ -11,9 +11,6 @@ def read_rows(in_table, where_clause = None, field_names = "*"):
         rows = [row for row in cursor]
     return rows
 
-def update_rows(edit_session, in_table, rows, where_clause = None, field_names = "*"):
-    _update_rows(edit_session, in_table, rows, where_clause, field_names)
-
 def update_rows_func(edit_session, in_table, update_func, where_clause = None, field_names = "*"):
     _update_rows_func(edit_session, in_table, update_func, where_clause, field_names)
 
@@ -47,12 +44,6 @@ def _delete_rows(edit_session, in_table, where_clause, field_names):
     with arcpy.da.UpdateCursor(in_table, field_names, where_clause) as cursor:
         for row in cursor:
             cursor.deleteRow()
-
-@_edit_handler
-def _update_rows(edit_session, in_table, rows, where_clause, field_names):
-    with arcpy.da.UpdateCursor(in_table, field_names, where_clause) as cursor:
-        for i, row in enumerate(cursor):
-            cursor.updateRow(rows[i])
 
 @_edit_handler
 def update_rows_func(edit_session, in_table, update_func, where_clause, field_names):
