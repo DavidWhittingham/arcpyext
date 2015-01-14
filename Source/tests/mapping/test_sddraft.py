@@ -4,6 +4,7 @@ import os.path
 import arcpyext
 
 SDDRAFT_FILE_PATH = "{0}/samples/example.sddraft".format(os.path.dirname(__file__))
+SDDRAFT_SAVE_TEST_FILE_PATH = "{0}/samples/example.savetest.sddraft".format(os.path.dirname(__file__))
 
 def pytest_funcarg__sddraft():
     return arcpyext.mapping.SDDraft(SDDRAFT_FILE_PATH)
@@ -19,13 +20,16 @@ def test_aa_mode(sddraft, mode):
     sddraft.anti_aliasing_mode = mode
     assert sddraft.anti_aliasing_mode == mode
 
-@pytest.mark.parametrize(("cluster_name"), [
-    ("Default"),
-    ("NonDefaultCluster")
+@pytest.mark.parametrize(("cluster_name", "expected"), [
+    ("Default", ["Default"]),
+    ("NonDefaultCluster", ["NonDefaultCluster"]),
+    (["foo", "bar"], ["foo", "bar"]),
+    ("foo,bar", ["foo", "bar"]),
+    ("foo, bar, test", ["foo", "bar", "test"])
 ])
-def test_cluster(sddraft, cluster_name):
+def test_cluster(sddraft, cluster_name, expected):
     sddraft.cluster = cluster_name
-    assert sddraft.cluster == cluster_name
+    assert set(sddraft.cluster) == set(expected)
 
 @pytest.mark.parametrize(("description"), [
     ("This is a test description"),
@@ -52,19 +56,35 @@ def test_enabled_extensions(sddraft, enabled_extensions):
 def test_file_path(sddraft, file_path, equal):
     assert (os.path.normpath(sddraft.file_path) == os.path.normpath(file_path)) == equal
 
-@pytest.mark.parametrize(("instances"), [
-    (1), (2), (8)
-])
-def test_instances_per_container(sddraft, instances):
-    sddraft.instances_per_container = instances
-    assert sddraft.instances_per_container == instances
-
 @pytest.mark.parametrize(("high_isolation"), [
     (True), (False), (1), (0)
 ])
 def test_high_isolation(sddraft, high_isolation):
     sddraft.high_isolation = high_isolation
     assert sddraft.high_isolation == bool(high_isolation)
+    
+@pytest.mark.parametrize(("instances"), [
+    (1), (2), (8)
+])
+def test_instances_per_container(sddraft, instances):
+    sddraft.instances_per_container = instances
+    assert sddraft.instances_per_container == instances
+    
+@pytest.mark.parametrize(("keep_cache", "expected"), [
+    (True, True),
+    ("TRUE", True),
+    ("T", True),
+    ("tRUe", True),
+    ("t", True),
+    (False, False),
+    ("FALSE", False),
+    ("F", False),
+    ("faLSe", False),
+    ("f", False)
+])
+def test_keep_cache(sddraft, keep_cache, expected):
+    sddraft.keep_cache = keep_cache
+    assert sddraft.keep_cache == expected
 
 @pytest.mark.parametrize(("number", "raises_ex", "ex"), [
     (-1, True, ValueError), (0, False, None), (2, False, None), (8, False, None)
@@ -109,6 +129,13 @@ def test_replace_existing(sddraft, replace):
     sddraft.replace_existing = replace
     assert sddraft.replace_existing == bool(replace)
 
+@pytest.mark.parametrize(("output"), [
+    (SDDRAFT_SAVE_TEST_FILE_PATH)
+])
+def test_save_a_copy(sddraft, output):
+    sddraft.save_a_copy(output)
+    assert os.path.isfile(output) == True
+    
 @pytest.mark.parametrize(("summary"), [
     ("A test summary"), ("A test summary.\nIt also has line breaks."), ("")
 ])
