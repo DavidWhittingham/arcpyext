@@ -1,3 +1,4 @@
+import codecs
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as DOM
 
@@ -204,10 +205,10 @@ class SDDraft(object):
         # ElementTree doesn't escape double quotes in element values where as the original SD Draft file from Esri does
         # Using Minidom because it escapes double quotes, just to be sure we're compatible
 
-        f = open(path, 'w')
+        f = codecs.open(path, 'w', "utf-8")
         xml_string = ET.tostring(self._xmltree.getroot())
-        xml = DOM.parseString(xml_string)
-        xml.writexml(f)
+        xml = DOM.parseString(xml_string.encode("utf-8"))
+        xml.writexml(f, encoding = "utf-8")
         f.close()
 
     ###################
