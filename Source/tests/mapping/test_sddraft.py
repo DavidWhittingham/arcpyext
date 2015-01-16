@@ -1,20 +1,23 @@
-import pytest
+import datetime
 import os.path
 
 import arcpyext
+import pytest
+
+from arcpyext.mapping import SDDraft
 
 SDDRAFT_FILE_PATH = "{0}/samples/example.sddraft".format(os.path.dirname(__file__))
 SDDRAFT_SAVE_TEST_FILE_PATH = "{0}/samples/example.savetest.sddraft".format(os.path.dirname(__file__))
 
 def pytest_funcarg__sddraft():
-    return arcpyext.mapping.SDDraft(SDDRAFT_FILE_PATH)
+    return SDDraft(SDDRAFT_FILE_PATH)
 
 @pytest.mark.parametrize(("mode"), [
-    (arcpyext.mapping.SDDraft.ANTI_ALIASING_MODES.NONE),
-    (arcpyext.mapping.SDDraft.ANTI_ALIASING_MODES.FASTEST),
-    (arcpyext.mapping.SDDraft.ANTI_ALIASING_MODES.FAST),
-    (arcpyext.mapping.SDDraft.ANTI_ALIASING_MODES.NORMAL),
-    (arcpyext.mapping.SDDraft.ANTI_ALIASING_MODES.BEST)
+    (SDDraft.ANTI_ALIASING_MODES.NONE),
+    (SDDraft.ANTI_ALIASING_MODES.FASTEST),
+    (SDDraft.ANTI_ALIASING_MODES.FAST),
+    (SDDraft.ANTI_ALIASING_MODES.NORMAL),
+    (SDDraft.ANTI_ALIASING_MODES.BEST)
 ])
 def test_aa_mode(sddraft, mode):
     sddraft.anti_aliasing_mode = mode
@@ -41,13 +44,27 @@ def test_description(sddraft, description):
     assert sddraft.description == description
 
 @pytest.mark.parametrize(("enabled_extensions"), [
-    ([arcpyext.mapping.SDDraft.EXTENSIONS.KMLSERVER]),
-    ([arcpyext.mapping.SDDraft.EXTENSIONS.KMLSERVER, arcpyext.mapping.SDDraft.EXTENSIONS.MOBILESERVER]),
+    ([SDDraft.EXTENSIONS.KMLSERVER]),
+    ([SDDraft.EXTENSIONS.KMLSERVER, SDDraft.EXTENSIONS.MOBILESERVER]),
     ([])
 ])
 def test_enabled_extensions(sddraft, enabled_extensions):
     sddraft.enabled_extensions = enabled_extensions
     assert set(sddraft.enabled_extensions) == set(enabled_extensions)
+    
+@pytest.mark.parametrize(("enabled_ops", "expected", "ex"), [
+    (["Query"], ["Query"], None),
+    (["quErY"], ["Query"], None),
+    ([SDDraft.FEATURE_ACCESS_OPERATIONS.CREATE, SDDraft.FEATURE_ACCESS_OPERATIONS.UPDATE], ["Create", "Update"], None),
+    (["Foo", "Bar"], None, ValueError)
+])
+def test_feature_access_enabled_operations(sddraft, enabled_ops, expected, ex):
+    if (ex != None):
+        with pytest.raises(ex):
+            sddraft.feature_access_enabled_operations = enabled_ops
+    else:
+        sddraft.feature_access_enabled_operations = enabled_ops
+        assert set(sddraft.feature_access_enabled_operations) == set(expected)
 
 @pytest.mark.parametrize(("file_path", "equal"), [
     (SDDRAFT_FILE_PATH, True),
@@ -62,6 +79,20 @@ def test_file_path(sddraft, file_path, equal):
 def test_high_isolation(sddraft, high_isolation):
     sddraft.high_isolation = high_isolation
     assert sddraft.high_isolation == bool(high_isolation)
+    
+@pytest.mark.parametrize(("timeout", "ex"), [
+    (0, None),
+    (100, None),
+    (99999, None),
+    (-10, ValueError)
+])
+def test_idle_timeout(sddraft, timeout, ex):
+    if ex != None:
+        with pytest.raises(ex):
+            sddraft.idle_timeout = timeout
+    else:
+        sddraft.idle_timeout = timeout
+        assert sddraft.idle_timeout == timeout
     
 @pytest.mark.parametrize(("instances"), [
     (1), (2), (8)
@@ -80,54 +111,117 @@ def test_instances_per_container(sddraft, instances):
     ("FALSE", False),
     ("F", False),
     ("faLSe", False),
-    ("f", False)
+    ("f", False),
+    (1, True),
+    (0, False),
+    (2, False),
+    (-1, False)
 ])
 def test_keep_cache(sddraft, keep_cache, expected):
     sddraft.keep_cache = keep_cache
     assert sddraft.keep_cache == expected
-
-@pytest.mark.parametrize(("number", "raises_ex", "ex"), [
-    (-1, True, ValueError), (0, False, None), (2, False, None), (8, False, None)
+    
+@pytest.mark.parametrize(("min_number", "max_number", "ex"), [
+    (0, -1, ValueError),
+    (0, 0, ValueError),
+    (0, 2, None),
+    (1, 8, None), 
+    (5, 2, ValueError)
 ])
-def test_min_instances(sddraft, number, raises_ex, ex):
-    if (raises_ex):
+def test_max_instances(sddraft, min_number, max_number, ex):
+    sddraft.min_instances = min_number
+
+    if (ex != None):
+        with pytest.raises(ex):
+            sddraft.max_instances = max_number
+    else:
+        sddraft.max_instances = max_number
+        assert sddraft.max_instances == max_number
+        
+@pytest.mark.parametrize(("number", "ex"), [
+    (-1, ValueError),
+    (0, None),
+    (200, None),
+    (8000, None)
+])
+def test_max_record_count(sddraft, number, ex):
+    if (ex != None):
+        with pytest.raises(ex):
+            sddraft.max_record_count = number
+    else:
+        sddraft.max_record_count = number
+        assert sddraft.max_record_count == number
+
+@pytest.mark.parametrize(("number", "ex"), [
+    (-1, ValueError),
+    (0, None),
+    (2, None),
+    (8, None)
+])
+def test_min_instances(sddraft, number, ex):
+    if (ex != None):
         with pytest.raises(ex):
             sddraft.min_instances = number
     else:
         sddraft.min_instances = number
         assert sddraft.min_instances == number
 
-@pytest.mark.parametrize(("min_number", "max_number", "raises_ex", "ex"), [
-    (0, -1, True, ValueError), (0, 0, True, ValueError), (0, 2, False, None), (1, 8, False, None), 
-    (5, 2, True, ValueError)
+@pytest.mark.parametrize(("name", "ex"), [
+    ("TestName", None), ("", ValueError)
 ])
-def test_max_instances(sddraft, min_number, max_number, raises_ex, ex):
-    sddraft.min_instances = min_number
-
-    if (raises_ex):
-        with pytest.raises(ex):
-            sddraft.max_instances = max_number
-    else:
-        sddraft.max_instances = max_number
-        assert sddraft.max_instances == max_number
-
-@pytest.mark.parametrize(("name", "raises_ex", "ex"), [
-    ("TestName", False, None), ("", True, ValueError)
-])
-def test_name(sddraft, name, raises_ex, ex):
-    if (raises_ex):
+def test_name(sddraft, name, ex):
+    if ex != None:
         with pytest.raises(ex):
             sddraft.name = name
     else:
         sddraft.name = name
         assert sddraft.name == name
 
-@pytest.mark.parametrize(("replace"), [
-    (True), (False), (1), (0)
+@pytest.mark.parametrize(("interval", "ex"), [
+    (0, None),
+    (12, None),
+    (-10, ValueError)
 ])
-def test_replace_existing(sddraft, replace):
+def test_recycle_interval(sddraft, interval, ex):
+    if ex != None:
+        with pytest.raises(ex):
+            sddraft.recycle_interval = interval
+    else:
+        sddraft.recycle_interval = interval
+        assert sddraft.recycle_interval == interval
+        
+@pytest.mark.parametrize(("input", "expected", "ex"), [
+    ("12:01", datetime.time(12, 01), None),
+    (datetime.time(14, 35), datetime.time(14, 35), None),
+    ("nonsense", None, ValueError)
+])
+def test_recycle_start_time(sddraft, input, expected, ex):
+    if ex != None:
+        with pytest.raises(ex):
+            sddraft.recycle_start_time = input
+    else:
+        sddraft.recycle_start_time = input
+        assert sddraft.recycle_start_time == expected
+
+@pytest.mark.parametrize(("replace", "expected"), [
+    (True, True),
+    ("TRUE", True),
+    ("T", True),
+    ("tRUe", True),
+    ("t", True),
+    (False, False),
+    ("FALSE", False),
+    ("F", False),
+    ("faLSe", False),
+    ("f", False),
+    (1, True),
+    (0, False),
+    (2, False),
+    (-1, False)
+])
+def test_replace_existing(sddraft, replace, expected):
     sddraft.replace_existing = replace
-    assert sddraft.replace_existing == bool(replace)
+    assert sddraft.replace_existing == expected
 
 @pytest.mark.parametrize(("output"), [
     (SDDRAFT_SAVE_TEST_FILE_PATH)
@@ -144,17 +238,38 @@ def test_summary(sddraft, summary):
     assert sddraft.summary == summary
 
 @pytest.mark.parametrize(("mode"), [
-    (arcpyext.mapping.SDDraft.TEXT_ANTI_ALIASING_MODES.NONE),
-    (arcpyext.mapping.SDDraft.TEXT_ANTI_ALIASING_MODES.FORCE),
-    (arcpyext.mapping.SDDraft.TEXT_ANTI_ALIASING_MODES.NORMAL)
+    (SDDraft.TEXT_ANTI_ALIASING_MODES.NONE),
+    (SDDraft.TEXT_ANTI_ALIASING_MODES.FORCE),
+    (SDDraft.TEXT_ANTI_ALIASING_MODES.NORMAL)
 ])
 def test_text_aa_mode(sddraft, mode):
     sddraft.text_anti_aliasing_mode = mode
     assert sddraft.text_anti_aliasing_mode == mode
 
-@pytest.mark.parametrize(("timeout"), [
-    (20), (100), (600)
+@pytest.mark.parametrize(("timeout", "ex"), [
+    (0, None),
+    (100, None),
+    (99999, None),
+    (-10, ValueError)
 ])
-def test_wait_timeout(sddraft, timeout):
-    sddraft.wait_timeout = timeout
-    assert sddraft.wait_timeout == timeout
+def test_usage_timeout(sddraft, timeout, ex):
+    if ex != None:
+        with pytest.raises(ex):
+            sddraft.usage_timeout = timeout
+    else:
+        sddraft.usage_timeout = timeout
+        assert sddraft.usage_timeout == timeout
+    
+@pytest.mark.parametrize(("timeout", "ex"), [
+    (0, None),
+    (100, None),
+    (99999, None),
+    (-10, ValueError)
+])
+def test_wait_timeout(sddraft, timeout, ex):
+    if ex != None:
+        with pytest.raises(ex):
+            sddraft.wait_timeout = timeout
+    else:
+        sddraft.wait_timeout = timeout
+        assert sddraft.wait_timeout == timeout
