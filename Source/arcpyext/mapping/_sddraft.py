@@ -6,18 +6,18 @@ import xml.dom.minidom as DOM
 
 class SDDraft(object):
     """Class for editing a Service Definition Draft.
-    
+
     Must be instantiated from an on-disk SDDraft file generated."""
 
-    ANTI_ALIASING_MODES = type("Enum", (), dict(NONE="None", FASTEST="Fastest", FAST="Fast", NORMAL="Normal", 
+    ANTI_ALIASING_MODES = type("Enum", (), dict(NONE="None", FASTEST="Fastest", FAST="Fast", NORMAL="Normal",
         BEST="Best"))
-    EXTENSIONS = type("Enum", (), dict(FEATURESERVER='FeatureServer', MOBILESERVER='MobileServer', 
-        WMSSERVER='WMSServer', KMLSERVER='KmlServer', NASERVER='NAServer', WFSSERVER='WFSServer', 
+    EXTENSIONS = type("Enum", (), dict(FEATURESERVER='FeatureServer', MOBILESERVER='MobileServer',
+        WMSSERVER='WMSServer', KMLSERVER='KmlServer', NASERVER='NAServer', WFSSERVER='WFSServer',
         WCSSERVER='WCSServer', SCHEMATICSSERVER='SchematicsServer'))
-    FEATURE_ACCESS_OPERATIONS = type("Enum", (), dict(CREATE='Create', QUERY='Query', UPDATE='Update', 
+    FEATURE_ACCESS_OPERATIONS = type("Enum", (), dict(CREATE='Create', QUERY='Query', UPDATE='Update',
         DELETE='Delete', SYNC='Sync'))
     TEXT_ANTI_ALIASING_MODES = type("Enum", (), dict(NONE = "None", FORCE = "Force", NORMAL = "Normal"))
-    
+
     _TIME_STRING_REGEX = re.compile(r"^([0-9]{2}):([0-9]{2})$")
     _FEATURE_ACCESS_EDIT_OPERATIONS = ["Create", "Delete", "Update"]
 
@@ -37,12 +37,12 @@ class SDDraft(object):
     @anti_aliasing_mode.setter
     def anti_aliasing_mode(self, value):
         """Sets the anti-aliasing mode for map graphics.
-        
+
         Valid values are contained in the 'arcpyext.mapping.SDDraft.ANTI_ALIASING_MODES' enumerated type.
         """
         self._set_element_value(self._get_anti_aliasing_element(), value)
-        
-    
+
+
     @property
     def cluster(self):
         """Gets a list of cluster names that the published service will run on."""
@@ -52,15 +52,15 @@ class SDDraft(object):
     @cluster.setter
     def cluster(self, value):
         """Sets a list of cluster names that the published service will run on.
-        
+
         Accepts either a string (including a comma-separated string list), or any string-based sequence.
         """
         if isinstance(value, basestring):
             value = [val.strip() for val in value.split(",")]
-        
+
         self._set_element_value(self._get_first_element_by_tag("Cluster"), ",".join(value))
 
-        
+
     @property
     def description(self):
         """Gets the description for the service."""
@@ -70,8 +70,39 @@ class SDDraft(object):
     def description(self, value):
         """Sets the description for the service."""
         self._set_element_value(self._get_description_element(), value)
-    
-    
+
+
+    @property
+    def disable_identify_relates(self):
+        """Gets a boolean indicating whether or not displaying related information in identify results is enabled."""
+        return self._value_to_boolean(
+            self._get_element_value(
+                self._get_disable_identify_relates_element()))
+
+    @disable_identify_relates.setter
+    def disable_identify_relates(self, value):
+        value = self._value_to_boolean(value)
+        self._set_element_value(
+            self._get_disable_identify_relates_element(),
+            self._boolean_to_text(value))
+
+
+    @property
+    def enable_dynamic_layers(self):
+        """Gets a boolean value indicating whether or not dynamic layer order and symbology are enabled."""
+        return self._value_to_boolean(
+            self._get_element_value(
+                self._get_enable_dynamic_layers_element()))
+
+    @enable_dynamic_layers.setter
+    def enable_dynamic_layers(self, value):
+        """Gets a boolean value indicating whether or not dynamic layer order and symbology are enabled."""
+        value = self._value_to_boolean(value)
+        self._set_element_value(
+            self._get_enable_dynamic_layers_element(),
+            self._boolean_to_text(value))
+
+
     @property
     def enabled_extensions(self):
         """Gets a list of the extensions (by type name) that are currently enabled for the service."""
@@ -80,7 +111,7 @@ class SDDraft(object):
     @enabled_extensions.setter
     def enabled_extensions(self, values):
         """Sets the extensions (by an iterable of type names) that are enabled for the service.
-        
+
         Valid values are contained in the 'arcpyext.mapping.SDDraft.EXTENSIONS' enumerated type.
         Valid string values are:
          - 'FeatureServer'
@@ -91,8 +122,8 @@ class SDDraft(object):
          - 'WFSServer'
          - 'WCSServer'
          - 'SchematicsServer'
-         
-        Custom extensions will also (theoretically) work, as long as there configuration already 
+
+        Custom extensions will also (theoretically) work, as long as there configuration already
         exists in the Service Definition Draft.
         """
         self._set_enabled_extensions_by_types(values)
@@ -108,7 +139,7 @@ class SDDraft(object):
     @feature_access_enabled_operations.setter
     def feature_access_enabled_operations(self, values):
         """Sets the operations (by an iterable of operation names) that are enabled for the feature service.
-        
+
         Valid values are contained in the 'arcpyext.mapping.SDDraft.FEATURE_ACCESS_OPERATIONS' enumerated type.
         Valid string values are:
          - 'Create'
@@ -128,7 +159,7 @@ class SDDraft(object):
             )]:
             # not a known operation, raise exception
             raise ValueError("Operations list contains invalid operation types.")
-            
+
         if [val for val in values if val in self._FEATURE_ACCESS_EDIT_OPERATIONS]:
             # if operation is in the _FEATURE_ACCESS_EDIT_OPERATIONS list, the "Uploads" and "Editing" operations
             # must also be enabled.  This functionality is hidden the UI, but occurs when creating the draft in ArcMap
@@ -140,8 +171,8 @@ class SDDraft(object):
     def file_path(self):
         """Gets the file path to the Service Definition Draft."""
         return self._path
-    
-    
+
+
     @property
     def high_isolation(self):
         """Gets a boolean that describes if the service is set to high isolation (true) or low isolation (false)."""
@@ -151,10 +182,10 @@ class SDDraft(object):
     @high_isolation.setter
     def high_isolation(self, value):
         """Sets a boolean that describes if the service is set to high isolation (true) or low isolation (false)."""
-        self._set_element_value(self._get_isolation_element(), 
+        self._set_element_value(self._get_isolation_element(),
             "HIGH" if value == True else "LOW")
-            
-            
+
+
     @property
     def idle_timeout(self):
         """Gets the idle timeout (in seconds) for the service."""
@@ -167,11 +198,11 @@ class SDDraft(object):
             raise ValueError("Timeout cannot be less than zero.")
         self._set_element_value(self._get_idle_timeout_element(), value)
 
-    
+
     @property
     def instances_per_container(self):
         """Gets the number of instances of this service can run per container (i.e. process).
-        
+
         Only applicable when running in low isolation.
         """
         return self._get_element_value(self._get_instances_per_container_element())
@@ -179,7 +210,7 @@ class SDDraft(object):
     @instances_per_container.setter
     def instances_per_container(self, value):
         """Sets the number of instances of this service can run per container (i.e. process).
-        
+
         Only applicable when running in low isolation.
         """
         self._set_element_value(self._get_instances_per_container_element(), value)
@@ -188,18 +219,17 @@ class SDDraft(object):
     @property
     def keep_cache(self):
         """Gets a boolean value that describes if the service should keep its cache on publish."""
-        keep_cache_value = self._get_element_value(self._get_first_element_by_tag("KeepExistingMapCache"))
-        return True if keep_cache_value.upper() == "TRUE" else False
+        return self._value_to_boolean(self._get_element_value(self._get_first_element_by_tag("KeepExistingMapCache")))
 
     @keep_cache.setter
     def keep_cache(self, value):
         """Sets a boolean value that describes if the service should keep its cache on publish."""
         value = self._value_to_boolean(value)
-            
-        self._set_element_value(self._get_first_element_by_tag("KeepExistingMapCache"), 
-            "true" if value == True else "false")
-    
-    
+
+        self._set_element_value(self._get_first_element_by_tag("KeepExistingMapCache"),
+            self._boolean_to_text(value))
+
+
     @property
     def max_instances(self):
         """Gets the maximum number of instances that the published service will run."""
@@ -211,8 +241,8 @@ class SDDraft(object):
         if value < self.min_instances or value <= 0:
             raise ValueError("Max instances cannot be 0 or less than the minimum instances.")
         self._set_element_value(self._get_max_instances_element(), value)
-        
-        
+
+
     @property
     def max_record_count(self):
         """Gets the maximum number of records that can be returned by the service."""
@@ -224,8 +254,8 @@ class SDDraft(object):
         if value < 0:
             raise ValueError("Maximum record count cannot be less than zero.")
         self._set_element_value(self._get_max_record_count_element(), value)
-    
-    
+
+
     @property
     def min_instances(self):
         """Gets the minimum number of instances that the published service will run."""
@@ -238,7 +268,7 @@ class SDDraft(object):
             raise ValueError("Min instances cannot be less than zero.")
         self._set_element_value(self._get_min_instances_element(), value)
 
-        
+
     @property
     def name(self):
         """Gets the name of the service."""
@@ -252,25 +282,25 @@ class SDDraft(object):
             raise ValueError("Name string cannot be empty")
         for prop in self._get_name_elements():
             self._set_element_value(prop, value)
-            
-    
+
+
     @property
     def recycle_interval(self):
         """Gets the recycle interval (in hours)."""
         return self._get_element_value(self._get_recycle_interval_element())
-    
+
     @recycle_interval.setter
     def recycle_interval(self, value):
         """Sets the recycle interval (in hours)."""
         if value < 0:
             raise ValueError("Recycle interval must not be less than zero.")
         self._set_element_value(self._get_recycle_interval_element(), value)
-            
-            
+
+
     @property
     def recycle_start_time(self):
         """Gets the recycle time for the service.
-        
+
         Returns:
          - Recycle time for the service as a 'datetime.time' object
         """
@@ -280,11 +310,11 @@ class SDDraft(object):
         else:
             time_parts = time.split(":")
             return datetime.time(int(time_parts[0]), int(time_parts[1]))
-            
+
     @recycle_start_time.setter
     def recycle_start_time(self, value):
         """Sets the recycle time for the service.
-        
+
         Arguments:
         value -- The recycle time.  Can be a string in format "hh:mm" or a datetime.time object.
         """
@@ -296,7 +326,7 @@ class SDDraft(object):
         else:
             value = "{0}:{1}".format(value.hour, value.minute)
             self._set_element_value(self._get_recycle_start_time_element(), value)
-        
+
     @property
     def replace_existing(self):
         """Gets a boolean indicating whether or not a service of the same name will be replaced on publish."""
@@ -312,8 +342,20 @@ class SDDraft(object):
         value = self._value_to_boolean(value)
         manifest_type = self._get_first_element_by_tag("Type")
         self._set_element_value(
-            manifest_type, 
+            manifest_type,
             "esriServiceDefinitionType_Replacement" if value == True else "esriServiceDefinitionType_New")
+
+
+    @property
+    def schema_locking_enabled(self):
+        """Gets a boolean indicating whether or not the server locks the database schema."""
+        return self._value_to_boolean(self._get_element_value(self._get_schema_locking_enabled_element()))
+
+    @schema_locking_enabled.setter
+    def schema_locking_enabled(self, value):
+        """Sets a boolean indicating whether or not the server locks the database schema."""
+        value = self._value_to_boolean(value)
+        self._set_element_value(self._get_schema_locking_enabled_element(), self._boolean_to_text(value))
 
 
     @property
@@ -336,13 +378,13 @@ class SDDraft(object):
     @text_anti_aliasing_mode.setter
     def text_anti_aliasing_mode(self, value):
         """Sets the anti-aliasing mode for map graphics.
-        
+
         Valid values are contained in the 'arcpyext.mapping.SDDraft.TEXT_ANTI_ALIASING_MODES' enumerated type.
         """
         aa = self._get_text_anti_aliasing_element()
         self._set_element_value(aa, value)
-        
-        
+
+
     @property
     def usage_timeout(self):
         """Gets the usage timeout (in seconds) for the service."""
@@ -392,7 +434,10 @@ class SDDraft(object):
     ###################
     # PRIVATE METHODS #
     ###################
-    
+
+    def _boolean_to_text(self, value):
+        return "true" if value == True else "false"
+
     def _value_to_boolean(self, value):
         """Converts true-ish and false-ish values to boolean."""
         try:
@@ -400,7 +445,7 @@ class SDDraft(object):
             value = True if value in ["TRUE", "T"] else False
         except AttributeError:
             pass
-            
+
         return value == True
 
     # SDDraft XML Helpers
@@ -410,7 +455,17 @@ class SDDraft(object):
     def _get_description_element(self):
         item_info = self._get_first_element_by_tag("ItemInfo")
         return item_info.find("Description")
-        
+
+    def _get_disable_identify_relates_element(self):
+        return self._get_value_element_by_key(
+            self._get_service_configuration_properties(),
+            "disableIdentifyRelates")
+
+    def _get_enable_dynamic_layers_element(self):
+        return self._get_value_element_by_key(
+            self._get_service_configuration_properties(),
+            "enableDynamicLayers")
+
     def _get_enabled_feature_operations(self):
         ext_props = self._get_service_extension_by_type("FeatureServer").find("./Info/PropertyArray")
         enabled_ops_prop = self._get_value_element_by_key(ext_props, "WebCapabilities")
@@ -419,7 +474,7 @@ class SDDraft(object):
     def _get_extension_names(self):
         exts = self._get_elements_by_tag("SVCExtension")
         return [self._get_element_value(item.find("TypeName")) for item in exts if self._get_element_value(item.find("Enabled")).lower() == "true"]
-        
+
     def _get_idle_timeout_element(self):
         return self._get_value_element_by_key(self._get_service_props(), "IdleTimeout")
 
@@ -431,15 +486,15 @@ class SDDraft(object):
 
     def _get_max_instances_element(self):
         return self._get_value_element_by_key(self._get_service_props(), "MaxInstances")
-        
+
     def _get_max_record_count_element(self):
         return self._get_value_element_by_key(self._get_service_configuration_properties(), "maxRecordCount")
-        
+
     def _get_min_instances_element(self):
         return self._get_value_element_by_key(self._get_service_props(), "MinInstances")
 
     def _get_name_elements(self):
-        sm_name = self._get_first_element_by_tag("SVCManifest").find("Name")        
+        sm_name = self._get_first_element_by_tag("SVCManifest").find("Name")
         sc_name = self._get_first_element_by_tag("SVCConfiguration").find("Name")
 
         wcs_ext_props = self._get_service_extension_by_type("WCSServer").find("./Props/PropertyArray").findall("PropertySetProperty")
@@ -452,12 +507,15 @@ class SDDraft(object):
 
     def _get_recycle_start_time_element(self):
         return self._get_value_element_by_key(self._get_service_props(), "recycleStartTime")
-        
+
     def _get_recycle_interval_element(self):
         return self._get_value_element_by_key(self._get_service_props(), "recycleInterval")
-    
+
     def _get_service_configuration_properties(self):
         return list(self._xmltree.getroot().find("./Configurations/SVCConfiguration/Definition/ConfigurationProperties/PropertyArray"))
+
+    def _get_schema_locking_enabled_element(self):
+        return self._get_value_element_by_key(self._get_service_configuration_properties(), "schemaLockingEnabled")
 
     def _get_service_extension_by_type(self, type_name):
         extensions = [item for item in self._get_elements_by_tag("SVCExtension") if item.findtext("TypeName") == type_name]
@@ -472,17 +530,17 @@ class SDDraft(object):
 
     def _get_text_anti_aliasing_element(self):
         return self._get_value_element_by_key(self._get_service_configuration_properties(), "textAntialiasingMode")
-        
+
     def _get_usage_timeout_element(self):
         return self._get_value_element_by_key(self._get_service_props(), "UsageTimeout")
 
     def _get_value_element_by_key(self, prop_list, key):
-        """ From a list of PropertySetProperty elements, return the "value" child element of the first 
+        """ From a list of PropertySetProperty elements, return the "value" child element of the first
         PropertySetProperty element with a particular key."""
         return next(item.find("Value") for item in list(prop_list) if item.findtext("Key") == key)
 
     def _get_value_elements_by_keys(self, prop_list, keys):
-        """ From a list of PropertySetProperty elements, returns a list of the "value" child elements of 
+        """ From a list of PropertySetProperty elements, returns a list of the "value" child elements of
         PropertySetProperty elements with a particular key."""
         return [item.find("Value") for item in list(prop_list) if item.findtext("Key") in keys]
 
@@ -497,7 +555,7 @@ class SDDraft(object):
                 self._set_element_value(ext.find("Enabled"), "true")
             else:
                 self._set_element_value(ext.find("Enabled"), "false")
-                
+
     def _set_enabled_feature_operations(self, operations):
         ext_props = self._get_service_extension_by_type("FeatureServer").find("./Info/PropertyArray")
         enabled_ops_prop = self._get_value_element_by_key(ext_props, "WebCapabilities")
