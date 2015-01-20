@@ -189,7 +189,7 @@ class SDDraft(object):
     @property
     def idle_timeout(self):
         """Gets the idle timeout (in seconds) for the service."""
-        return self._get_element_value(self._get_idle_timeout_element())
+        return int(self._get_element_value(self._get_idle_timeout_element()))
 
     @idle_timeout.setter
     def idle_timeout(self, value):
@@ -205,7 +205,7 @@ class SDDraft(object):
 
         Only applicable when running in low isolation.
         """
-        return self._get_element_value(self._get_instances_per_container_element())
+        return int(self._get_element_value(self._get_instances_per_container_element()))
 
     @instances_per_container.setter
     def instances_per_container(self, value):
@@ -233,7 +233,7 @@ class SDDraft(object):
     @property
     def max_instances(self):
         """Gets the maximum number of instances that the published service will run."""
-        return self._get_element_value(self._get_max_instances_element())
+        return int(self._get_element_value(self._get_max_instances_element()))
 
     @max_instances.setter
     def max_instances(self, value):
@@ -246,7 +246,7 @@ class SDDraft(object):
     @property
     def max_record_count(self):
         """Gets the maximum number of records that can be returned by the service."""
-        return self._get_element_value(self._get_max_record_count_element())
+        return int(self._get_element_value(self._get_max_record_count_element()))
 
     @max_record_count.setter
     def max_record_count(self, value):
@@ -259,7 +259,7 @@ class SDDraft(object):
     @property
     def min_instances(self):
         """Gets the minimum number of instances that the published service will run."""
-        return self._get_element_value(self._get_min_instances_element())
+        return int(self._get_element_value(self._get_min_instances_element()))
 
     @min_instances.setter
     def min_instances(self, value):
@@ -287,7 +287,7 @@ class SDDraft(object):
     @property
     def recycle_interval(self):
         """Gets the recycle interval (in hours)."""
-        return self._get_element_value(self._get_recycle_interval_element())
+        return int(self._get_element_value(self._get_recycle_interval_element()))
 
     @recycle_interval.setter
     def recycle_interval(self, value):
@@ -388,7 +388,7 @@ class SDDraft(object):
     @property
     def usage_timeout(self):
         """Gets the usage timeout (in seconds) for the service."""
-        return self._get_element_value(self._get_usage_timeout_element())
+        return int(self._get_element_value(self._get_usage_timeout_element()))
 
     @usage_timeout.setter
     def usage_timeout(self, value):
@@ -401,7 +401,7 @@ class SDDraft(object):
     @property
     def wait_timeout(self):
         """Gets the wait timeout (in seconds) for the service."""
-        return self._get_element_value(self._get_wait_timeout_element())
+        return int(self._get_element_value(self._get_wait_timeout_element()))
 
     @wait_timeout.setter
     def wait_timeout(self, value):
@@ -591,4 +591,13 @@ class SDDraft(object):
         return ET.ElementTree(root)
 
     def _set_element_value(self, element, value):
-        element.text = value
+        if isinstance(value, int):
+            element.text = str(value)
+            return
+        if isinstance(value, bool):
+            element.text = "true" if value == True else "false"
+            return
+        if isinstance(value, basestring):
+            element.text = value
+            return
+        raise ValueError("Element value cannot be set, unknown type.")
