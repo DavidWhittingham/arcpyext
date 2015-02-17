@@ -171,6 +171,18 @@ class SDDraft(object):
     def file_path(self):
         """Gets the file path to the Service Definition Draft."""
         return self._path
+        
+    
+    @property
+    def folder(self):
+        """Gets the name of the folder that the service will reside in."""
+        return self._get_element_value(self._get_folder_element())
+    
+    @folder.setter
+    def folder(self, value):
+        """Sets the name of the folder that the service will reside in."""
+        self._set_element_value(self._get_folder_element(), value)
+        self._set_full_path_properties()
 
 
     @property
@@ -282,7 +294,8 @@ class SDDraft(object):
             raise ValueError("Name string cannot be empty")
         for prop in self._get_name_elements():
             self._set_element_value(prop, value)
-
+            
+        self._set_full_path_properties()
 
     @property
     def recycle_interval(self):
@@ -474,6 +487,9 @@ class SDDraft(object):
     def _get_extension_names(self):
         exts = self._get_elements_by_tag("SVCExtension")
         return [self._get_element_value(item.find("TypeName")) for item in exts if self._get_element_value(item.find("Enabled")).lower() == "true"]
+        
+    def _get_folder_element(self):
+        return self._get_first_element_by_tag("SVCConfiguration").find("ServiceFolder")
 
     def _get_idle_timeout_element(self):
         return self._get_value_element_by_key(self._get_service_props(), "IdleTimeout")
@@ -499,9 +515,9 @@ class SDDraft(object):
 
         wcs_ext_props = self._get_service_extension_by_type("WCSServer").find("./Props/PropertyArray").findall("PropertySetProperty")
         wcs_ext_name_props = self._get_value_elements_by_keys(wcs_ext_props, ["name"])
-
+        
         wfs_ext_props = self._get_service_extension_by_type("WFSServer").find("./Props/PropertyArray").findall("PropertySetProperty")
-        wfs_ext_name_props = self._get_value_elements_by_keys(wfs_ext_props, ["name", "appSchemaPrefix"])
+        wfs_ext_name_props = self._get_value_elements_by_keys(wfs_ext_props, ["name"])
 
         return [sm_name, sc_name] + wcs_ext_name_props + wfs_ext_name_props
 
@@ -601,3 +617,11 @@ class SDDraft(object):
             element.text = value
             return
         raise ValueError("Element value cannot be set, unknown type.")
+    
+    def _set_full_path_properties(self):
+        """Sets the value for properties that are dependent on both the folder name and the service name."""
+        wfs_ext_props = self._get_service_extension_by_type("WFSServer").find("./Props/PropertyArray").findall("PropertySetProperty")
+        wfs_ext_name_props = self._get_value_elements_by_keys(wfs_ext_props, ["appSchemaPrefix"])
+        for prop in wfs_ext_name_props:
+            merged_value = "{0}_{1}".format(self.folder, self.name) if self.folder != None else self.name
+            self._set_element_value(prop, merged_value)
