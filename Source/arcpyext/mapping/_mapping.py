@@ -196,6 +196,13 @@ def validate_map(map):
         print(u"Map '{0}': Broken data sources:".format(map.title))
         for layer in broken_layers:
             print(u" {0}".format(layer.name))
+            if not hasattr(layer, "supports"):
+                #probably a TableView
+                print(u"  workspace: {0}".format(layer.workspacePath))
+                print(u"  datasource: {0}".format(layer.dataSource))
+                continue
+            
+            #Some sort of layer
             if layer.supports("workspacePath"):
                 print(u"  workspace: {0}".format(layer.workspacePath))
             if layer.supports("dataSource"):
