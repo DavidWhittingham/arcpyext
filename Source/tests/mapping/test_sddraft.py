@@ -105,8 +105,8 @@ def test_file_path(sddraft, file_path, equal):
 
 @pytest.mark.parametrize(("folder", "expected", "ex"), [
     ("TestName", "TestName", None),
-    ("", "", None),
-    (None, "", None)
+    ("", None, None),
+    (None, None, None)
 ])
 def test_folder(sddraft, folder, expected, ex):
     if ex != None:
