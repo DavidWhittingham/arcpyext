@@ -103,6 +103,19 @@ def test_feature_access_enabled_operations(sddraft, enabled_ops, expected, ex):
 def test_file_path(sddraft, file_path, equal):
     assert (os.path.normpath(sddraft.file_path) == os.path.normpath(file_path)) == equal
 
+@pytest.mark.parametrize(("folder", "expected", "ex"), [
+    ("TestName", "TestName", None),
+    ("", "", None),
+    (None, "", None)
+])
+def test_folder(sddraft, folder, expected, ex):
+    if ex != None:
+        with pytest.raises(ex):
+            sddraft.folder = folder
+    else:
+        sddraft.folder = folder
+        assert sddraft.folder == expected
+
 @pytest.mark.parametrize(("high_isolation"), [
     (True), (False), (1), (0)
 ])

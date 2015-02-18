@@ -181,6 +181,7 @@ class SDDraft(object):
     @folder.setter
     def folder(self, value):
         """Sets the name of the folder that the service will reside in."""
+        value = "" if value == None else value
         self._set_element_value(self._get_folder_element(), value)
         self._set_full_path_properties()
 
