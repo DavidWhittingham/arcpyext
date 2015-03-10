@@ -1,0 +1,795 @@
+<SVCManifest xsi:type='typens:SVCManifest' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xs='http://www.w3.org/2001/XMLSchema' xmlns:typens='http://www.esri.com/schemas/ArcGIS/10.1'>
+    <Databases xsi:type='typens:ArrayOfSVCDatabase'/>
+    <Resources xsi:type='typens:ArrayOfSVCResource'>
+        <SVCResource xsi:type='typens:SVCResource'>
+            <ID>{B7CA29EC-8085-4092-ACEE-0F8B5CDC6CA4}</ID>
+            <Name>ExampleImageService</Name>
+            <OnPremisePath>D:\Example\Connections\Example.sde\RasterExample</OnPremisePath>
+            <StagingPath/>
+            <ServerPath/>
+            <InPackagePath/>
+            <OnServerName/>
+            <ClientName>ExampleClient</ClientName>
+        </SVCResource>
+    </Resources>
+    <ID>{12364852-1F78-451C-967F-90D3845483D3}</ID>
+    <Name>ExampleImageService</Name>
+    <OnPremisePath>D:\Git\SIRGIS\Map Documents for Services\ImageryBaseMapsEarthCover</OnPremisePath>
+    <StagingPath/>
+    <ServerPath/>
+    <InPackagePath/>
+    <ByReference>true</ByReference>
+    <Type>esriServiceDefinitionType_New</Type>
+    <State>esriSDState_Draft</State>
+    <ServerType>esriSVCServerType_FullServer</ServerType>
+    <DataFolder/>
+    <StagingSettings xsi:type='typens:PropertySet'>
+        <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>PackageUnderMyContent</Key>
+                <Value xsi:type='xs:boolean'>false</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>PackageIsPublic</Key>
+                <Value xsi:type='xs:boolean'>false</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>PackageShareGroups</Key>
+                <Value xsi:type='xs:boolean'>false</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>PackageGroupIDs</Key>
+                <Value xsi:type='xs:boolean'>false</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>FederatedServerMatchesPortal</Key>
+                <Value xsi:type='xs:boolean'>false</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>FederatedUserMatchesPortal</Key>
+                <Value xsi:type='xs:boolean'>false</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>ConnectionFile</Key>
+                <Value xsi:type='xs:string'>No Connection</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>SaveToSDFile</Key>
+                <Value xsi:type='xs:string'>TRUE</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>IncludeDataInSDFile</Key>
+                <Value xsi:type='xs:string'>FALSE</Value>
+            </PropertySetProperty>
+        </PropertyArray>
+    </StagingSettings>
+    <KeepExistingData>false</KeepExistingData>
+    <KeepExistingMapCache>false</KeepExistingMapCache>
+    <ClientHostName>NIX00300</ClientHostName>
+    <OnServerName/>
+    <Configurations xsi:type='typens:ArrayOfSVCConfiguration'>
+        <SVCConfiguration xsi:type='typens:SVCConfiguration'>
+            <ID>6E5A3D61-AA84-4EB9-B68A-FBC28C0207F1</ID>
+            <Name>ExampleImageService</Name>
+            <TypeName>ImageServer</TypeName>
+            <ResourceID>{B7CA29EC-8085-4092-ACEE-0F8B5CDC6CA4}</ResourceID>
+            <ServiceFolder/>
+            <DataFolder/>
+            <Definition xsi:type='typens:SVCConfigurationDefinition'>
+                <Description/>
+                <ConfigurationProperties xsi:type='typens:PropertySet'>
+                    <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>copyright</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>description</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>supportedImageReturnTypes</Key>
+                            <Value xsi:type='xs:string'>URL</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>cacheDir</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>useLocalCacheDir</Key>
+                            <Value xsi:type='xs:string'>true</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>isCached</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>cacheOnDemand</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>ignoreCache</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>clientCachingAllowed</Key>
+                            <Value xsi:type='xs:string'>true</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>exportTilesAllowed</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>maxExportTilesCount</Key>
+                            <Value xsi:type='xs:string'>100000</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>minScale</Key>
+                            <Value xsi:type='xs:double'>-1</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>maxScale</Key>
+                            <Value xsi:type='xs:double'>-1</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>Raster</Key>
+                            <Value xsi:type='xs:string'>User.RasterName</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>ConnectionString</Key>
+                            <Value xsi:type='xs:string'>REMOVED</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>MaxImageWidth</Key>
+                            <Value xsi:type='xs:int'>15000</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>MaxImageHeight</Key>
+                            <Value xsi:type='xs:int'>4100</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>MaxSampleCount</Key>
+                            <Value xsi:type='xs:int'>1000</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>ReturnJPGPNGAsJPG</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>DefaultResamplingMethod</Key>
+                            <Value xsi:type='xs:int'>1</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>DefaultCompressionQuality</Key>
+                            <Value xsi:type='xs:int'>75</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>DefaultCompressionTolerance</Key>
+                            <Value xsi:type='xs:double'>0.01</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>RasterFunctions</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AllowFunction</Key>
+                            <Value xsi:type='xs:string'>true</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>ColormapToRGB</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AllowedCompressions</Key>
+                            <Value xsi:type='xs:string'>None,JPEG,LZ77,LERC</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AvailableCompressions</Key>
+                            <Value xsi:type='xs:string'>None,JPEG,LZ77,LERC</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AllowedMensurationCapabilities</Key>
+                            <Value xsi:type='xs:string'>Basic</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AvailableMensurationCapabilities</Key>
+                            <Value xsi:type='xs:string'>Basic</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>MaxRecordCount</Key>
+                            <Value xsi:type='xs:int'>1000</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>MaxMosaicImageCount</Key>
+                            <Value xsi:type='xs:int'>20</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>MaxDownloadImageCount</Key>
+                            <Value xsi:type='xs:int'>20</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>MaxDownloadSizeLimit</Key>
+                            <Value xsi:type='xs:int'>2048</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AllowedFields</Key>
+                            <Value xsi:type='xs:string'>NAME,MINPS,MAXPS,LOWPS,HIGHPS,TAG,GROUPNAME,PRODUCTNAME,CENTERX,CENTERY,ZORDER,SE_ANNO_CAD_DATA,SHAPE.AREA,SHAPE.LEN,PROJECT_NAME,CAPTURE_DATE,METALINK</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AvailableFields</Key>
+                            <Value xsi:type='xs:string'>NAME,MINPS,MAXPS,LOWPS,HIGHPS,TAG,GROUPNAME,PRODUCTNAME,CENTERX,CENTERY,ZORDER,SE_ANNO_CAD_DATA,SHAPE.AREA,SHAPE.LEN,PROJECT_NAME,CAPTURE_DATE,METALINK</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AllowedMosaicMethods</Key>
+                            <Value xsi:type='xs:string'>NorthWest,Center,LockRaster,ByAttribute,Nadir,Viewpoint,Seamline,None</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AvailableMosaicMethods</Key>
+                            <Value xsi:type='xs:string'>NorthWest,Center,LockRaster,ByAttribute,Nadir,Viewpoint,Seamline,None</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AllowedItemMetadata</Key>
+                            <Value xsi:type='xs:string'>Basic</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>DefaultItemMetadata</Key>
+                            <Value xsi:type='xs:string'>Basic</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>DownloadDir</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>VirtualDownloadDir</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>ServiceImageWorkspace</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>DynamicImageWorkspace</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AllowOthersToUpdate</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>AllowOthersToDelete</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>RasterTypes</Key>
+                            <Value xsi:type='xs:string'>Raster Dataset</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>DataSourceIsReadOnly</Key>
+                            <Value xsi:type='xs:string'>true</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>SupportsOwnershipBasedAccessControl</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>EsriImageServiceSourceType</Key>
+                            <Value xsi:type='xs:string'>esriImageServiceSourceTypeMosaicDataset</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>HasValidSR</Key>
+                            <Value xsi:type='xs:string'>true</Value>
+                        </PropertySetProperty>
+                    </PropertyArray>
+                </ConfigurationProperties>
+                <Info xsi:type='typens:PropertySet'>
+                    <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>webEnabled</Key>
+                            <Value xsi:type='xs:string'>true</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>webCapabilities</Key>
+                            <Value xsi:type='xs:string'>Image,Metadata,Catalog,Mensuration</Value>
+                        </PropertySetProperty>
+                    </PropertyArray>
+                </Info>
+                <Props xsi:type='typens:PropertySet'>
+                    <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>IsRunning</Key>
+                            <Value xsi:type='xs:string'>false</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>MinInstances</Key>
+                            <Value xsi:type='xs:string'>1</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>MaxInstances</Key>
+                            <Value xsi:type='xs:string'>2</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>InstancesPerContainer</Key>
+                            <Value xsi:type='xs:string'>1</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>WaitTimeout</Key>
+                            <Value xsi:type='xs:string'>60</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>IdleTimeout</Key>
+                            <Value xsi:type='xs:string'>1800</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>UsageTimeout</Key>
+                            <Value xsi:type='xs:string'>600</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>CleanupTimeout</Key>
+                            <Value xsi:type='xs:string'>30</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>keepAliveInterval</Key>
+                            <Value xsi:type='xs:string'>1800</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>StartupTimeout</Key>
+                            <Value xsi:type='xs:string'>300</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>Isolation</Key>
+                            <Value xsi:type='xs:string'>high</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>configuredState</Key>
+                            <Value xsi:type='xs:string'>STARTED</Value>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>recycleStartTime</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                        <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                            <Key>recycleInterval</Key>
+                            <Value xsi:type='xs:string'/>
+                        </PropertySetProperty>
+                    </PropertyArray>
+                </Props>
+                <RecyclingInterval/>
+                <RecyclingStart>0</RecyclingStart>
+                <Extensions xsi:type='typens:ArrayOfSVCExtension'>
+                    <SVCExtension xsi:type='typens:SVCExtension'>
+                        <Enabled>false</Enabled>
+                        <Info xsi:type='typens:PropertySet'>
+                            <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>WebEnabled</Key>
+                                    <Value xsi:type='xs:string'>true</Value>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>WebCapabilities</Key>
+                                    <Value xsi:nil='true'/>
+                                </PropertySetProperty>
+                            </PropertyArray>
+                        </Info>
+                        <Props xsi:type='typens:PropertySet'>
+                            <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>onlineResource</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>customGetCapabilities</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>pathToCustomGetCapabilitiesFiles</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>name</Key>
+                                    <Value xsi:type='xs:string'>ExampleImageService</Value>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>title</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>abstract</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>keywords</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>fees</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>accessConstraints</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>maxImageWidth</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>maxImageHeight</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>providerName</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>providerWebsite</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>responsiblePerson</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>responsiblePosition</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>phone</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>fax</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>email</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>address</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>city</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>province</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>zipcode</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>country</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>serviceHour</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>contactInstructions</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>role</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                            </PropertyArray>
+                        </Props>
+                        <TypeName>WCSServer</TypeName>
+                    </SVCExtension>
+                    <SVCExtension xsi:type='typens:SVCExtension'>
+                        <Enabled>false</Enabled>
+                        <Info xsi:type='typens:PropertySet'>
+                            <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>WebEnabled</Key>
+                                    <Value xsi:type='xs:string'>true</Value>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>WebCapabilities</Key>
+                                    <Value xsi:nil='true'/>
+                                </PropertySetProperty>
+                            </PropertyArray>
+                        </Info>
+                        <Props xsi:type='typens:PropertySet'>
+                            <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>onlineResource</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>customGetCapabilities</Key>
+                                    <Value xsi:type='xs:string'>false</Value>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>pathToCustomGetCapabilitiesFiles</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>pathToCustomSLDFile</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>inheritLayerNames</Key>
+                                    <Value xsi:type='xs:string'>false</Value>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>name</Key>
+                                    <Value xsi:type='xs:string'>WMS</Value>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>title</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>abstract</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>keyword</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>contactPerson</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>contactPosition</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>contactOrganization</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>address</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>addressType</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>city</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>stateOrProvince</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>postCode</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>country</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>contactVoiceTelephone</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>contactFacsimileTelephone</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>contactElectronicMailAddress</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>fees</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>accessConstraints</Key>
+                                    <Value xsi:type='xs:string'/>
+                                </PropertySetProperty>
+                            </PropertyArray>
+                        </Props>
+                        <TypeName>WMSServer</TypeName>
+                    </SVCExtension>
+                    <SVCExtension xsi:type='typens:SVCExtension'>
+                        <Enabled>false</Enabled>
+                        <Info xsi:type='typens:PropertySet'>
+                            <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>WebEnabled</Key>
+                                    <Value xsi:type='xs:string'>true</Value>
+                                </PropertySetProperty>
+                                <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                                    <Key>WebCapabilities</Key>
+                                    <Value xsi:nil='true'/>
+                                </PropertySetProperty>
+                            </PropertyArray>
+                        </Info>
+                        <Props xsi:type='typens:PropertySet'>
+                            <PropertyArray xsi:type='typens:ArrayOfPropertySetProperty'/>
+                        </Props>
+                        <TypeName>JPIPServer</TypeName>
+                    </SVCExtension>
+                </Extensions>
+                <Cluster>default</Cluster>
+            </Definition>
+        </SVCConfiguration>
+    </Configurations>
+    <CacheSchema xsi:type='typens:CacheInfo'>
+        <TileCacheInfo xsi:type='typens:TileCacheInfo'>
+            <SpatialReference xsi:type='typens:ProjectedCoordinateSystem'>
+                <WKT>PROJCS[&quot;WGS_1984_Web_Mercator_Auxiliary_Sphere&quot;,GEOGCS[&quot;GCS_WGS_1984&quot;,DATUM[&quot;D_WGS_1984&quot;,SPHEROID[&quot;WGS_1984&quot;,6378137.0,298.257223563]],PRIMEM[&quot;Greenwich&quot;,0.0],UNIT[&quot;Degree&quot;,0.0174532925199433]],PROJECTION[&quot;Mercator_Auxiliary_Sphere&quot;],PARAMETER[&quot;False_Easting&quot;,0.0],PARAMETER[&quot;False_Northing&quot;,0.0],PARAMETER[&quot;Central_Meridian&quot;,0.0],PARAMETER[&quot;Standard_Parallel_1&quot;,0.0],PARAMETER[&quot;Auxiliary_Sphere_Type&quot;,0.0],UNIT[&quot;Meter&quot;,1.0],AUTHORITY[&quot;EPSG&quot;,3857]]</WKT>
+                <XOrigin>-20037700</XOrigin>
+                <YOrigin>-30241100</YOrigin>
+                <XYScale>148923141.92838538</XYScale>
+                <ZOrigin>-100000</ZOrigin>
+                <ZScale>10000</ZScale>
+                <MOrigin>-100000</MOrigin>
+                <MScale>10000</MScale>
+                <XYTolerance>0.001</XYTolerance>
+                <ZTolerance>0.001</ZTolerance>
+                <MTolerance>0.001</MTolerance>
+                <HighPrecision>true</HighPrecision>
+                <WKID>102100</WKID>
+                <LatestWKID>3857</LatestWKID>
+            </SpatialReference>
+            <TileOrigin xsi:type='typens:PointN'>
+                <X>-20037508.342787001</X><Y>20037508.342787001</Y>
+            </TileOrigin>
+            <TileCols>256</TileCols>
+            <TileRows>256</TileRows>
+            <DPI>96</DPI>
+            <PreciseDPI>96</PreciseDPI>
+            <LODInfos xsi:type='typens:ArrayOfLODInfo'>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>0</LevelID>
+                    <Scale>591657527.591555</Scale>
+                    <Resolution>156543.03392799999</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>1</LevelID>
+                    <Scale>295828763.79577702</Scale>
+                    <Resolution>78271.516963999893</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>2</LevelID>
+                    <Scale>147914381.89788899</Scale>
+                    <Resolution>39135.758482000099</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>3</LevelID>
+                    <Scale>73957190.948944002</Scale>
+                    <Resolution>19567.879240999901</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>4</LevelID>
+                    <Scale>36978595.474472001</Scale>
+                    <Resolution>9783.9396204999593</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>5</LevelID>
+                    <Scale>18489297.737236001</Scale>
+                    <Resolution>4891.9698102499797</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>6</LevelID>
+                    <Scale>9244648.8686180003</Scale>
+                    <Resolution>2445.9849051249898</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>7</LevelID>
+                    <Scale>4622324.4343090001</Scale>
+                    <Resolution>1222.9924525624899</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>8</LevelID>
+                    <Scale>2311162.2171550002</Scale>
+                    <Resolution>611.49622628138002</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>9</LevelID>
+                    <Scale>1155581.108577</Scale>
+                    <Resolution>305.74811314055802</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>10</LevelID>
+                    <Scale>577790.55428899999</Scale>
+                    <Resolution>152.874056570411</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>11</LevelID>
+                    <Scale>288895.27714399999</Scale>
+                    <Resolution>76.437028285073197</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>12</LevelID>
+                    <Scale>144447.638572</Scale>
+                    <Resolution>38.218514142536598</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>13</LevelID>
+                    <Scale>72223.819285999998</Scale>
+                    <Resolution>19.109257071268299</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>14</LevelID>
+                    <Scale>36111.909642999999</Scale>
+                    <Resolution>9.5546285356341496</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>15</LevelID>
+                    <Scale>18055.954822</Scale>
+                    <Resolution>4.7773142679493699</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>16</LevelID>
+                    <Scale>9027.9774109999998</Scale>
+                    <Resolution>2.38865713397468</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>17</LevelID>
+                    <Scale>4513.9887049999998</Scale>
+                    <Resolution>1.1943285668550501</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>18</LevelID>
+                    <Scale>2256.994353</Scale>
+                    <Resolution>0.59716428355981699</Resolution>
+                </LODInfo>
+                <LODInfo xsi:type='typens:LODInfo'>
+                    <LevelID>19</LevelID>
+                    <Scale>1128.4971760000001</Scale>
+                    <Resolution>0.29858214164761698</Resolution>
+                </LODInfo>
+            </LODInfos>
+        </TileCacheInfo>
+        <TileImageInfo xsi:type='typens:TileImageInfo'>
+            <CacheTileFormat>PNG8</CacheTileFormat>
+            <CompressionQuality>0</CompressionQuality>
+            <Antialiasing>false</Antialiasing>
+            <BandCount>1</BandCount>
+            <LERCError>0</LERCError>
+        </TileImageInfo>
+        <CacheStorageInfo xsi:type='typens:CacheStorageInfo'>
+            <StorageFormat>esriMapCacheStorageModeCompact</StorageFormat>
+            <PacketSize>128</PacketSize>
+        </CacheStorageInfo>
+    </CacheSchema>
+    <ItemInfo xsi:type='typens:ItemInfo'>
+        <Name>ExampleImageService</Name>
+        <GUID/>
+        <Type>Service Definition</Type>
+        <TypeKeywords xsi:nil='true'/>
+        <CatalogPath/>
+        <Title>IMG.QldOrthoSecure_Gda94</Title>
+        <Description/>
+        <Snippet/>
+        <SpatialReference xsi:type='typens:GeographicCoordinateSystem'>
+            <WKT>GEOGCS[&quot;GCS_GDA_1994&quot;,DATUM[&quot;D_GDA_1994&quot;,SPHEROID[&quot;GRS_1980&quot;,6378137.0,298.257222101]],PRIMEM[&quot;Greenwich&quot;,0.0],UNIT[&quot;Degree&quot;,0.0174532925199433],AUTHORITY[&quot;EPSG&quot;,4283]]</WKT>
+            <XOrigin>-400</XOrigin>
+            <YOrigin>-400</YOrigin>
+            <XYScale>11258999068426.238</XYScale>
+            <ZOrigin>0</ZOrigin>
+            <ZScale>1</ZScale>
+            <MOrigin>0</MOrigin>
+            <MScale>1</MScale>
+            <XYTolerance>8.9831528411952133e-009</XYTolerance>
+            <ZTolerance>0.001</ZTolerance>
+            <MTolerance>0.001</MTolerance>
+            <HighPrecision>true</HighPrecision>
+            <LeftLongitude>-180</LeftLongitude>
+            <WKID>4283</WKID>
+            <LatestWKID>4283</LatestWKID>
+        </SpatialReference>
+        <AccessInformation/>
+        <MinScale>0</MinScale>
+        <MaxScale>0</MaxScale>
+        <Credits/>
+        <spatialReference/>
+    </ItemInfo>
+    <Metadata xsi:type='typens:XmlPropertySet'>
+        <XmlDoc>&lt;metadata xml:lang=&quot;en&quot;&gt;&lt;Esri&gt;&lt;CreaDate&gt;20140903&lt;/CreaDate&gt;&lt;CreaTime&gt;13512800&lt;/CreaTime&gt;&lt;ArcGISFormat&gt;1.0&lt;/ArcGISFormat&gt;&lt;SyncOnce&gt;FALSE&lt;/SyncOnce&gt;&lt;DataProperties&gt;&lt;lineage&gt;&lt;Process ToolSource=&quot;c:\program files (x86)\arcgis\desktop10.2\ArcToolbox\Toolboxes\Data Management Tools.tbx\CreateReferencedMosaicDataset&quot; Date=&quot;20140903&quot; Time=&quot;135128&quot;&gt;CreateReferencedMosaicDataset &quot;Database Connections\img@sirdbs.sirupd.EZ.sde\IMG.QldImageryGda94_10_2_1&quot; &quot;Database Connections\img@sirdbs.sirupd.EZ.sde\QldOrthoSecure_Gda94&quot; &quot;GEOGCS[&apos;GCS_GDA_1994&apos;,DATUM[&apos;D_GDA_1994&apos;,SPHEROID[&apos;GRS_1980&apos;,6378137.0,298.257222101]],PRIMEM[&apos;Greenwich&apos;,0.0],UNIT[&apos;Degree&apos;,0.0174532925199433]];-400 -400 1000000000;0 1;0 1;8.98315284119521E-09;0.001;0.001;IsHighPrecision&quot; # # # # # SELECT_USING_FEATURES # # # # BUILD_BOUNDARY&lt;/Process&gt;&lt;/lineage&gt;&lt;itemProps&gt;&lt;itemName Sync=&quot;TRUE&quot;&gt;IMG.QldOrthoSecure_Gda94&lt;/itemName&gt;&lt;itemLocation&gt;&lt;linkage Sync=&quot;TRUE&quot;&gt;Server=sirdbs; Service=sde:oracle$sirdbs/sirupd; User=img; Version=SDE.DEFAULT&lt;/linkage&gt;&lt;protocol Sync=&quot;TRUE&quot;&gt;ArcSDE Connection&lt;/protocol&gt;&lt;/itemLocation&gt;&lt;nativeExtBox&gt;&lt;westBL Sync=&quot;TRUE&quot;&gt;137.999995&lt;/westBL&gt;&lt;eastBL Sync=&quot;TRUE&quot;&gt;153.999955&lt;/eastBL&gt;&lt;southBL Sync=&quot;TRUE&quot;&gt;-29.525268&lt;/southBL&gt;&lt;northBL Sync=&quot;TRUE&quot;&gt;-8.999997&lt;/northBL&gt;&lt;exTypeCode Sync=&quot;TRUE&quot;&gt;1&lt;/exTypeCode&gt;&lt;/nativeExtBox&gt;&lt;/itemProps&gt;&lt;coordRef&gt;&lt;type Sync=&quot;TRUE&quot;&gt;Geographic&lt;/type&gt;&lt;geogcsn Sync=&quot;TRUE&quot;&gt;GCS_GDA_1994&lt;/geogcsn&gt;&lt;csUnits Sync=&quot;TRUE&quot;&gt;Angular Unit: Degree (0.017453)&lt;/csUnits&gt;&lt;peXml Sync=&quot;TRUE&quot;&gt;&amp;lt;GeographicCoordinateSystem xsi:type=&apos;typens:GeographicCoordinateSystem&apos; xmlns:xsi=&apos;http://www.w3.org/2001/XMLSchema-instance&apos; xmlns:xs=&apos;http://www.w3.org/2001/XMLSchema&apos; xmlns:typens=&apos;http://www.esri.com/schemas/ArcGIS/10.1&apos;&amp;gt;&amp;lt;WKT&amp;gt;GEOGCS[&amp;amp;quot;GCS_GDA_1994&amp;amp;quot;,DATUM[&amp;amp;quot;D_GDA_1994&amp;amp;quot;,SPHEROID[&amp;amp;quot;GRS_1980&amp;amp;quot;,6378137.0,298.257222101]],PRIMEM[&amp;amp;quot;Greenwich&amp;amp;quot;,0.0],UNIT[&amp;amp;quot;Degree&amp;amp;quot;,0.0174532925199433],AUTHORITY[&amp;amp;quot;EPSG&amp;amp;quot;,4283]]&amp;lt;/WKT&amp;gt;&amp;lt;XOrigin&amp;gt;-400&amp;lt;/XOrigin&amp;gt;&amp;lt;YOrigin&amp;gt;-400&amp;lt;/YOrigin&amp;gt;&amp;lt;XYScale&amp;gt;11258999068426.238&amp;lt;/XYScale&amp;gt;&amp;lt;ZOrigin&amp;gt;0&amp;lt;/ZOrigin&amp;gt;&amp;lt;ZScale&amp;gt;1&amp;lt;/ZScale&amp;gt;&amp;lt;MOrigin&amp;gt;0&amp;lt;/MOrigin&amp;gt;&amp;lt;MScale&amp;gt;1&amp;lt;/MScale&amp;gt;&amp;lt;XYTolerance&amp;gt;8.9831528411952133e-009&amp;lt;/XYTolerance&amp;gt;&amp;lt;ZTolerance&amp;gt;0.001&amp;lt;/ZTolerance&amp;gt;&amp;lt;MTolerance&amp;gt;0.001&amp;lt;/MTolerance&amp;gt;&amp;lt;HighPrecision&amp;gt;true&amp;lt;/HighPrecision&amp;gt;&amp;lt;LeftLongitude&amp;gt;-180&amp;lt;/LeftLongitude&amp;gt;&amp;lt;WKID&amp;gt;4283&amp;lt;/WKID&amp;gt;&amp;lt;LatestWKID&amp;gt;4283&amp;lt;/LatestWKID&amp;gt;&amp;lt;/GeographicCoordinateSystem&amp;gt;&lt;/peXml&gt;&lt;/coordRef&gt;&lt;RasterProperties&gt;&lt;General&gt;&lt;PixelDepth Sync=&quot;TRUE&quot;&gt;8&lt;/PixelDepth&gt;&lt;HasColormap Sync=&quot;TRUE&quot;&gt;FALSE&lt;/HasColormap&gt;&lt;CompressionType Sync=&quot;TRUE&quot;&gt;None&lt;/CompressionType&gt;&lt;NumBands Sync=&quot;TRUE&quot;&gt;3&lt;/NumBands&gt;&lt;Format Sync=&quot;TRUE&quot;&gt;AMD&lt;/Format&gt;&lt;HasPyramids Sync=&quot;TRUE&quot;&gt;TRUE&lt;/HasPyramids&gt;&lt;SourceType Sync=&quot;TRUE&quot;&gt;continuous&lt;/SourceType&gt;&lt;PixelType Sync=&quot;TRUE&quot;&gt;unsigned integer&lt;/PixelType&gt;&lt;NoDataValue Sync=&quot;TRUE&quot;&gt;&lt;/NoDataValue&gt;&lt;/General&gt;&lt;Properties&gt;&lt;MaxImageHeight Sync=&quot;TRUE&quot;&gt;4100&lt;/MaxImageHeight&gt;&lt;MaxImageWidth Sync=&quot;TRUE&quot;&gt;15000&lt;/MaxImageWidth&gt;&lt;MaxRecordCount Sync=&quot;TRUE&quot;&gt;1000&lt;/MaxRecordCount&gt;&lt;MaxDownloadImageCount Sync=&quot;TRUE&quot;&gt;20&lt;/MaxDownloadImageCount&gt;&lt;MaxDownloadSizeLimit Sync=&quot;TRUE&quot;&gt;2048&lt;/MaxDownloadSizeLimit&gt;&lt;MaxMosaicImageCount Sync=&quot;TRUE&quot;&gt;20&lt;/MaxMosaicImageCount&gt;&lt;DefaultCompressionQuality Sync=&quot;TRUE&quot;&gt;75&lt;/DefaultCompressionQuality&gt;&lt;DefaultCompressionTolerance Sync=&quot;TRUE&quot;&gt;0.01&lt;/DefaultCompressionTolerance&gt;&lt;BlendWidth Sync=&quot;TRUE&quot;&gt;10&lt;/BlendWidth&gt;&lt;ViewpointSpacingX Sync=&quot;TRUE&quot;&gt;600&lt;/ViewpointSpacingX&gt;&lt;ViewpointSpacingY Sync=&quot;TRUE&quot;&gt;300&lt;/ViewpointSpacingY&gt;&lt;AllowedItemMetadata Sync=&quot;TRUE&quot;&gt;Basic&lt;/AllowedItemMetadata&gt;&lt;DefaultResamplingMethod Sync=&quot;TRUE&quot;&gt;1&lt;/DefaultResamplingMethod&gt;&lt;AllowedMosaicMethods Sync=&quot;TRUE&quot;&gt;NorthWest,Center,LockRaster,ByAttribute,Nadir,Viewpoint,Seamline,None&lt;/AllowedMosaicMethods&gt;&lt;AllowedCompressions Sync=&quot;TRUE&quot;&gt;None,JPEG,LZ77,LERC&lt;/AllowedCompressions&gt;&lt;AllowedMensurationCapabilities Sync=&quot;TRUE&quot;&gt;Basic&lt;/AllowedMensurationCapabilities&gt;&lt;AvailableMensurationCapabilities Sync=&quot;TRUE&quot;&gt;None,Basic,Base-Top Height,Top-Top Shadow Height,Base-Top Shadow Height,3D&lt;/AvailableMensurationCapabilities&gt;&lt;ClipToBoundary Sync=&quot;TRUE&quot;&gt;0&lt;/ClipToBoundary&gt;&lt;FootprintMayContainNoData Sync=&quot;TRUE&quot;&gt;-1&lt;/FootprintMayContainNoData&gt;&lt;CellSizeTolerance Sync=&quot;TRUE&quot;&gt;0.8&lt;/CellSizeTolerance&gt;&lt;MinimumPixelContribution Sync=&quot;TRUE&quot;&gt;1&lt;/MinimumPixelContribution&gt;&lt;AvailableMosaicMethods Sync=&quot;TRUE&quot;&gt;NorthWest,Center,LockRaster,ByAttribute,Nadir,Viewpoint,Seamline,None&lt;/AvailableMosaicMethods&gt;&lt;AvailableCompressionMethods Sync=&quot;TRUE&quot;&gt;None,JPEG,LZ77,LERC&lt;/AvailableCompressionMethods&gt;&lt;AvailableItemMetadataLevels Sync=&quot;TRUE&quot;&gt;None,Basic,Full&lt;/AvailableItemMetadataLevels&gt;&lt;ConfigKeyword Sync=&quot;TRUE&quot;&gt;&lt;/ConfigKeyword&gt;&lt;BandDefinitionKeyword Sync=&quot;TRUE&quot;&gt;NONE&lt;/BandDefinitionKeyword&gt;&lt;AllowedFields Sync=&quot;TRUE&quot;&gt;NAME,MINPS,MAXPS,LOWPS,HIGHPS,TAG,GROUPNAME,PRODUCTNAME,CENTERX,CENTERY,ZORDER,SE_ANNO_CAD_DATA,SHAPE.AREA,SHAPE.LEN,PROJECT_NAME,CAPTURE_DATE,METALINK&lt;/AllowedFields&gt;&lt;LowCellSize Sync=&quot;TRUE&quot;&gt;0&lt;/LowCellSize&gt;&lt;HighCellSize Sync=&quot;TRUE&quot;&gt;0&lt;/HighCellSize&gt;&lt;MaxCellSize Sync=&quot;TRUE&quot;&gt;0&lt;/MaxCellSize&gt;&lt;TimeStamp.RemoveItems Sync=&quot;TRUE&quot;&gt;41849.2688630556&lt;/TimeStamp.RemoveItems&gt;&lt;TimeStamp.UpdateExtent Sync=&quot;TRUE&quot;&gt;41849.2688865278&lt;/TimeStamp.UpdateExtent&gt;&lt;/Properties&gt;&lt;Functions Sync=&quot;TRUE&quot;&gt;&lt;Function Name=&quot;Mosaic Function&quot; Description=&quot;Performs on-the-fly mosaic on a raster catalog.&quot;/&gt;&lt;/Functions&gt;&lt;/RasterProperties&gt;&lt;/DataProperties&gt;&lt;SyncDate&gt;20150102&lt;/SyncDate&gt;&lt;SyncTime&gt;07461900&lt;/SyncTime&gt;&lt;ModDate&gt;20150102&lt;/ModDate&gt;&lt;ModTime&gt;07461900&lt;/ModTime&gt;&lt;/Esri&gt;&lt;dataIdInfo&gt;&lt;envirDesc Sync=&quot;TRUE&quot;&gt;Microsoft Windows Server 2008 R2 Version 6.1 (Build 7601) Service Pack 1; Esri ArcGIS 10.1.1.3143&lt;/envirDesc&gt;&lt;dataLang&gt;&lt;languageCode value=&quot;eng&quot; Sync=&quot;TRUE&quot;&gt;&lt;/languageCode&gt;&lt;countryCode value=&quot;AUS&quot; Sync=&quot;TRUE&quot;&gt;&lt;/countryCode&gt;&lt;/dataLang&gt;&lt;idCitation&gt;&lt;resTitle Sync=&quot;TRUE&quot;&gt;IMG.QldOrthoSecure_Gda94&lt;/resTitle&gt;&lt;presForm&gt;&lt;PresFormCd value=&quot;005&quot; Sync=&quot;TRUE&quot;&gt;&lt;/PresFormCd&gt;&lt;/presForm&gt;&lt;/idCitation&gt;&lt;spatRpType&gt;&lt;SpatRepTypCd value=&quot;002&quot; Sync=&quot;TRUE&quot;&gt;&lt;/SpatRepTypCd&gt;&lt;/spatRpType&gt;&lt;dataExt&gt;&lt;geoEle&gt;&lt;GeoBndBox esriExtentType=&quot;search&quot;&gt;&lt;exTypeCode Sync=&quot;TRUE&quot;&gt;1&lt;/exTypeCode&gt;&lt;westBL Sync=&quot;TRUE&quot;&gt;137.999995&lt;/westBL&gt;&lt;eastBL Sync=&quot;TRUE&quot;&gt;153.999955&lt;/eastBL&gt;&lt;northBL Sync=&quot;TRUE&quot;&gt;-8.999997&lt;/northBL&gt;&lt;southBL Sync=&quot;TRUE&quot;&gt;-29.525268&lt;/southBL&gt;&lt;/GeoBndBox&gt;&lt;/geoEle&gt;&lt;/dataExt&gt;&lt;/dataIdInfo&gt;&lt;mdLang&gt;&lt;languageCode value=&quot;eng&quot; Sync=&quot;TRUE&quot;&gt;&lt;/languageCode&gt;&lt;countryCode value=&quot;AUS&quot; Sync=&quot;TRUE&quot;&gt;&lt;/countryCode&gt;&lt;/mdLang&gt;&lt;refSysInfo&gt;&lt;RefSystem&gt;&lt;refSysID&gt;&lt;identCode code=&quot;4283&quot; Sync=&quot;TRUE&quot;&gt;&lt;/identCode&gt;&lt;idCodeSpace Sync=&quot;TRUE&quot;&gt;EPSG&lt;/idCodeSpace&gt;&lt;idVersion Sync=&quot;TRUE&quot;&gt;7.11.2&lt;/idVersion&gt;&lt;/refSysID&gt;&lt;/RefSystem&gt;&lt;/refSysInfo&gt;&lt;spatRepInfo&gt;&lt;Georect&gt;&lt;cellGeo&gt;&lt;CellGeoCd Sync=&quot;TRUE&quot; value=&quot;002&quot;&gt;&lt;/CellGeoCd&gt;&lt;/cellGeo&gt;&lt;numDims Sync=&quot;TRUE&quot;&gt;2&lt;/numDims&gt;&lt;tranParaAv Sync=&quot;TRUE&quot;&gt;1&lt;/tranParaAv&gt;&lt;chkPtAv Sync=&quot;TRUE&quot;&gt;0&lt;/chkPtAv&gt;&lt;cornerPts&gt;&lt;pos Sync=&quot;TRUE&quot;&gt;137.999995 -29.525268&lt;/pos&gt;&lt;/cornerPts&gt;&lt;cornerPts&gt;&lt;pos Sync=&quot;TRUE&quot;&gt;137.999995 -8.999997&lt;/pos&gt;&lt;/cornerPts&gt;&lt;cornerPts&gt;&lt;pos Sync=&quot;TRUE&quot;&gt;153.999955 -8.999997&lt;/pos&gt;&lt;/cornerPts&gt;&lt;cornerPts&gt;&lt;pos Sync=&quot;TRUE&quot;&gt;153.999955 -29.525268&lt;/pos&gt;&lt;/cornerPts&gt;&lt;centerPt&gt;&lt;pos Sync=&quot;TRUE&quot;&gt;145.999975 -19.262632&lt;/pos&gt;&lt;/centerPt&gt;&lt;axisDimension type=&quot;002&quot;&gt;&lt;dimSize Sync=&quot;TRUE&quot;&gt;29684527&lt;/dimSize&gt;&lt;dimResol&gt;&lt;value Sync=&quot;TRUE&quot; uom=&quot;Degree&quot;&gt;0.000001&lt;/value&gt;&lt;/dimResol&gt;&lt;/axisDimension&gt;&lt;axisDimension type=&quot;001&quot;&gt;&lt;dimSize Sync=&quot;TRUE&quot;&gt;38080280&lt;/dimSize&gt;&lt;dimResol&gt;&lt;value Sync=&quot;TRUE&quot; uom=&quot;Degree&quot;&gt;0.000001&lt;/value&gt;&lt;/dimResol&gt;&lt;/axisDimension&gt;&lt;ptInPixel&gt;&lt;PixOrientCd Sync=&quot;TRUE&quot; value=&quot;001&quot;&gt;&lt;/PixOrientCd&gt;&lt;/ptInPixel&gt;&lt;/Georect&gt;&lt;/spatRepInfo&gt;&lt;contInfo&gt;&lt;ImgDesc&gt;&lt;contentTyp&gt;&lt;ContentTypCd Sync=&quot;TRUE&quot; value=&quot;001&quot;&gt;&lt;/ContentTypCd&gt;&lt;/contentTyp&gt;&lt;covDim&gt;&lt;Band&gt;&lt;dimDescrp Sync=&quot;TRUE&quot;&gt;Band_1&lt;/dimDescrp&gt;&lt;bitsPerVal Sync=&quot;TRUE&quot;&gt;8&lt;/bitsPerVal&gt;&lt;valUnit&gt;&lt;UOM type=&quot;length&quot;&gt;&lt;/UOM&gt;&lt;/valUnit&gt;&lt;/Band&gt;&lt;Band&gt;&lt;dimDescrp Sync=&quot;TRUE&quot;&gt;Band_2&lt;/dimDescrp&gt;&lt;bitsPerVal Sync=&quot;TRUE&quot;&gt;8&lt;/bitsPerVal&gt;&lt;valUnit&gt;&lt;UOM type=&quot;length&quot;&gt;&lt;/UOM&gt;&lt;/valUnit&gt;&lt;/Band&gt;&lt;Band&gt;&lt;dimDescrp Sync=&quot;TRUE&quot;&gt;Band_3&lt;/dimDescrp&gt;&lt;bitsPerVal Sync=&quot;TRUE&quot;&gt;8&lt;/bitsPerVal&gt;&lt;valUnit&gt;&lt;UOM type=&quot;length&quot;&gt;&lt;/UOM&gt;&lt;/valUnit&gt;&lt;/Band&gt;&lt;/covDim&gt;&lt;/ImgDesc&gt;&lt;/contInfo&gt;&lt;mdDateSt Sync=&quot;TRUE&quot;&gt;20150102&lt;/mdDateSt&gt;&lt;/metadata&gt;
+        </XmlDoc>
+    </Metadata>
+</SVCManifest>

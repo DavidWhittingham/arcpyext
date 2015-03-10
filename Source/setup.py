@@ -17,6 +17,11 @@ setup(
     version = arcpyext.__version__,
     packages = packages,
     
+    #dependencies
+    install_requires = [
+        "enum34>=1.0.4"
+    ],
+    
     #misc files to include
     package_data = {
         "": ["LICENSE"]
