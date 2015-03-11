@@ -7,5 +7,5 @@ from ._version import *
 
 import arcpy
 
-import arcpyext.mapping
-import arcpyext.data
+from . import mapping
+from . import data
