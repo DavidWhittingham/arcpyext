@@ -20,6 +20,11 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
         lz77 = "LZ77"
         lerc = "LERC"
         
+    class Extension(Enum):
+        wmsserver = "WMSServer"
+        wcsserver = "WCSServer"
+        jpipserver = "JPIPServer"
+        
     class MosaicMethod(Enum):
         north_west = "NorthWest"
         center = "Center"
@@ -98,41 +103,64 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
         self._set_element_value(self._get_default_resampling_method_element(), value.value)
 
     @property
+    def max_download_image_count(self):
+        return self._get_int_value_from_element(self._get_max_download_image_count_element())
+    
+    @max_download_image_count.setter
+    def max_download_image_count(self, value):
+        self._set_int_value_to_element(value, self._get_max_download_image_count_element(), "Maximum Download Image Count")
+        
+    @property
+    def max_download_size_limit(self):
+        return self._get_int_value_from_element(self._get_max_download_size_limit_element())
+    
+    @max_download_size_limit.setter
+    def max_download_size_limit(self, value):
+        self._set_int_value_to_element(value, self._get_max_download_size_limit_element(), "Maximum Download Size Limit")
+        
+    @property
     def max_image_height(self):
-        value = self._get_element_value(self._get_max_image_height_element())
-        return int(value) if value else None
+        return self._get_int_value_from_element(self._get_max_image_height_element())
 
     @max_image_height.setter
     def max_image_height(self, value):
-        if value != None and value < 0:
-            raise ValueError("Image height cannot be less than zero.")
-        self._set_element_value(self._get_max_image_height_element(), value)
+        self._set_int_value_to_element(value, self._get_max_image_height_element(), "Maximum Image Height")
 
     @property
     def max_image_width(self):
-        value = self._get_element_value(self._get_max_image_width_element())
-        return int(value) if value else None
+        return self._get_int_value_from_element(self._get_max_image_width_element())
 
     @max_image_width.setter
     def max_image_width(self, value):
-        if value != None and value < 0:
-            raise ValueError("Image width cannot be less than zero.")
-        self._set_element_value(self._get_max_image_width_element(), value)
+        self._set_int_value_to_element(value, self._get_max_image_width_element(), "Maximum Image Width")
 
     @property
     def max_mosaic_image_count(self):
-        value = self._get_element_value(self._get_max_mosaic_image_count_element())
-        return int(value) if value else None
+        return self._get_int_value_from_element(self._get_max_mosaic_image_count_element())
 
     @max_mosaic_image_count.setter
     def max_mosaic_image_count(self, value):
-        if value != None and value < 0:
-            raise ValueError("Maximum mosaic count cannot be less than zero.")
-        self._set_element_value(self._get_max_mosaic_image_count_element(), value)
+        self._set_int_value_to_element(value, self._get_max_mosaic_image_count_element(), "Maximum Mosaic Count")
+        
+    @property
+    def return_jpgpng_as_jpg(self):
+        return self._value_to_boolean(self._get_element_value(self._get_return_jpgpng_as_jpg_element()))
+    
+    @return_jpgpng_as_jpg.setter
+    def return_jpgpng_as_jpg(self, value):
+        value = self._value_to_boolean(value)
+        self._set_element_value(self._get_return_jpgpng_as_jpg_element(), value)
 
     ######################
     # PRIVATE PROPERTIES #
     ######################
+    
+    def _get_int_value_from_element(self, element, required = False):
+        value = self._get_element_value(element)
+        if required:
+            return int(value)
+        else:
+            return int(value) if value != "" else None
 
     def _get_allowed_compressions_element(self):
         return self._get_value_element_by_key(self._get_service_config_props(), "AllowedCompressions")
@@ -145,6 +173,12 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
 
     def _get_default_resampling_method_element(self):
         return self._get_value_element_by_key(self._get_service_config_props(), "DefaultResamplingMethod")
+        
+    def _get_max_download_image_count_element(self):
+        return self._get_value_element_by_key(self._get_service_config_props(), "MaxDownloadImageCount")
+        
+    def _get_max_download_size_limit_element(self):
+        return self._get_value_element_by_key(self._get_service_config_props(), "MaxDownloadSizeLimit")
 
     def _get_max_image_height_element(self):
         return self._get_value_element_by_key(self._get_service_config_props(), "MaxImageHeight")
@@ -154,6 +188,9 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
 
     def _get_max_mosaic_image_count_element(self):
         return self._get_value_element_by_key(self._get_service_config_props(), "MaxMosaicImageCount")
+        
+    def _get_return_jpgpng_as_jpg_element(self):
+        return self._get_value_element_by_key(self._get_service_config_props(), "ReturnJPGPNGAsJPG")
         
     def _set_enum_val_list_to_element(self, values, enum, element, exception_message):
         string_values = []
@@ -165,3 +202,12 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
             string_values.append(val.value)
                 
         self._set_element_value(element, ",".join(string_values))
+    
+    def _set_int_value_to_element(self, value, element, name, allow_none = False, allow_negative = False):
+        if allow_none == True and value == None:
+            raise ValueError("{0} cannot be None.".format(name))
+            
+        if allow_negative == False and value != None and value < 0:
+            raise ValueError("{0} cannot be less than zero.".format(name))
+            
+        self._set_element_value(element, value)

@@ -94,46 +94,6 @@ class SDDraft(SDDraftCacheable, SDDraftBase):
 
 
     @property
-    def enabled_extensions(self):
-        """Gets a list of the extensions (by type name) that are currently enabled for the service."""
-        exts = self._get_elements_by_tag("SVCExtension")
-        return [self.Extension(self._get_element_value(item.find("TypeName"))) for item in exts
-            if self._get_element_value(item.find("Enabled")).lower() == "true"]
-
-    @enabled_extensions.setter
-    def enabled_extensions(self, values):
-        """Sets the extensions (by an iterable of type names) that are enabled for the service.
-
-        Valid values are contained in the 'arcpyext.mapping.SDDraft.Extension' enumerated type.
-        Valid string values are:
-         - 'FeatureServer'
-         - 'MobileServer'
-         - 'WMSServer'
-         - 'KmlServer'
-         - 'NAServer'
-         - 'WFSServer'
-         - 'WCSServer'
-         - 'SchematicsServer'
-
-        Custom extensions will also (theoretically) work, as long as there configuration already
-        exists in the Service Definition Draft.
-        """
-        types = []
-        for val in values:
-            if not isinstance(val, basestring):
-                val = val.value
-            val = val.lower()
-            types.append(val)
-        
-        for ext in self._get_elements_by_tag("SVCExtension"):
-            type = self._get_element_value(ext.find("TypeName"))
-            if type.lower() in types:
-                self._set_element_value(ext.find("Enabled"), "true")
-            else:
-                self._set_element_value(ext.find("Enabled"), "false")
-
-
-    @property
     def feature_access_enabled_operations(self):
         """Gets a list of the enabled operations (by type name) that are currently enabled for the feature service."""
         values = self._get_enabled_feature_operations()

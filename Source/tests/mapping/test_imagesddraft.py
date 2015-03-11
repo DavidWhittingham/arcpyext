@@ -80,6 +80,48 @@ def test_default_resampling_method(sddraft, method, ex):
         sddraft.default_resampling_method = method
         assert sddraft.default_resampling_method == method
 
+@pytest.mark.parametrize(("count", "ex"), [
+    (50, None),
+    (None, None),
+    (0, None),
+    (-1, ValueError)
+])
+def test_max_download_image_count(sddraft, count, ex):
+    if (ex != None):
+        with pytest.raises(ex):
+            sddraft.max_download_image_count = count
+    else:
+        sddraft.max_download_image_count = count
+        assert sddraft.max_download_image_count == count
+
+@pytest.mark.parametrize(("limit", "ex"), [
+    (50, None),
+    (None, None),
+    (0, None),
+    (-1, ValueError)
+])
+def test_max_download_size_limit(sddraft, limit, ex):
+    if (ex != None):
+        with pytest.raises(ex):
+            sddraft.max_download_size_limit = limit
+    else:
+        sddraft.max_download_size_limit = limit
+        assert sddraft.max_download_size_limit == limit
+
+@pytest.mark.parametrize(("height", "ex"), [
+    (1000, None),
+    (None, None),
+    (0, None),
+    (-1, ValueError)
+])
+def test_max_image_height(sddraft, height, ex):
+    if (ex != None):
+        with pytest.raises(ex):
+            sddraft.max_image_height = height
+    else:
+        sddraft.max_image_height = height
+        assert sddraft.max_image_height == height
+
 @pytest.mark.parametrize(("width", "ex"), [
     (1000, None),
     (None, None),
@@ -92,19 +134,6 @@ def test_max_image_width(sddraft, width, ex):
     else:
         sddraft.max_image_width = width
         assert sddraft.max_image_width == width
-
-@pytest.mark.parametrize(("height", "ex"), [
-    (1000, None),
-    (None, None),
-    (-1, ValueError)
-])
-def test_max_image_height(sddraft, height, ex):
-    if (ex != None):
-        with pytest.raises(ex):
-            sddraft.max_image_height = height
-    else:
-        sddraft.max_image_height = height
-        assert sddraft.max_image_height == height
         
 @pytest.mark.parametrize(("count", "ex"), [
     (30, None),
@@ -118,3 +147,8 @@ def test_max_mosaic_image_count(sddraft, count, ex):
     else:
         sddraft.max_mosaic_image_count = count
         assert sddraft.max_mosaic_image_count == count
+
+@pytest.mark.parametrize(("enabled", "expected"), TRUEISH_TEST_PARAMS)
+def test_return_jpgpng_as_jpg(sddraft, enabled, expected):
+    sddraft.return_jpgpng_as_jpg = enabled
+    assert sddraft.return_jpgpng_as_jpg == expected

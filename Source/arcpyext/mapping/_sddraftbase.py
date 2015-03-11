@@ -6,8 +6,14 @@ import xml.dom.minidom as DOM
 
 from abc import ABCMeta
 
+from enum import Enum
+
 class SDDraftBase:
     __metaclass__ = ABCMeta
+
+    class Extension(Enum):
+        """Must be overridden by sub-classes if any extensions are supported."""
+        pass
 
     #############################
     # PRIVATE CONSTANTS/STATICS #
@@ -62,6 +68,34 @@ class SDDraftBase:
     def description(self, value):
         """Sets the description for the service."""
         self._set_element_value(self._get_description_element(), value)
+        
+    @property
+    def enabled_extensions(self):
+        """Gets a list of the extensions (by type name) that are currently enabled for the service."""
+        exts = self._get_elements_by_tag("SVCExtension")
+        return [self.Extension(self._get_element_value(item.find("TypeName"))) for item in exts
+            if self._get_element_value(item.find("Enabled")).lower() == "true"]
+
+            
+    @enabled_extensions.setter
+    def enabled_extensions(self, values):
+        """Sets the extensions (by an iterable of type names) that are enabled for the service.
+
+        Valid values are defined in the 'Extension' class on the concrete implementer.
+        """
+        types = []
+        for val in values:
+            if not isinstance(val, basestring):
+                val = val.value
+            val = val.lower()
+            types.append(val)
+        
+        for ext in self._get_elements_by_tag("SVCExtension"):
+            type = self._get_element_value(ext.find("TypeName"))
+            if type.lower() in types:
+                self._set_element_value(ext.find("Enabled"), "true")
+            else:
+                self._set_element_value(ext.find("Enabled"), "false")
 
 
     @property

@@ -23,6 +23,12 @@ def test_cluster(sddraft, cluster_name, expected):
 def test_description(sddraft, description):
     sddraft.description = description
     assert sddraft.description == description
+
+def test_enabled_extensions(sddraft):
+    sddraft.enabled_extensions = sddraft.Extension
+    assert set(sddraft.enabled_extensions) == set(sddraft.Extension)
+    sddraft.enabled_extensions = []
+    assert set(sddraft.enabled_extensions) == set([])
     
 @pytest.mark.parametrize(("folder", "expected", "ex"), [
     ("TestName", "TestName", None),
@@ -147,7 +153,7 @@ def test_recycle_start_time(sddraft, input, expected, ex):
         sddraft.recycle_start_time = input
         assert sddraft.recycle_start_time == expected
 
-@pytest.mark.parametrize(("replace", "expected"), TRUSISH_TEST_PARAMS)
+@pytest.mark.parametrize(("replace", "expected"), TRUEISH_TEST_PARAMS)
 def test_replace_existing(sddraft, replace, expected):
     sddraft.replace_existing = replace
     assert sddraft.replace_existing == expected

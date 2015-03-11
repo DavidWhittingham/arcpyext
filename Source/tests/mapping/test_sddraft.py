@@ -20,41 +20,39 @@ def sddraft():
 from sddraftbase import *
 from sddraft_cacheable import *
 
-@pytest.mark.parametrize(("mode"), [
-    (SDDraft.AntiAliasingMode.none),
-    (SDDraft.AntiAliasingMode.fastest),
-    (SDDraft.AntiAliasingMode.fast),
-    (SDDraft.AntiAliasingMode.normal),
-    (SDDraft.AntiAliasingMode.best)
+@pytest.mark.parametrize(("mode", "expected", "ex"), [
+    (SDDraft.AntiAliasingMode.none, SDDraft.AntiAliasingMode.none, None),
+    (SDDraft.AntiAliasingMode.fastest, SDDraft.AntiAliasingMode.fastest, None),
+    (SDDraft.AntiAliasingMode.fast, SDDraft.AntiAliasingMode.fast, None),
+    (SDDraft.AntiAliasingMode.normal, SDDraft.AntiAliasingMode.normal, None),
+    (SDDraft.AntiAliasingMode.best, SDDraft.AntiAliasingMode.best, None),
+    ("None", SDDraft.AntiAliasingMode.none, None),
+    ("Fail", None, ValueError)
 ])
-def test_aa_mode(sddraft, mode):
-    sddraft.anti_aliasing_mode = mode
-    assert sddraft.anti_aliasing_mode == mode
+def test_aa_mode(sddraft, mode, expected, ex):
+    if (ex != None):
+        with pytest.raises(ex):
+            sddraft.anti_aliasing_mode = mode
+    else:
+        sddraft.anti_aliasing_mode = mode
+        assert sddraft.anti_aliasing_mode == expected
     
-@pytest.mark.parametrize(("disabled", "expected"), TRUSISH_TEST_PARAMS)
+@pytest.mark.parametrize(("disabled", "expected"), TRUEISH_TEST_PARAMS)
 def test_disable_indentify_relates(sddraft, disabled, expected):
     sddraft.disable_identify_relates = disabled
     assert sddraft.disable_identify_relates == expected
 
-@pytest.mark.parametrize(("enabled", "expected"), TRUSISH_TEST_PARAMS)
+@pytest.mark.parametrize(("enabled", "expected"), TRUEISH_TEST_PARAMS)
 def test_enable_dynamic_layers(sddraft, enabled, expected):
     sddraft.enable_dynamic_layers = enabled
     assert sddraft.enable_dynamic_layers == expected
-
-@pytest.mark.parametrize(("enabled_extensions"), [
-    ([SDDraft.Extension.kmlserver]),
-    ([SDDraft.Extension.kmlserver, SDDraft.Extension.mobileserver]),
-    ([])
-])
-def test_enabled_extensions(sddraft, enabled_extensions):
-    sddraft.enabled_extensions = enabled_extensions
-    assert set(sddraft.enabled_extensions) == set(enabled_extensions)
     
 @pytest.mark.parametrize(("enabled_ops", "expected", "ex"), [
     (["Query"], ["Query"], None),
     (["quErY"], ["Query"], None),
     ([SDDraft.FeatureAccessOperation.create, SDDraft.FeatureAccessOperation.update], ["Create", "Update"], None),
-    (["Foo", "Bar"], None, ValueError)
+    (["Foo", "Bar"], None, ValueError),
+    (["Query", 1], None, TypeError)
 ])
 def test_feature_access_enabled_operations(sddraft, enabled_ops, expected, ex):
     if (ex != None):
@@ -82,16 +80,22 @@ def test_save_a_copy(sddraft, output):
     sddraft.save_a_copy(output)
     assert os.path.isfile(output) == True
     
-@pytest.mark.parametrize(("enabled", "expected"), TRUSISH_TEST_PARAMS)
+@pytest.mark.parametrize(("enabled", "expected"), TRUEISH_TEST_PARAMS)
 def test_schema_locking_enabled(sddraft, enabled, expected):
     sddraft.schema_locking_enabled = enabled
     assert sddraft.schema_locking_enabled == expected
 
-@pytest.mark.parametrize(("mode"), [
-    (SDDraft.TextAntiAliasingMode.none),
-    (SDDraft.TextAntiAliasingMode.force),
-    (SDDraft.TextAntiAliasingMode.normal)
+@pytest.mark.parametrize(("mode", "expected", "ex"), [
+    (SDDraft.TextAntiAliasingMode.none, SDDraft.TextAntiAliasingMode.none, None),
+    (SDDraft.TextAntiAliasingMode.force, SDDraft.TextAntiAliasingMode.force, None),
+    (SDDraft.TextAntiAliasingMode.normal, SDDraft.TextAntiAliasingMode.normal, None),
+    ("None", SDDraft.TextAntiAliasingMode.none, None),
+    ("Fail", None, ValueError)
 ])
-def test_text_aa_mode(sddraft, mode):
-    sddraft.text_anti_aliasing_mode = mode
-    assert sddraft.text_anti_aliasing_mode == mode
+def test_text_aa_mode(sddraft, mode, expected, ex):
+    if (ex != None):
+        with pytest.raises(ex):
+            sddraft.text_anti_aliasing_mode = mode
+    else:
+        sddraft.text_anti_aliasing_mode = mode
+        assert sddraft.text_anti_aliasing_mode == expected
