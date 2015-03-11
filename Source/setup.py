@@ -1,9 +1,9 @@
-import arcpyext
-
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
+
+with open('arcpyext/_version.py') as fin: exec(fin)
 
 packages = [
     "arcpyext",
@@ -14,7 +14,7 @@ packages = [
 
 setup(
     name = "arcpyext",
-    version = arcpyext.__version__,
+    version = __version__,
     packages = packages,
     
     #dependencies
@@ -28,7 +28,7 @@ setup(
     },
     
     #PyPI MetaData
-    author = arcpyext.__author__,
+    author = __author__,
     description = "Extended functionality for Esri's ArcPy site-package",
     license = "BSD 3-Clause",
     keywords = "arcgis esri arcpy",
