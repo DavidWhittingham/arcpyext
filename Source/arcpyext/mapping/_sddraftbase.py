@@ -217,14 +217,13 @@ class SDDraftBase:
     @property
     def recycle_interval(self):
         """Gets the recycle interval (in hours)."""
-        return int(self._get_element_value(self._get_recycle_interval_element()))
+        return self._get_int_value_from_element(self._get_recycle_interval_element())
 
     @recycle_interval.setter
     def recycle_interval(self, value):
         """Sets the recycle interval (in hours)."""
-        if value < 0:
-            raise ValueError("Recycle interval must not be less than zero.")
-        self._set_element_value(self._get_recycle_interval_element(), value)
+        self._set_int_value_to_element(value, self._get_recycle_interval_element(),
+			"Recycle Interval", allow_none = True)
 
 
     @property
@@ -359,6 +358,13 @@ class SDDraftBase:
 
     def _get_instances_per_container_element(self):
         return self._get_value_element_by_key(self._get_service_props(), self._INSTANCES_PER_CONTAINER_KEY)
+    
+    def _get_int_value_from_element(self, element, required = False):
+        value = self._get_element_value(element)
+        if required:
+            return int(value)
+        else:
+            return int(value) if value != None and value != "" else None
 
     def _get_isolation_element(self):
         return self._get_value_element_by_key(self._get_service_props(), self._ISOLATION_KEY)
@@ -403,7 +409,7 @@ class SDDraftBase:
     def _get_value_element_by_key(self, prop_list, key):
         """ From a list of PropertySetProperty elements, return the "value" child element of the first
         PropertySetProperty element with a particular key."""
-        return next(item.find("Value") for item in list(prop_list) if item.findtext("Key") == key)
+        return next(item.find("Value") for item in list(prop_list) if item.findtext("Key").lower() == key.lower())
 
     def _get_value_elements_by_keys(self, prop_list, keys):
         """ From a list of PropertySetProperty elements, returns a list of the "value" child elements of
@@ -441,7 +447,7 @@ class SDDraftBase:
 
     def _set_element_value(self, element, value):
         if value == None:
-            element.text = ""
+            element.text = None
             return
         if isinstance(value, bool):
             element.text = "true" if value == True else "false"
@@ -454,3 +460,11 @@ class SDDraftBase:
             return
         raise ValueError("Element value cannot be set, unknown type.")
 
+    def _set_int_value_to_element(self, value, element, name, allow_none = False, allow_negative = False):
+        if allow_none == False and value == None:
+            raise ValueError("{0} cannot be None.".format(name))
+            
+        if allow_negative == False and value != None and value < 0:
+            raise ValueError("{0} cannot be less than zero.".format(name))
+            
+        self._set_element_value(element, value)
