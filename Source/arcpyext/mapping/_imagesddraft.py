@@ -153,9 +153,7 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
 
     @return_jpgpng_as_jpg.setter
     def return_jpgpng_as_jpg(self, value):
-        print("THIS IS THE FIRST VALUE: {0}".format(value))
         value = self._value_to_boolean(value)
-        print("THIS IS THE SECOND VALUE: {0}".format(str(value)))
         self._set_element_value(self._get_return_jpgpng_as_jpg_element(), value)
 
     ######################
