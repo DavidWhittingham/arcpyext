@@ -1,9 +1,10 @@
 from enum import Enum
 
-from _sddraftbase import SDDraftBase
-from _sddraft_cacheable import SDDraftCacheable
+from ._sddraftbase import SDDraftBase
+from ._sddraft_cacheable import SDDraftCacheable
+from ._sddraft_maxrecordcount import SDDraftMaxRecordCount
 
-class MapSDDraft(SDDraftCacheable, SDDraftBase):
+class MapSDDraft(SDDraftCacheable, SDDraftMaxRecordCount, SDDraftBase):
     """Class for editing a Service Definition Draft.
 
     Must be instantiated from an on-disk SDDraft file generated."""

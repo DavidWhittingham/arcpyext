@@ -6,10 +6,11 @@ import xml.dom.minidom as DOM
 
 from enum import Enum
 
-from _sddraftbase import SDDraftBase
-from _sddraft_cacheable import SDDraftCacheable
+from ._sddraftbase import SDDraftBase
+from ._sddraft_cacheable import SDDraftCacheable
+from ._sddraft_maxrecordcount import SDDraftMaxRecordCount
 
-class ImageSDDraft(SDDraftCacheable, SDDraftBase):
+class ImageSDDraft(SDDraftCacheable, SDDraftMaxRecordCount, SDDraftBase):
     """Class for editing a Service Definition Draft for an Image Service.
 
     Must be instantiated from an existing on-disk Image SDDraft file."""

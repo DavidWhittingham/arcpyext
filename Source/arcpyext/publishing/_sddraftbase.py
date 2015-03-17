@@ -25,7 +25,6 @@ class SDDraftBase:
     _IDLE_TIMEOUT_KEY = "IdleTimeout"
     _INSTANCES_PER_CONTAINER_KEY = "InstancesPerContainer"
     _ISOLATION_KEY = "Isolation"
-    _MAX_RECORD_COUNT_KEY = "maxRecordCount"
     _MAX_INSTANCES_KEY = "MaxInstances"
     _MIN_INSTANCES_KEY = "MinInstances"
     _RECYCLE_START_TIME_KEY = "recycleStartTime"
@@ -171,19 +170,6 @@ class SDDraftBase:
         if value < self.min_instances or value <= 0:
             raise ValueError("Max instances cannot be 0 or less than the minimum instances.")
         self._set_element_value(self._get_max_instances_element(), value)
-
-
-    @property
-    def max_record_count(self):
-        """Gets the maximum number of records that can be returned by the service."""
-        return int(self._get_element_value(self._get_max_record_count_element()))
-
-    @max_record_count.setter
-    def max_record_count(self, value):
-        """Sets the maximum number of records that can be returned by the service."""
-        if value < 0:
-            raise ValueError("Maximum record count cannot be less than zero.")
-        self._set_element_value(self._get_max_record_count_element(), value)
 
 
     @property
@@ -371,9 +357,6 @@ class SDDraftBase:
 
     def _get_max_instances_element(self):
         return self._get_value_element_by_key(self._get_service_props(), self._MAX_INSTANCES_KEY)
-
-    def _get_max_record_count_element(self):
-        return self._get_value_element_by_key(self._get_service_config_props(), self._MAX_RECORD_COUNT_KEY)
 
     def _get_min_instances_element(self):
         return self._get_value_element_by_key(self._get_service_props(), self._MIN_INSTANCES_KEY)
