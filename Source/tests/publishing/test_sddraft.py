@@ -5,28 +5,28 @@ import shutil
 import arcpyext
 import pytest
 
-from arcpyext.mapping import SDDraft
+from arcpyext.publishing import MapSDDraft
 from .. helpers import *
 
-SDDRAFT_FILE_PATH = "{0}/samples/example.sddraft".format(os.path.dirname(__file__))
-SDDRAFT_FILE_PATH_COPY = "{0}/samples/example.copy.sddraft".format(os.path.dirname(__file__))
-SDDRAFT_SAVE_TEST_FILE_PATH = "{0}/samples/example.savetest.sddraft".format(os.path.dirname(__file__))
+SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/example.sddraft".format(os.path.dirname(__file__)))
+SDDRAFT_FILE_PATH_COPY = os.path.abspath("{0}/../samples/example.copy.sddraft".format(os.path.dirname(__file__)))
+SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/example.savetest.sddraft".format(os.path.dirname(__file__)))
 
 @pytest.fixture
 def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return SDDraft(SDDRAFT_FILE_PATH_COPY)
+    return MapSDDraft(SDDRAFT_FILE_PATH_COPY)
     
 from sddraftbase import *
 from sddraft_cacheable import *
 
 @pytest.mark.parametrize(("mode", "expected", "ex"), [
-    (SDDraft.AntiAliasingMode.none, SDDraft.AntiAliasingMode.none, None),
-    (SDDraft.AntiAliasingMode.fastest, SDDraft.AntiAliasingMode.fastest, None),
-    (SDDraft.AntiAliasingMode.fast, SDDraft.AntiAliasingMode.fast, None),
-    (SDDraft.AntiAliasingMode.normal, SDDraft.AntiAliasingMode.normal, None),
-    (SDDraft.AntiAliasingMode.best, SDDraft.AntiAliasingMode.best, None),
-    ("None", SDDraft.AntiAliasingMode.none, None),
+    (MapSDDraft.AntiAliasingMode.none, MapSDDraft.AntiAliasingMode.none, None),
+    (MapSDDraft.AntiAliasingMode.fastest, MapSDDraft.AntiAliasingMode.fastest, None),
+    (MapSDDraft.AntiAliasingMode.fast, MapSDDraft.AntiAliasingMode.fast, None),
+    (MapSDDraft.AntiAliasingMode.normal, MapSDDraft.AntiAliasingMode.normal, None),
+    (MapSDDraft.AntiAliasingMode.best, MapSDDraft.AntiAliasingMode.best, None),
+    ("None", MapSDDraft.AntiAliasingMode.none, None),
     ("Fail", None, ValueError)
 ])
 def test_aa_mode(sddraft, mode, expected, ex):
@@ -50,7 +50,7 @@ def test_enable_dynamic_layers(sddraft, enabled, expected):
 @pytest.mark.parametrize(("enabled_ops", "expected", "ex"), [
     (["Query"], ["Query"], None),
     (["quErY"], ["Query"], None),
-    ([SDDraft.FeatureAccessOperation.create, SDDraft.FeatureAccessOperation.update], ["Create", "Update"], None),
+    ([MapSDDraft.FeatureAccessOperation.create, MapSDDraft.FeatureAccessOperation.update], ["Create", "Update"], None),
     (["Foo", "Bar"], None, ValueError),
     (["Query", 1], None, TypeError)
 ])
@@ -86,10 +86,10 @@ def test_schema_locking_enabled(sddraft, enabled, expected):
     assert sddraft.schema_locking_enabled == expected
 
 @pytest.mark.parametrize(("mode", "expected", "ex"), [
-    (SDDraft.TextAntiAliasingMode.none, SDDraft.TextAntiAliasingMode.none, None),
-    (SDDraft.TextAntiAliasingMode.force, SDDraft.TextAntiAliasingMode.force, None),
-    (SDDraft.TextAntiAliasingMode.normal, SDDraft.TextAntiAliasingMode.normal, None),
-    ("None", SDDraft.TextAntiAliasingMode.none, None),
+    (MapSDDraft.TextAntiAliasingMode.none, MapSDDraft.TextAntiAliasingMode.none, None),
+    (MapSDDraft.TextAntiAliasingMode.force, MapSDDraft.TextAntiAliasingMode.force, None),
+    (MapSDDraft.TextAntiAliasingMode.normal, MapSDDraft.TextAntiAliasingMode.normal, None),
+    ("None", MapSDDraft.TextAntiAliasingMode.none, None),
     ("Fail", None, ValueError)
 ])
 def test_text_aa_mode(sddraft, mode, expected, ex):

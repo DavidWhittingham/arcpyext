@@ -3,7 +3,7 @@ from enum import Enum
 from _sddraftbase import SDDraftBase
 from _sddraft_cacheable import SDDraftCacheable
 
-class SDDraft(SDDraftCacheable, SDDraftBase):
+class MapSDDraft(SDDraftCacheable, SDDraftBase):
     """Class for editing a Service Definition Draft.
 
     Must be instantiated from an on-disk SDDraft file generated."""
@@ -40,7 +40,7 @@ class SDDraft(SDDraftCacheable, SDDraftBase):
     _FEATURE_ACCESS_EDIT_OPERATIONS = ["Create", "Delete", "Update"]
 
     def __init__(self, path):
-        super(SDDraft, self).__init__(path)
+        super(MapSDDraft, self).__init__(path)
 
     #####################
     # PUBLIC PROPERTIES #
@@ -55,7 +55,7 @@ class SDDraft(SDDraftCacheable, SDDraftBase):
     def anti_aliasing_mode(self, value):
         """Sets the anti-aliasing mode for map graphics.
 
-        Valid values are contained in the 'arcpyext.mapping.SDDraft.AntiAliasingMode' enumerated type.
+        Valid values are contained in the 'arcpyext.mapping.MapSDDraft.AntiAliasingMode' enumerated type.
         """
         if not isinstance(value, self.AntiAliasingMode):
             value = self.AntiAliasingMode(value)
@@ -104,7 +104,7 @@ class SDDraft(SDDraftCacheable, SDDraftBase):
     def feature_access_enabled_operations(self, values):
         """Sets the operations (by an iterable of operation names) that are enabled for the feature service.
 
-        Valid values are contained in the 'arcpyext.mapping.SDDraft.FeatureAccessOperation' enumerated type.
+        Valid values are contained in the 'arcpyext.mapping.MapSDDraft.FeatureAccessOperation' enumerated type.
         Valid string values are:
          - 'Create'
          - 'Query'
@@ -135,7 +135,7 @@ class SDDraft(SDDraftCacheable, SDDraftBase):
     @property
     def folder(self):
         """Gets the name of the folder that the service will reside in."""
-        return super(SDDraft, self).folder
+        return super(MapSDDraft, self).folder
 
     @folder.setter
     def folder(self, value):
@@ -147,7 +147,7 @@ class SDDraft(SDDraftCacheable, SDDraftBase):
     @property
     def name(self):
         """Gets the name of the service."""
-        return super(SDDraft, self).name
+        return super(MapSDDraft, self).name
 
     @name.setter
     def name(self, value):
@@ -177,7 +177,7 @@ class SDDraft(SDDraftCacheable, SDDraftBase):
     def text_anti_aliasing_mode(self, value):
         """Sets the anti-aliasing mode for map graphics.
 
-        Valid values are contained in the 'arcpyext.mapping.SDDraft.TextAntiAliasingMode' enumerated type.
+        Valid values are contained in the 'arcpyext.mapping.MapSDDraft.TextAntiAliasingMode' enumerated type.
         """
         if not isinstance(value, self.TextAntiAliasingMode):
             value = self.TextAntiAliasingMode(value)
@@ -207,7 +207,7 @@ class SDDraft(SDDraftCacheable, SDDraftBase):
         return self._get_element_value(enabled_ops_prop).split(",")
 
     def _get_name_elements(self):
-        base_elements = super(SDDraft, self)._get_name_elements()
+        base_elements = super(MapSDDraft, self)._get_name_elements()
 
         wcs_ext_props = self._get_service_extension_by_type("WCSServer").find("./Props/PropertyArray").findall("PropertySetProperty")
         wcs_ext_name_props = self._get_value_elements_by_keys(wcs_ext_props, ["name"])

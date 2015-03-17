@@ -5,12 +5,12 @@ import shutil
 import arcpyext
 import pytest
 
-from arcpyext.mapping import ImageSDDraft
+from arcpyext.publishing import ImageSDDraft
 from .. helpers import *
 
-SDDRAFT_FILE_PATH = "{0}/samples/imageservice.sddraft".format(os.path.dirname(__file__))
-SDDRAFT_FILE_PATH_COPY = "{0}/samples/imageservice.copy.sddraft".format(os.path.dirname(__file__))
-SDDRAFT_SAVE_TEST_FILE_PATH = "{0}/samples/imageservice.savetest.sddraft".format(os.path.dirname(__file__))
+SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/imageservice.sddraft".format(os.path.dirname(__file__)))
+SDDRAFT_FILE_PATH_COPY = os.path.abspath("{0}/../samples/imageservice.copy.sddraft".format(os.path.dirname(__file__)))
+SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/imageservice.savetest.sddraft".format(os.path.dirname(__file__)))
 
 @pytest.fixture
 def sddraft():

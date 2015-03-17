@@ -5,9 +5,9 @@ import pytest
 
 import arcpyext
 
-MXD_PATH = os.path.abspath("./mapping/samples/test_mapping.mxd")
-CLIP2_DATA_SOURCE = { "workspacePath": os.path.abspath("./mapping/samples/"), "datasetName": "statesp020_clip2" }
-TEST_DATA_SOURCE = { "workspacePath": os.path.abspath("./mapping/samples/test_data_table2.gdb") }
+MXD_PATH = os.path.abspath("{0}/../samples/test_mapping.mxd".format(os.path.dirname(__file__)))
+CLIP2_DATA_SOURCE = { "workspacePath": os.path.abspath("{0}/../samples/".format(os.path.dirname(__file__))), "datasetName": "statesp020_clip2" }
+TEST_DATA_SOURCE = { "workspacePath": os.path.abspath("{0}/../samples/test_data_table2.gdb".format(os.path.dirname(__file__))) }
 
 def pytest_funcarg__map():
     print("MXD: " + MXD_PATH)
