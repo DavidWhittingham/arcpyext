@@ -2,13 +2,12 @@ from enum import Enum
 
 from ._sddraftbase import SDDraftBase
 from ._sddraft_cacheable import SDDraftCacheable
-from ._sddraft_maxrecordcount import SDDraftMaxRecordCount
 
-class MapSDDraft(SDDraftCacheable, SDDraftMaxRecordCount, SDDraftBase):
+class MapSDDraft(SDDraftCacheable, SDDraftBase):
     """Class for editing a Service Definition Draft.
 
     Must be instantiated from an on-disk SDDraft file generated."""
-    
+
     class AntiAliasingMode(Enum):
         none = "None"
         fastest = "Fastest"
@@ -25,7 +24,7 @@ class MapSDDraft(SDDraftCacheable, SDDraftMaxRecordCount, SDDraftBase):
         wfsserver = "WFSServer"
         wcsserver = "WCSServer"
         schematicsserver = "SchematicsServer"
-        
+
     class FeatureAccessOperation(Enum):
         create = "Create"
         query = "Query"
@@ -122,7 +121,7 @@ class MapSDDraft(SDDraftCacheable, SDDraftMaxRecordCount, SDDraftBase):
                 # not a known operation, raise exception
                 raise TypeError("Operations list contains invalid operation types.")
             string_values.append(val.value)
-            
+
         string_values = set(string_values)
 
         if [val for val in string_values if val in self._FEATURE_ACCESS_EDIT_OPERATIONS]:

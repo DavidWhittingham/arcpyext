@@ -8,9 +8,8 @@ from enum import Enum
 
 from ._sddraftbase import SDDraftBase
 from ._sddraft_cacheable import SDDraftCacheable
-from ._sddraft_maxrecordcount import SDDraftMaxRecordCount
 
-class ImageSDDraft(SDDraftCacheable, SDDraftMaxRecordCount, SDDraftBase):
+class ImageSDDraft(SDDraftCacheable, SDDraftBase):
     """Class for editing a Service Definition Draft for an Image Service.
 
     Must be instantiated from an existing on-disk Image SDDraft file."""
@@ -41,9 +40,6 @@ class ImageSDDraft(SDDraftCacheable, SDDraftMaxRecordCount, SDDraftBase):
         bilinear = 1
         cubic = 2
         majority = 3
-
-    #Override.  MaxRecordCount key uses a capital "M" in an Image Service SDDraft. Why Esri, Why????
-    _MAX_RECORD_COUNT_KEY = "MaxRecordCount"
 
     def __init__(self, path):
         super(ImageSDDraft, self).__init__(path)
@@ -190,14 +186,3 @@ class ImageSDDraft(SDDraftCacheable, SDDraftMaxRecordCount, SDDraftBase):
 
     def _get_return_jpgpng_as_jpg_element(self):
         return self._get_value_element_by_key(self._get_service_config_props(), "ReturnJPGPNGAsJPG")
-
-    def _set_enum_val_list_to_element(self, values, enum, element, exception_message):
-        string_values = []
-        for val in values:
-            if isinstance(val, basestring):
-                val = enum(val)
-            elif not isinstance(val, enum):
-                raise TypeError(exception_message)
-            string_values.append(val.value)
-
-        self._set_element_value(element, ",".join(string_values))

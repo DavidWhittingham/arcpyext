@@ -18,14 +18,15 @@ class SDDraftBase:
     #############################
     # PRIVATE CONSTANTS/STATICS #
     #############################
-    
+
     _TIME_STRING_REGEX = re.compile(r"^([0-9]{2}):([0-9]{2})$")
-    
+
     # XML Keys
     _IDLE_TIMEOUT_KEY = "IdleTimeout"
     _INSTANCES_PER_CONTAINER_KEY = "InstancesPerContainer"
     _ISOLATION_KEY = "Isolation"
     _MAX_INSTANCES_KEY = "MaxInstances"
+    _MAX_RECORD_COUNT_KEY = "maxRecordCount"
     _MIN_INSTANCES_KEY = "MinInstances"
     _RECYCLE_START_TIME_KEY = "recycleStartTime"
     _RECYCLE_INTERVAL_KEY = "recycleInterval"
@@ -67,7 +68,7 @@ class SDDraftBase:
     def description(self, value):
         """Sets the description for the service."""
         self._set_element_value(self._get_description_element(), value)
-        
+
     @property
     def enabled_extensions(self):
         """Gets a list of the extensions (by type name) that are currently enabled for the service."""
@@ -75,7 +76,7 @@ class SDDraftBase:
         return [self.Extension(self._get_element_value(item.find("TypeName"))) for item in exts
             if self._get_element_value(item.find("Enabled")).lower() == "true"]
 
-            
+
     @enabled_extensions.setter
     def enabled_extensions(self, values):
         """Sets the extensions (by an iterable of type names) that are enabled for the service.
@@ -88,7 +89,7 @@ class SDDraftBase:
                 val = val.value
             val = val.lower()
             types.append(val)
-        
+
         for ext in self._get_elements_by_tag("SVCExtension"):
             type = self._get_element_value(ext.find("TypeName"))
             if type.lower() in types:
@@ -132,14 +133,15 @@ class SDDraftBase:
     @property
     def idle_timeout(self):
         """Gets the idle timeout (in seconds) for the service."""
-        return int(self._get_element_value(self._get_idle_timeout_element()))
+        return int(self._get_element_value(self._get_idle_timeout_elements()[0]))
 
     @idle_timeout.setter
     def idle_timeout(self, value):
         """Sets the idle timeout (in seconds) for the service."""
         if value < 0:
             raise ValueError("Timeout cannot be less than zero.")
-        self._set_element_value(self._get_idle_timeout_element(), value)
+        for elem in self._get_idle_timeout_elements():
+            self._set_element_value(elem, value)
 
 
     @property
@@ -162,27 +164,43 @@ class SDDraftBase:
     @property
     def max_instances(self):
         """Gets the maximum number of instances that the published service will run."""
-        return int(self._get_element_value(self._get_max_instances_element()))
+        return int(self._get_element_value(self._get_max_instances_elements()[0]))
 
     @max_instances.setter
     def max_instances(self, value):
         """Sets the maximum number of instances that the published service will run."""
         if value < self.min_instances or value <= 0:
             raise ValueError("Max instances cannot be 0 or less than the minimum instances.")
-        self._set_element_value(self._get_max_instances_element(), value)
+        for elem in self._get_max_instances_elements():
+            self._set_element_value(elem, value)
+
+
+    @property
+    def max_record_count(self):
+        """Gets the maximum number of records that can be returned by the service."""
+        return int(self._get_element_value(self._get_max_record_count_elements()[0]))
+
+    @max_record_count.setter
+    def max_record_count(self, value):
+        """Sets the maximum number of records that can be returned by the service."""
+        if value < 0:
+            raise ValueError("Maximum record count cannot be less than zero.")
+        for elem in self._get_max_record_count_elements():
+            self._set_element_value(elem, value)
 
 
     @property
     def min_instances(self):
         """Gets the minimum number of instances that the published service will run."""
-        return int(self._get_element_value(self._get_min_instances_element()))
+        return int(self._get_element_value(self._get_min_instances_elements()[0]))
 
     @min_instances.setter
     def min_instances(self, value):
         """Sets the minimum number of instances that the published service will run."""
         if value < 0:
             raise ValueError("Min instances cannot be less than zero.")
-        self._set_element_value(self._get_min_instances_element(), value)
+        for elem in self._get_min_instances_elements():
+            self._set_element_value(elem, value)
 
 
     @property
@@ -275,27 +293,29 @@ class SDDraftBase:
     @property
     def usage_timeout(self):
         """Gets the usage timeout (in seconds) for the service."""
-        return int(self._get_element_value(self._get_usage_timeout_element()))
+        return int(self._get_element_value(self._get_usage_timeout_elements()[0]))
 
     @usage_timeout.setter
     def usage_timeout(self, value):
         """Sets the usage timeout (in seconds) for the service."""
         if value < 0:
             raise ValueError("Timeout cannot be less than zero.")
-        self._set_element_value(self._get_usage_timeout_element(), value)
+        for elem in self._get_usage_timeout_elements():
+            self._set_element_value(elem, value)
 
 
     @property
     def wait_timeout(self):
         """Gets the wait timeout (in seconds) for the service."""
-        return int(self._get_element_value(self._get_wait_timeout_element()))
+        return int(self._get_element_value(self._get_wait_timeout_elements()[0]))
 
     @wait_timeout.setter
     def wait_timeout(self, value):
         """Sets the wait timeout (in seconds) for the service."""
         if value < 0:
             raise ValueError("Timeout cannot be less than zero.")
-        self._set_element_value(self._get_wait_timeout_element(), value)
+        for elem in self._get_wait_timeout_elements():
+            self._set_element_value(elem, value)
 
     ##################
     # PUBLIC METHODS #
@@ -339,12 +359,15 @@ class SDDraftBase:
     def _get_folder_element(self):
         return self._get_first_element_by_tag("SVCConfiguration").find("ServiceFolder")
 
-    def _get_idle_timeout_element(self):
-        return self._get_value_element_by_key(self._get_service_props(), self._IDLE_TIMEOUT_KEY)
+    def _get_idle_timeout_elements(self):
+        return [self._get_value_element_by_key(self._get_service_props(), self._IDLE_TIMEOUT_KEY)]
+
+    def _get_info_props(self):
+        return list(self._xmltree.getroot().find("./Configurations/SVCConfiguration/Definition/Info/PropertyArray"))
 
     def _get_instances_per_container_element(self):
         return self._get_value_element_by_key(self._get_service_props(), self._INSTANCES_PER_CONTAINER_KEY)
-    
+
     def _get_int_value_from_element(self, element, required = False):
         value = self._get_element_value(element)
         if required:
@@ -355,11 +378,14 @@ class SDDraftBase:
     def _get_isolation_element(self):
         return self._get_value_element_by_key(self._get_service_props(), self._ISOLATION_KEY)
 
-    def _get_max_instances_element(self):
-        return self._get_value_element_by_key(self._get_service_props(), self._MAX_INSTANCES_KEY)
+    def _get_max_instances_elements(self):
+        return [self._get_value_element_by_key(self._get_service_props(), self._MAX_INSTANCES_KEY)]
 
-    def _get_min_instances_element(self):
-        return self._get_value_element_by_key(self._get_service_props(), self._MIN_INSTANCES_KEY)
+    def _get_max_record_count_elements(self):
+        return [self._get_value_element_by_key(self._get_service_config_props(), self._MAX_RECORD_COUNT_KEY)]
+
+    def _get_min_instances_elements(self):
+        return [self._get_value_element_by_key(self._get_service_props(), self._MIN_INSTANCES_KEY)]
 
     def _get_name_elements(self):
         sm_name = self._get_first_element_by_tag("SVCManifest").find("Name")
@@ -383,11 +409,11 @@ class SDDraftBase:
         item_info = self._get_first_element_by_tag("ItemInfo")
         return item_info.find("Snippet")
 
-    def _get_usage_timeout_element(self):
-        return self._get_value_element_by_key(self._get_service_props(), self._USAGE_TIMEOUT_KEY)
+    def _get_usage_timeout_elements(self):
+        return [self._get_value_element_by_key(self._get_service_props(), self._USAGE_TIMEOUT_KEY)]
 
-    def _get_wait_timeout_element(self):
-        return self._get_value_element_by_key(self._get_service_props(), self._WAIT_TIMEOUT_KEY)
+    def _get_wait_timeout_elements(self):
+        return [self._get_value_element_by_key(self._get_service_props(), self._WAIT_TIMEOUT_KEY)]
 
     def _get_value_element_by_key(self, prop_list, key):
         """ From a list of PropertySetProperty elements, return the "value" child element of the first
@@ -428,6 +454,17 @@ class SDDraftBase:
 
         return ET.ElementTree(root)
 
+    def _set_enum_val_list_to_element(self, values, enum, element, exception_message):
+        string_values = []
+        for val in values:
+            if isinstance(val, basestring):
+                val = enum(val)
+            elif not isinstance(val, enum):
+                raise TypeError(exception_message)
+            string_values.append(val.value)
+
+        self._set_element_value(element, ",".join(string_values))
+
     def _set_element_value(self, element, value):
         if value == None:
             element.text = None
@@ -446,8 +483,8 @@ class SDDraftBase:
     def _set_int_value_to_element(self, value, element, name, allow_none = False, allow_negative = False):
         if allow_none == False and value == None:
             raise ValueError("{0} cannot be None.".format(name))
-            
+
         if allow_negative == False and value != None and value < 0:
             raise ValueError("{0} cannot be less than zero.".format(name))
-            
+
         self._set_element_value(element, value)

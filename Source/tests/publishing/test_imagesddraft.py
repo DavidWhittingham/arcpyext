@@ -16,7 +16,7 @@ SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/imageservice.savet
 def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
     return ImageSDDraft(SDDRAFT_FILE_PATH_COPY)
-    
+
 from sddraftbase import *
 from sddraft_cacheable import *
 
@@ -56,7 +56,7 @@ def test_allowed_mosaic_methods(sddraft, methods, expected, ex):
     else:
         sddraft.allowed_mosaic_methods = methods
         assert set(sddraft.allowed_mosaic_methods) == set(expected)
-    
+
 @pytest.mark.parametrize(("fields"), [
     (["A", "B", "C"]),
     (("D", "E", "F"))
@@ -64,7 +64,7 @@ def test_allowed_mosaic_methods(sddraft, methods, expected, ex):
 def test_available_fields(sddraft, fields):
     sddraft.available_fields = fields
     assert set(sddraft.available_fields) == set(fields)
-    
+
 @pytest.mark.parametrize(("method", "ex"), [
     (ImageSDDraft.ResamplingMethod.nearest_neighbor, None),
     (ImageSDDraft.ResamplingMethod.bilinear, None),
@@ -134,7 +134,7 @@ def test_max_image_width(sddraft, width, ex):
     else:
         sddraft.max_image_width = width
         assert sddraft.max_image_width == width
-        
+
 @pytest.mark.parametrize(("count", "ex"), [
     (30, None),
     (None, None),
