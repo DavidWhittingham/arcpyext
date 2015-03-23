@@ -53,9 +53,7 @@ arcpyext.publishing
 -------------------
 The *publishing* modules provides features for publishing map, image and geo-processing services.  This currently
 includes functionality for creating and/or editing Service Definition Drafts for each service type.
-
-Classes:
-The following classes are provided in order to edit most of the common Service Definition Draft settings.
+The following classes are provided in order to edit most of the common Service Definition Draft settings:
  - arcpyext.publishing.MapSDDraft
  - arcpyext.publishing.ImageSDDraft
  - arcpyext.publishing.GPSDDraft
