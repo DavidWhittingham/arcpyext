@@ -48,21 +48,11 @@ def test_delete_rows(in_table, edit_session, where_clause, expected_count, field
     rows = arcpyext.data.read_rows(in_table)
     assert(len(rows) == expected_count)
 
-@pytest.mark.parametrize(("pre_edit_where", "new_row_data", "post_edit_where", "expected_count", "field_names"), [
-    ("STATE = 'Wisconsin'", [["Arizona"]] * 14, "STATE = 'Wisconsin'", 0, ("STATE")),
-    ("STATE = 'Wisconsin'", [["Arizona", 31]] * 14, "STATE = 'Arizona' AND STATE_FIPS = '31'", 14, ["STATE", "STATE_FIPS"])
-])
-def test_update_rows(in_table, edit_session, pre_edit_where, new_row_data, post_edit_where, expected_count, field_names):
-    arcpyext.data.update_rows(edit_session, in_table, new_row_data, pre_edit_where, field_names)
-    rows = arcpyext.data.read_rows(in_table, post_edit_where)
-    assert(len(rows) == expected_count)
-
-
 @pytest.mark.parametrize(("pre_edit_where", "post_edit_where", "expected_count", "field_names"), [
     ("STATE = 'Wisconsin'", "STATE = 'Wisconsin'", 0, ("STATE")),
     ("STATE = 'Wisconsin'", "STATE = 'Test'", 14, ("STATE"))
 ])
-def test_update_rows(in_table, edit_session, pre_edit_where, post_edit_where, expected_count, field_names):
+def test_update_rows_func(in_table, edit_session, pre_edit_where, post_edit_where, expected_count, field_names):
     def update_row(row):
         row[0] = "Test"
         return row
