@@ -46,7 +46,7 @@ def _delete_rows(edit_session, in_table, where_clause, field_names):
             cursor.deleteRow()
 
 @_edit_handler
-def update_rows_func(edit_session, in_table, update_func, where_clause, field_names):
+def _update_rows_func(edit_session, in_table, update_func, where_clause, field_names):
     with arcpy.da.UpdateCursor(in_table, field_names, where_clause) as cursor:
         for row in cursor:
             cursor.updateRow(update_func(row))
