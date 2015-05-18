@@ -5,6 +5,7 @@ import arcpyext
 import pytest
 
 from arcpyext.publishing import GPSDDraft
+from arcpyext.publishing import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/pythongpservice.sddraft".format(os.path.dirname(__file__)))
@@ -14,7 +15,7 @@ SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/pythongpservice.sa
 @pytest.fixture
 def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return GPSDDraft(SDDRAFT_FILE_PATH_COPY)
+    return GPSDDraft(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
 
 from sddraftbase import *
 

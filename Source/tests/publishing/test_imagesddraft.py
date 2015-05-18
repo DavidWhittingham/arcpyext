@@ -1,4 +1,3 @@
-import datetime
 import os.path
 import shutil
 
@@ -6,6 +5,7 @@ import arcpyext
 import pytest
 
 from arcpyext.publishing import ImageSDDraft
+from arcpyext.publishing import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/imageservice.sddraft".format(os.path.dirname(__file__)))
@@ -15,7 +15,7 @@ SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/imageservice.savet
 @pytest.fixture
 def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return ImageSDDraft(SDDRAFT_FILE_PATH_COPY)
+    return ImageSDDraft(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
 
 from sddraftbase import *
 from sddraft_cacheable import *
@@ -64,6 +64,22 @@ def test_allowed_mosaic_methods(sddraft, methods, expected, ex):
 def test_available_fields(sddraft, fields):
     sddraft.available_fields = fields
     assert set(sddraft.available_fields) == set(fields)
+
+@pytest.mark.parametrize(("capabilities", "expected", "ex"), [
+    ([ImageSDDraft.Capability.catalog], [ImageSDDraft.Capability.catalog], None),
+    ([], [], None),
+    (["Edit"], [ImageSDDraft.Capability.edit], None),
+    (["Fail"], None, ValueError),
+    ([123], None, TypeError)
+])
+def test_capabilities(sddraft, capabilities, expected, ex):
+    assert isinstance(type(sddraft).capabilities, property) == True
+    if ex != None:
+        with pytest.raises(ex):
+            sddraft.capabilities = capabilities
+    else:
+        sddraft.capabilities = capabilities
+        assert set(sddraft.capabilities) == set(expected)
 
 @pytest.mark.parametrize(("method", "ex"), [
     (ImageSDDraft.ResamplingMethod.nearest_neighbor, None),
