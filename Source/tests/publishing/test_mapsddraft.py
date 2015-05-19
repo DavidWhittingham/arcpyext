@@ -4,8 +4,8 @@ import shutil
 import arcpyext
 import pytest
 
-from arcpyext.publishing import MapSDDraft
-from arcpyext.publishing import SDDraftEditor
+from arcpyext.publishing._mapsddraft import MapSDDraft
+from arcpyext.publishing._sddraft_editor import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/example.sddraft".format(os.path.dirname(__file__)))

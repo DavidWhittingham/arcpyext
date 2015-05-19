@@ -153,7 +153,7 @@ class SDDraftEditor():
 
     def save(self):
         """Saves changes to the Service Definition Draft back to the file."""
-        self.save_a_copy(self._path)
+        self.save_a_copy(self.file_path)
 
     def save_a_copy(self, path):
         """Saves a copy of the Service Definition Draft to a new file."""
