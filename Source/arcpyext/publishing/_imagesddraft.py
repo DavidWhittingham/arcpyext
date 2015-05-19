@@ -1,13 +1,10 @@
-import codecs
-import datetime
-import re
-import xml.etree.ElementTree as ET
-import xml.dom.minidom as DOM
-
 from enum import Enum
 
+from ._jpip_server_extension import JpipServerExtension
 from ._sddraft_base import SDDraftBase
 from ._sddraft_cacheable import SDDraftCacheable
+from ._wcs_server_extension import WcsServerExtension
+from ._wms_server_extension import WmsServerExtension
 
 class ImageSDDraft(SDDraftCacheable, SDDraftBase):
     """Class for editing a Service Definition Draft for an Image Service.
@@ -29,11 +26,6 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
         lz77 = "LZ77"
         lerc = "LERC"
 
-    class Extension(Enum):
-        wmsserver = "WMSServer"
-        wcsserver = "WCSServer"
-        jpipserver = "JPIPServer"
-
     class MosaicMethod(Enum):
         north_west = "NorthWest"
         center = "Center"
@@ -52,6 +44,9 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
 
     def __init__(self, editor):
         super(ImageSDDraft, self).__init__(editor)
+        self._jpip_server_extension = JpipServerExtension(editor)
+        self._wcs_server_extension = WcsServerExtension(editor)
+        self._wms_server_extension = WmsServerExtension(editor)
 
     #####################
     # PUBLIC PROPERTIES #
@@ -103,6 +98,10 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
         if not isinstance(value, self.ResamplingMethod):
             value = self.ResamplingMethod(value)
         self._editor.set_element_value(self._get_default_resampling_method_element(), value.value)
+        
+    @property
+    def jpip_server(self):
+        return self._jpip_server_extension
 
     @property
     def max_download_image_count(self):
@@ -162,6 +161,16 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
     def return_jpgpng_as_jpg(self, value):
         value = self._editor.value_to_boolean(value)
         self._editor.set_element_value(self._get_return_jpgpng_as_jpg_element(), value)
+
+    @property
+    def wcs_server(self):
+        """Gets the properties for the WCS Server extension."""
+        return self._wcs_server_extension
+
+    @property
+    def wms_server(self):
+        """Gets the properties for the WMS Server extension."""
+        return self._wms_server_extension
 
     ######################
     # PRIVATE PROPERTIES #
