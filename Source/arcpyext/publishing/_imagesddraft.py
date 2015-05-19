@@ -98,7 +98,7 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
         if not isinstance(value, self.ResamplingMethod):
             value = self.ResamplingMethod(value)
         self._editor.set_element_value(self._get_default_resampling_method_element(), value.value)
-        
+
     @property
     def jpip_server(self):
         return self._jpip_server_extension
