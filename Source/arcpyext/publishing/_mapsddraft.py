@@ -68,7 +68,6 @@ class MapSDDraft(SDDraftCacheable, SDDraftBase):
             value = self.AntiAliasingMode(value)
         self._editor.set_element_value(self._anti_aliasing_element, value.value)
 
-
     @property
     def disable_identify_relates(self):
         """Gets a boolean indicating whether or not displaying related information in identify results is enabled."""
@@ -82,7 +81,6 @@ class MapSDDraft(SDDraftCacheable, SDDraftBase):
         self._editor.set_element_value(
             self._disable_identify_relates_element,
             value)
-
 
     @property
     def enable_dynamic_layers(self):
@@ -99,12 +97,10 @@ class MapSDDraft(SDDraftCacheable, SDDraftBase):
             self._enable_dynamic_layers_element,
             value)
 
-
     @property
     def feature_server(self):
         """Gets the properties for the Feature Server (Feature Access in Web UI) extension."""
         return self._feature_server_extension
-
 
     @property
     def folder(self):
@@ -118,24 +114,20 @@ class MapSDDraft(SDDraftCacheable, SDDraftBase):
         SDDraftBase.folder.fset(self, value)
         self._set_full_path_properties(existing_full_path, self._get_full_path())
 
-
     @property
     def kml_server(self):
         """Gets the properties for the KML Server extension."""
         return self._kml_server_extension
-
 
     @property
     def mobile_server(self):
         """Gets the properties for the Mobile (Mobile Data Access in the UI) server extension."""
         return self._mobile_server_extension
 
-
     @property
     def na_server(self):
         """Gets the properties for the Network Analysis server extension"""
         return self._na_server_extension
-
 
     @property
     def name(self):
@@ -160,7 +152,6 @@ class MapSDDraft(SDDraftCacheable, SDDraftBase):
         SDDraftBase.name.fset(self, value)
         self._set_full_path_properties(existing_full_path, self._get_full_path())
 
-
     @property
     def schema_locking_enabled(self):
         """Gets a boolean indicating whether or not the server locks the database schema."""
@@ -172,12 +163,10 @@ class MapSDDraft(SDDraftCacheable, SDDraftBase):
         value = self._editor.value_to_boolean(value)
         self._editor.set_element_value(self._schema_locking_enabled_element, value)
 
-
     @property
     def schematics_server(self):
         """Gets the properties for the Schematics Server extension."""
         return self._schematics_server_extension
-
 
     @property
     def text_anti_aliasing_mode(self):
@@ -194,22 +183,20 @@ class MapSDDraft(SDDraftCacheable, SDDraftBase):
             value = self.TextAntiAliasingMode(value)
         self._editor.set_element_value(self._text_anti_aliasing_element, value.value)
 
-
     @property
     def wcs_server(self):
         """Gets the properties for the WCS Server extension."""
         return self._wcs_server_extension
 
+    @property
+    def wfs_server(self):
+        """Gets the properties for the WFS Server extension."""
+        return self._wfs_server_extension
 
     @property
     def wms_server(self):
         """Gets the properties for the WMS Server extension."""
         return self._wms_server_extension
-
-    @property
-    def wfs_server(self):
-        """Gets the properties for the WFS Server extension."""
-        return self._wfs_server_extension
 
     @property
     def _anti_aliasing_element(self):
