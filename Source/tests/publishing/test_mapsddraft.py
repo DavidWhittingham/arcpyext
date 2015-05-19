@@ -87,6 +87,11 @@ def test_name(sddraft, name, ex):
 @pytest.mark.parametrize(("prop_dict"), [
     ({
         "anti_aliasing_mode": "Fast",
+        "capabilities": [
+            "Map",
+            "Query",
+            "Data"
+        ],
         "cluster": "clusterNameHere",
         "description": "Service description goes here.",
         "disable_identify_relates": True,
@@ -111,6 +116,7 @@ def test_name(sddraft, name, ex):
             "realm": "MyRealm",
             "z_default_value": 0.0
         },
+        "folder": "ExampleServices",
         "high_isolation": True,
         "idle_timeout": 600,
         "instances_per_container": 4,
@@ -249,10 +255,12 @@ def test_name(sddraft, name, ex):
 def test_set_props_from_dict(sddraft, prop_dict):
     sddraft._set_props_from_dict(prop_dict)
     assert sddraft.anti_aliasing_mode.value == prop_dict["anti_aliasing_mode"]
+    assert set([c.value for c in sddraft.capabilities]) == set(prop_dict["capabilities"])
     assert sddraft.cluster == prop_dict["cluster"]
     assert sddraft.description == prop_dict["description"]
     assert sddraft.disable_identify_relates == prop_dict["disable_identify_relates"]
     assert sddraft.enable_dynamic_layers == prop_dict["enable_dynamic_layers"]
+    assert sddraft.folder == prop_dict["folder"]
     assert sddraft.high_isolation == prop_dict["high_isolation"]
     assert sddraft.idle_timeout == prop_dict["idle_timeout"]
     assert sddraft.instances_per_container == prop_dict["instances_per_container"]
