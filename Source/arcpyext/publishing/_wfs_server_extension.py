@@ -123,7 +123,7 @@ class WfsServerExtension(CustomGetCapabilitiesExtensionMixin, OgcMetadataExtensi
 
     @property
     def provider_site(self):
-        """Gets or sets a URL to the providers website.
+        """Gets or sets a URL to the provider's website.
 
         :type: str
         """
