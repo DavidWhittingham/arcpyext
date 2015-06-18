@@ -1,9 +1,6 @@
 import sys,os
 import imp
-try:
-    from lxml import etree
-except ImportError:
-    import xml.etree.ElementTree as etree
+import xml.etree.ElementTree as etree
 
 import arcpy
 
@@ -15,11 +12,12 @@ class PythonToolbox(object):
 
 
     def load(self):
-        # load the pyt file so that we can work with the objects
+        # let arcpy do it's convoluted thing - this generates the xml files if they didn't exist
+        arcpy.ImportToolbox(self.toolboxPath)
+        # and load the pyt file so that we can work with the actual objects (in this order, we get better exceptions if there are errors loading the module a second time)
+        # this may not work if you can't import a module twice, eg. with Django Models, so may need to re-work your toolbox code to only import packages when necessary 
         self.toolbox=imp.load_source('PythonToolbox',self.toolboxPath).Toolbox()
         self.tools=[PythonTool(self,t()) for t in self.toolbox.tools]
-        # and let arcpy do it's convoluted thing too - this generates the xml files if they didn't exist
-        arcpy.ImportToolbox(self.toolboxPath)
 
 
     @property
@@ -28,27 +26,32 @@ class PythonToolbox(object):
 
 
     def loadXml(self):
-        self.xmlRoot=etree.parse(self.xmlPath)
+        self.xmlTree=etree.parse(self.xmlPath)
         # and load tools too
         for t in self.tools:
             t.loadXml()
 
 
-    def getOrCreateElement(self,baseElementXpath,name):
-        b=self.xmlRoot.find(baseElementXpath)
-        e=b.find(name)
+    @classmethod
+    def getOrCreateElement(cls,element,name,attributes={}):
+        xpath=name
+        if attributes: xpath+='['+','.join(['@'+k+"='"+v+"'" for k,v in attributes.items()])+']'
+        e=element.find(xpath)
         if e is None:
             e=etree.Element(name)
-            b.append(e)
+            for k,v in attributes.items(): e.set(k,v)
+            element.append(e)
         return e
 
 
     def setDescriptionInXml(self,description):
-        e=self.getOrCreateElement('dataIdInfo','idAbs')
+        e=self.getOrCreateElement(self.xmlTree.getroot(),'dataIdInfo')
+        e=self.getOrCreateElement(e,'idAbs')
         e.text=description
 
     def setSummaryInXml(self,summary):
-        e=self.getOrCreateElement('dataIdInfo','idPurp')
+        e=self.getOrCreateElement(self.xmlTree.getroot(),'dataIdInfo')
+        e=self.getOrCreateElement(e,'idAbs')
         e.text=summary
 
 
@@ -64,7 +67,7 @@ class PythonToolbox(object):
 
     def saveDefinitions(self):
         with open(self.xmlPath,'w') as fout:
-            self.xmlRoot.write(fout,encoding='utf-8')
+            self.xmlTree.write(fout,encoding='utf-8')
         # and save tools too
         for t in self.tools:
             t.saveDefinitions()
@@ -84,31 +87,25 @@ class PythonTool(object):
 
 
     def loadXml(self):
-        self.xmlRoot=etree.parse(self.xmlPath)
-        
-
-    def getOrCreateElement(self,baseElementXpath,name):
-        b=self.xmlRoot.find(baseElementXpath)
-        e=b.find(name)
-        if e is None:
-            e=etree.Element(name)
-            b.append(e)
-        return e
+        self.xmlTree=etree.parse(self.xmlPath)
 
 
     def setDescriptionInXml(self,description):
-        e=self.getOrCreateElement('dataIdInfo','idAbs')
+        e=PythonToolbox.getOrCreateElement(self.xmlTree.getroot(),'dataIdInfo')
+        e=PythonToolbox.getOrCreateElement(e,'idAbs')
         e.text=description
 
     def setSummaryInXml(self,summary):
-        xpath='tool[@name=\'{}\']'.format(self.toolName)
-        e=self.getOrCreateElement(xpath,'summary')
+        e=PythonToolbox.getOrCreateElement(self.xmlTree.getroot(),'tool',attributes={'name':self.toolName})
+        e=PythonToolbox.getOrCreateElement(e,'summary')
         e.text=summary
 
 
     def setParameterDescriptionInXml(self,paramName,description):
-        xpath='tool[@name=\'{}\']/parameters/param[@name=\'{}\']'.format(self.toolName,paramName)
-        e=self.getOrCreateElement(xpath,'dialogReference')
+        e=PythonToolbox.getOrCreateElement(self.xmlTree.getroot(),'tool',attributes={'name':self.toolName})
+        e=PythonToolbox.getOrCreateElement(e,'parameters')
+        e=PythonToolbox.getOrCreateElement(e,'param',attributes={'name':paramName})
+        e=PythonToolbox.getOrCreateElement(e,'dialogReference')
         e.text=description
 
 
@@ -125,4 +122,4 @@ class PythonTool(object):
 
     def saveDefinitions(self):
         with open(self.xmlPath,'w') as fout:
-            self.xmlRoot.write(fout,encoding='utf-8')
+            self.xmlTree.write(fout,encoding='utf-8')
