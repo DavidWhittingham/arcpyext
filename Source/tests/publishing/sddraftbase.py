@@ -5,15 +5,12 @@ import pytest
 from .. helpers import *
 
 @pytest.mark.parametrize(("cluster_name", "expected"), [
-    ("Default", ["Default"]),
-    ("NonDefaultCluster", ["NonDefaultCluster"]),
-    (["foo", "bar"], ["foo", "bar"]),
-    ("foo,bar", ["foo", "bar"]),
-    ("foo, bar, test", ["foo", "bar", "test"])
+    ("Default", "Default"),
+    ("NonDefaultCluster", "NonDefaultCluster")
 ])
 def test_cluster(sddraft, cluster_name, expected):
     sddraft.cluster = cluster_name
-    assert set(sddraft.cluster) == set(expected)
+    assert sddraft.cluster == expected
 
 @pytest.mark.parametrize(("description"), [
     ("This is a test description"),
@@ -24,12 +21,6 @@ def test_description(sddraft, description):
     sddraft.description = description
     assert sddraft.description == description
 
-def test_enabled_extensions(sddraft):
-    sddraft.enabled_extensions = sddraft.Extension
-    assert set(sddraft.enabled_extensions) == set(sddraft.Extension)
-    sddraft.enabled_extensions = []
-    assert set(sddraft.enabled_extensions) == set([])
-    
 @pytest.mark.parametrize(("folder", "expected", "ex"), [
     ("TestName", "TestName", None),
     ("", None, None),
@@ -49,7 +40,7 @@ def test_folder(sddraft, folder, expected, ex):
 def test_high_isolation(sddraft, high_isolation):
     sddraft.high_isolation = high_isolation
     assert sddraft.high_isolation == bool(high_isolation)
-    
+
 @pytest.mark.parametrize(("timeout", "ex"), [
     (0, None),
     (100, None),
@@ -63,30 +54,34 @@ def test_idle_timeout(sddraft, timeout, ex):
     else:
         sddraft.idle_timeout = timeout
         assert sddraft.idle_timeout == timeout
-    
+
 @pytest.mark.parametrize(("instances"), [
     (1), (2), (8)
 ])
 def test_instances_per_container(sddraft, instances):
     sddraft.instances_per_container = instances
     assert sddraft.instances_per_container == instances
-    
-@pytest.mark.parametrize(("min_number", "max_number", "ex"), [
-    (0, -1, ValueError),
-    (0, 0, ValueError),
-    (0, 2, None),
-    (1, 8, None), 
-    (5, 2, ValueError)
+
+@pytest.mark.parametrize(("min_number", "max_number", "exp_min", "exp_max", "ex"), [
+    (0, -1, None, None, ValueError),
+    (0, 0, None, None, ValueError),
+    (0, 2, 0, 2, None),
+    (1, 8, 1, 8, None),
+    (5, 2, 2, 2, None)
 ])
-def test_max_instances(sddraft, min_number, max_number, ex):
-    sddraft.min_instances = min_number
+def test_instances_counts(sddraft, min_number, max_number, exp_min, exp_max, ex):
+    assert isinstance(type(sddraft).min_instances, property) == True
+    assert isinstance(type(sddraft).max_instances, property) == True
 
     if (ex != None):
         with pytest.raises(ex):
+            sddraft.min_instances = min_number
             sddraft.max_instances = max_number
     else:
+        sddraft.min_instances = min_number
         sddraft.max_instances = max_number
-        assert sddraft.max_instances == max_number
+        assert sddraft.min_instances == exp_min
+        assert sddraft.max_instances == exp_max
 
 @pytest.mark.parametrize(("number", "ex"), [
     (-1, ValueError),
@@ -101,20 +96,6 @@ def test_max_record_count(sddraft, number, ex):
     else:
         sddraft.max_record_count = number
         assert sddraft.max_record_count == number
-
-@pytest.mark.parametrize(("number", "ex"), [
-    (-1, ValueError),
-    (0, None),
-    (2, None),
-    (8, None)
-])
-def test_min_instances(sddraft, number, ex):
-    if (ex != None):
-        with pytest.raises(ex):
-            sddraft.min_instances = number
-    else:
-        sddraft.min_instances = number
-        assert sddraft.min_instances == number
 
 @pytest.mark.parametrize(("name", "ex"), [
     ("TestName", None), ("", ValueError)
@@ -139,7 +120,7 @@ def test_recycle_interval(sddraft, interval, ex):
     else:
         sddraft.recycle_interval = interval
         assert sddraft.recycle_interval == interval
-        
+
 @pytest.mark.parametrize(("input", "expected", "ex"), [
     ("12:01", datetime.time(12, 01), None),
     (datetime.time(14, 35), datetime.time(14, 35), None),
@@ -157,7 +138,7 @@ def test_recycle_start_time(sddraft, input, expected, ex):
 def test_replace_existing(sddraft, replace, expected):
     sddraft.replace_existing = replace
     assert sddraft.replace_existing == expected
-    
+
 @pytest.mark.parametrize(("summary"), [
     ("A test summary"), ("A test summary.\nIt also has line breaks."), ("")
 ])
@@ -178,7 +159,7 @@ def test_usage_timeout(sddraft, timeout, ex):
     else:
         sddraft.usage_timeout = timeout
         assert sddraft.usage_timeout == timeout
-    
+
 @pytest.mark.parametrize(("timeout", "ex"), [
     (0, None),
     (100, None),

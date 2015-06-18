@@ -18,17 +18,18 @@ setup(
     name = "arcpyext",
     version = __version__,
     packages = packages,
-    
+
     #dependencies
     install_requires = [
-        "enum34>=1.0.4"
+        "enum34>=1.0.4",
+        "future>=0.14.3"
     ],
-    
+
     #misc files to include
     package_data = {
         "": ["LICENSE"]
     },
-    
+
     #PyPI MetaData
     author = __author__,
     description = "Extended functionality for Esri's ArcPy site-package",
@@ -42,6 +43,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python :: 2.7"
     ),
-    
+
     zip_safe = False
 )
