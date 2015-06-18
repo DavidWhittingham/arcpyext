@@ -41,7 +41,11 @@ def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name =
 def convert_toolbox_to_service_draft(toolbox_path, sd_draft_path, get_result_fn, service_name, folder_name = None, summary = None):
     # import and run the package
     arcpy.ImportToolbox(toolbox_path)
-    result=get_result_fn()
+    # optionally allow a list of results
+    if not callable(get_result_fn):
+        result=[fn() for fn in get_result_fn]
+    else:
+        result=get_result_fn()
 
     # create the sddraft
     arcpy.CreateGPSDDraft(result, sd_draft_path, service_name, server_type="ARCGIS_SERVER", copy_data_to_server=False, folder_name=folder_name, summary=summary)
