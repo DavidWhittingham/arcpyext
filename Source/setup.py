@@ -11,6 +11,7 @@ packages = [
     "arcpyext.exceptions",
     "arcpyext.mapping",
     "arcpyext.publishing"
+    "arcpyext.toolbox"
 ]
 
 setup(
