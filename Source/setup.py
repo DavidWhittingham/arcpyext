@@ -10,8 +10,8 @@ packages = [
     "arcpyext.data",
     "arcpyext.exceptions",
     "arcpyext.mapping",
-    "arcpyext.publishing"
-    "arcpyext.toolbox"
+    "arcpyext.publishing",
+    "arcpyext.toolbox",
 ]
 
 setup(
