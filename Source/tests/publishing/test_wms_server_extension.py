@@ -20,6 +20,17 @@ def server_ext():
 from ogc_metadata_extension_mixin import *
 from custom_get_capabilities_extension_mixin import *
 
+@pytest.mark.parametrize(("srs", "expected"), [
+    ([102100,102113,3857], [102100,102113,3857]),
+    (["102100","102113","3857"], [102100,102113,3857]),
+    ("102100,102113,3857", [102100,102113,3857]),
+    (None, []),
+    ("", [])
+])
+def test_additional_spatial_ref_sys(server_ext, srs, expected):
+    server_ext.additional_spatial_ref_sys = srs
+    assert set(server_ext.additional_spatial_ref_sys) == set(expected)
+
 @pytest.mark.parametrize(("address_type"), [
     ("postal")
 ])
@@ -101,6 +112,11 @@ def test_post_code(server_ext, post_code, expected, ex):
     else:
         server_ext.post_code = post_code
         assert server_ext.post_code == expected
+
+@pytest.mark.parametrize(("enabled", "expected"), TRUEISH_TEST_PARAMS)
+def test_reaspect(server_ext, enabled, expected):
+    server_ext.reaspect = enabled
+    assert server_ext.reaspect == expected
 
 @pytest.mark.parametrize(("title"), [
     ("This is a test map title.")
