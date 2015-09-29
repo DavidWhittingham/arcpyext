@@ -24,7 +24,7 @@ def check_analysis(analysis):
 
 def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None):
     if not validate_map(map):
-        raise MapDataSourcesBrokenError()
+        raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 
     if os.path.exists(sd_draft_path):
         os.remove(sd_draft_path)
