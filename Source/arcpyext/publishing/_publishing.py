@@ -7,6 +7,7 @@ from ..mapping import validate_map
 
 from ._mapsddraft import MapSDDraft
 from ._imagesddraft import ImageSDDraft
+from ._geodata_sddraft import GeodataSDDraft
 from ._gpsddraft import GPSDDraft
 from ._sddraft_editor import SDDraftEditor
 
@@ -65,6 +66,9 @@ def convert_toolbox_to_service_draft(toolbox_path, sd_draft_path, get_result_fn,
     check_analysis(analysis)
 
     return load_gp_sddraft(sd_draft_path)
+
+def load_geodata_sddraft(path):
+    return GeodataSDDraft(SDDraftEditor(path))
 
 def load_gp_sddraft(path):
     return GPSDDraft(SDDraftEditor(path))
