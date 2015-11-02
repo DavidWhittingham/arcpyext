@@ -28,13 +28,6 @@ class MapSDDraft(SDDraftCacheable, SDDraftBase):
         query = "Query"
         data = "Data"
 
-    class FeatureAccessOperation(Enum):
-        create = "Create"
-        query = "Query"
-        update = "Update"
-        delete = "Delete"
-        sync = "Sync"
-
     class TextAntiAliasingMode(Enum):
         none = "None"
         force = "Force"
