@@ -5,6 +5,8 @@ from abc import ABCMeta
 
 from enum import Enum
 
+from ._svc_resource import SVCResource
+
 class SDDraftBase():
     __metaclass__ = ABCMeta
 
@@ -30,6 +32,7 @@ class SDDraftBase():
     _MIN_INSTANCES_KEY = "MinInstances"
     _RECYCLE_START_TIME_KEY = "recycleStartTime"
     _RECYCLE_INTERVAL_KEY = "recycleInterval"
+    _RESOURCES_KEY = "Resources"
     _USAGE_TIMEOUT_KEY = "UsageTimeout"
     _WAIT_TIMEOUT_KEY = "WaitTimeout"
 
@@ -39,6 +42,7 @@ class SDDraftBase():
 
     def __init__(self, editor):
         self._editor = editor
+        self._resources = None
 
     #endregion
 
@@ -263,6 +267,12 @@ class SDDraftBase():
         self._editor.set_element_value(
             manifest_type,
             "esriServiceDefinitionType_Replacement" if value == True else "esriServiceDefinitionType_New")
+    
+    @property
+    def resources(self):
+        if self._resources == None:
+            self._resources = [SVCResource(self._editor, elem) for elem in self._editor.get_first_element_by_tag("Resources")]
+        return self._resources
 
     @property
     def summary(self):

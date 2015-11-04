@@ -170,8 +170,10 @@ class SDDraftEditor():
     def get_elements_by_tag(self, tag_name):
         return list(self.xmlroot.iter(tag_name))
 
-    def get_first_element_by_tag(self, tag_name):
-        return next(self.xmlroot.iter(tag_name))
+    def get_first_element_by_tag(self, tag_name, root_element = None):
+        if root_element == None:
+            root_element = self.xmlroot
+        return next(root_element.iter(tag_name))
 
     def _loadxml(self):
         self._xmltree = self._parse_xmlns(self._path)
