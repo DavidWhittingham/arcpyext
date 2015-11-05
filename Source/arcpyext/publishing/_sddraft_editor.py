@@ -19,6 +19,12 @@ class SDDraftEditor():
         return ",".join(set(string_values))
 
     @staticmethod
+    def create_element(tag, value):
+        elem = ET.Element(tag)
+        elem.text = value
+        return elem
+
+    @staticmethod
     def enum_to_str(value, enum, exception_message):
         if isinstance(value, basestring):
             # Convert string to enum to check compatibility
@@ -63,6 +69,13 @@ class SDDraftEditor():
             return
         if isinstance(value, basestring):
             element.text = value
+            return
+        if isinstance(value, list):
+            # assume list of elements, remove all current and set
+            for elem in element:
+                element.remove(elem)
+            for elem in value:
+                element.append(elem)
             return
         raise ValueError("Element value cannot be set, unknown type.")
 
