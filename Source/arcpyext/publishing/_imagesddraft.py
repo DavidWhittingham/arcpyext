@@ -89,6 +89,14 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
         self._editor.set_element_value(self._get_available_fields_element(), ",".join(values))
 
     @property
+    def copyright(self):
+        self._editor.get_element_value(self._get_copyright_element())
+
+    @copyright.setter
+    def copyright(self, value):
+        self._editor.set_element_value(self._get_copyright_element(), value)
+
+    @property
     def default_resampling_method(self):
         value = self._editor.get_element_value(self._get_default_resampling_method_element())
         return self.ResamplingMethod(int(value))
@@ -184,6 +192,9 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
 
     def _get_available_fields_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AvailableFields")
+
+    def _get_copyright_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, "copyright")
 
     def _get_default_resampling_method_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "DefaultResamplingMethod")
