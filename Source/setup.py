@@ -7,6 +7,7 @@ with open('arcpyext/_version.py') as fin: exec(fin)
 
 packages = [
     "arcpyext",
+    "arcpyext.conversion",
     "arcpyext.data",
     "arcpyext.exceptions",
     "arcpyext.mapping",
