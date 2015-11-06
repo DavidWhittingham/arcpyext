@@ -3,7 +3,7 @@ import xlsxwriter
 
 from ._helpers import get_textual_fields
 
-def table_to_ooxl_workbook(table, output_file_path, use_field_alias_as_column_header = False):
+def table_to_ooxml_workbook(table, output_file_path, use_field_alias_as_column_header = False):
     fields = get_textual_fields(table)
 
     # setup workbook, write column headings
