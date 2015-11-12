@@ -10,18 +10,22 @@ class SDDraftEditor():
 
     #region Static Methods
 
+    @staticmethod
+    def append_element(parent_elem, subelem):
+        """Adds a child element to the end of a parent element."""
+        parent_elem.append(subelem)
+
     @classmethod
-    def enum_list_to_str(self, values, enum, exception_message):
+    def enum_list_to_str(cls, values, enum, exception_message):
         string_values = []
         for val in values:
-            string_values.append(self.enum_to_str(val, enum, exception_message))
-
+            string_values.append(cls.enum_to_str(val, enum, exception_message))
         return ",".join(set(string_values))
 
-    @staticmethod
-    def create_element(tag, value):
-        elem = ET.Element(tag)
-        elem.text = value
+    @classmethod
+    def create_element(cls, tag, value, attrib = {}):
+        elem = ET.Element(tag, attrib)
+        cls.set_element_value(elem, value)
         return elem
 
     @staticmethod
@@ -79,11 +83,14 @@ class SDDraftEditor():
             return
         raise ValueError("Element value cannot be set, unknown type.")
 
-    @staticmethod
-    def get_value_element_by_key(prop_list, key):
+    @classmethod
+    def get_value_element_by_key(cls, prop_list, key):
         """ From a list of PropertySetProperty elements, return the "value" child element of the first
         PropertySetProperty element with a particular key."""
-        return next(item.find("Value") for item in prop_list if item.findtext("Key").lower() == key.lower())
+        for item in prop_list:
+            if item.findtext("Key").lower() == key.lower():
+                return item.find("Value")
+        return None
 
     @staticmethod
     def get_value_elements_by_keys(prop_list, keys):

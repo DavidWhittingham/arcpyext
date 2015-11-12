@@ -117,12 +117,21 @@ class SDDraftExtension():
 
     def _get_prop_value(self, key):
         """Gets the value for a given extension 'props' property."""
-        return self._editor.get_element_value(
-            self._editor.get_value_element_by_key(self._extension_properties, key))
+        elem = self._editor.get_value_element_by_key(self._extension_properties, key)
+        return None if elem == None else self._editor.get_element_value(elem)
 
     def _set_prop_value(self, key, value):
         """Sets the value for a given extension 'props' property."""
-        self._editor.set_element_value(
-            self._editor.get_value_element_by_key(self._extension_properties, key), value)
+        elem = self._editor.get_value_element_by_key(self._extension_properties, key)
+        if elem == None:
+            # element doesn't exist, presume caller knows what they're doing and create the property
+            key_elem = self._editor.create_element("Key", key)
+            value_elem = self._editor.create_element("Value", value, {"xsi:type": "xs:string"})
+            new_elem = self._editor.create_element(
+                "PropertySetProperty", [key_elem, value_elem], {"xsi:type": "typens:PropertySetProperty"})
+            self._editor.append_element(self._extension_properties, new_elem)
+        else:
+            self._editor.set_element_value(
+                self._editor.get_value_element_by_key(self._extension_properties, key), value)
 
     # endregion
