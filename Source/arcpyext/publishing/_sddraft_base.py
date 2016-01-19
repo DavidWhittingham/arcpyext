@@ -5,6 +5,8 @@ from abc import ABCMeta
 
 from enum import Enum
 
+from ._svc_resource import SVCResource
+
 class SDDraftBase():
     __metaclass__ = ABCMeta
 
@@ -30,6 +32,7 @@ class SDDraftBase():
     _MIN_INSTANCES_KEY = "MinInstances"
     _RECYCLE_START_TIME_KEY = "recycleStartTime"
     _RECYCLE_INTERVAL_KEY = "recycleInterval"
+    _RESOURCES_KEY = "Resources"
     _USAGE_TIMEOUT_KEY = "UsageTimeout"
     _WAIT_TIMEOUT_KEY = "WaitTimeout"
 
@@ -39,6 +42,7 @@ class SDDraftBase():
 
     def __init__(self, editor):
         self._editor = editor
+        self._resources = None
 
     #endregion
 
@@ -74,14 +78,25 @@ class SDDraftBase():
         self._editor.set_element_value(self._editor.get_first_element_by_tag("Cluster"), value)
 
     @property
+    def credits(self):
+        """Gets the value of the credits attribute for the service."""
+        return self._editor.get_element_value(self._editor.get_first_element_by_tag("Credits", self._item_info_element))
+
+    @credits.setter
+    def credits(self, value):
+        """Sets the value of the credits attribute for the service."""
+        self._editor.set_element_value(self._editor.get_first_element_by_tag("Credits", self._item_info_element), value)
+
+    @property
     def description(self):
         """Gets the description for the service."""
-        return self._editor.get_element_value(self._description_element)
+        return self._editor.get_element_value(self._description_elements[0])
 
     @description.setter
     def description(self, value):
         """Sets the description for the service."""
-        self._editor.set_element_value(self._description_element, value)
+        for elem in self._description_elements:
+            self._editor.set_element_value(elem, value)
 
     @property
     def file_path(self):
@@ -265,6 +280,12 @@ class SDDraftBase():
             "esriServiceDefinitionType_Replacement" if value == True else "esriServiceDefinitionType_New")
 
     @property
+    def resources(self):
+        if self._resources == None:
+            self._resources = [SVCResource(self._editor, elem) for elem in self._editor.get_first_element_by_tag("Resources")]
+        return self._resources
+
+    @property
     def summary(self):
         """Gets the summary for the service."""
         return self._editor.get_element_value(self._summary_element)
@@ -309,8 +330,11 @@ class SDDraftBase():
         return list(self._service_config.find("./Definition/ConfigurationProperties/PropertyArray"))
 
     @property
-    def _description_element(self):
-        return self._editor.get_first_element_by_tag("ItemInfo").find("Description")
+    def _description_elements(self):
+        return [
+            self._editor.get_first_element_by_tag("ItemInfo").find("Description"),
+            self._editor.get_first_element_by_tag("Definition").find("Description")
+        ]
 
     @property
     def _folder_element(self):
@@ -319,6 +343,10 @@ class SDDraftBase():
     @property
     def _idle_timeout_elements(self):
         return [self._editor.get_value_element_by_key(self._service_props, self._IDLE_TIMEOUT_KEY)]
+
+    @property
+    def _item_info_element(self):
+        return self._editor.get_first_element_by_tag("ItemInfo")
 
     @property
     def _info_props(self):
@@ -369,8 +397,7 @@ class SDDraftBase():
 
     @property
     def _summary_element(self):
-        item_info = self._editor.get_first_element_by_tag("ItemInfo")
-        return item_info.find("Snippet")
+        return self._item_info_element.find("Snippet")
 
     @property
     def _usage_timeout_elements(self):

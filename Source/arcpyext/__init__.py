@@ -7,7 +7,8 @@ from ._version import *
 
 import arcpy
 
-from . import mapping
+from . import conversion
 from . import data
+from . import mapping
 from . import publishing
 from . import toolbox

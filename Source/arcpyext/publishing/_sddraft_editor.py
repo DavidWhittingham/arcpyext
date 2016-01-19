@@ -10,13 +10,23 @@ class SDDraftEditor():
 
     #region Static Methods
 
+    @staticmethod
+    def append_element(parent_elem, subelem):
+        """Adds a child element to the end of a parent element."""
+        parent_elem.append(subelem)
+
     @classmethod
-    def enum_list_to_str(self, values, enum, exception_message):
+    def enum_list_to_str(cls, values, enum, exception_message):
         string_values = []
         for val in values:
-            string_values.append(self.enum_to_str(val, enum, exception_message))
-
+            string_values.append(cls.enum_to_str(val, enum, exception_message))
         return ",".join(set(string_values))
+
+    @classmethod
+    def create_element(cls, tag, value, attrib = {}):
+        elem = ET.Element(tag, attrib)
+        cls.set_element_value(elem, value)
+        return elem
 
     @staticmethod
     def enum_to_str(value, enum, exception_message):
@@ -64,13 +74,23 @@ class SDDraftEditor():
         if isinstance(value, basestring):
             element.text = value
             return
+        if isinstance(value, list):
+            # assume list of elements, remove all current and set
+            for elem in element:
+                element.remove(elem)
+            for elem in value:
+                element.append(elem)
+            return
         raise ValueError("Element value cannot be set, unknown type.")
 
-    @staticmethod
-    def get_value_element_by_key(prop_list, key):
+    @classmethod
+    def get_value_element_by_key(cls, prop_list, key):
         """ From a list of PropertySetProperty elements, return the "value" child element of the first
         PropertySetProperty element with a particular key."""
-        return next(item.find("Value") for item in prop_list if item.findtext("Key").lower() == key.lower())
+        for item in prop_list:
+            if item.findtext("Key").lower() == key.lower():
+                return item.find("Value")
+        return None
 
     @staticmethod
     def get_value_elements_by_keys(prop_list, keys):
@@ -170,8 +190,10 @@ class SDDraftEditor():
     def get_elements_by_tag(self, tag_name):
         return list(self.xmlroot.iter(tag_name))
 
-    def get_first_element_by_tag(self, tag_name):
-        return next(self.xmlroot.iter(tag_name))
+    def get_first_element_by_tag(self, tag_name, root_element = None):
+        if root_element == None:
+            root_element = self.xmlroot
+        return next(root_element.iter(tag_name))
 
     def _loadxml(self):
         self._xmltree = self._parse_xmlns(self._path)

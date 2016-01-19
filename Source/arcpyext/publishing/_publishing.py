@@ -7,6 +7,7 @@ from ..mapping import validate_map
 
 from ._mapsddraft import MapSDDraft
 from ._imagesddraft import ImageSDDraft
+from ._geodata_sddraft import GeodataSDDraft
 from ._gpsddraft import GPSDDraft
 from ._sddraft_editor import SDDraftEditor
 
@@ -24,7 +25,7 @@ def check_analysis(analysis):
 
 def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None):
     if not validate_map(map):
-        raise MapDataSourcesBrokenError()
+        raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 
     if os.path.exists(sd_draft_path):
         os.remove(sd_draft_path)
@@ -65,6 +66,9 @@ def convert_toolbox_to_service_draft(toolbox_path, sd_draft_path, get_result_fn,
     check_analysis(analysis)
 
     return load_gp_sddraft(sd_draft_path)
+
+def load_geodata_sddraft(path):
+    return GeodataSDDraft(SDDraftEditor(path))
 
 def load_gp_sddraft(path):
     return GPSDDraft(SDDraftEditor(path))

@@ -7,11 +7,12 @@ with open('arcpyext/_version.py') as fin: exec(fin)
 
 packages = [
     "arcpyext",
+    "arcpyext.conversion",
     "arcpyext.data",
     "arcpyext.exceptions",
     "arcpyext.mapping",
     "arcpyext.publishing",
-    "arcpyext.toolbox",
+    "arcpyext.toolbox"
 ]
 
 setup(
@@ -22,7 +23,8 @@ setup(
     #dependencies
     install_requires = [
         "enum34>=1.0.4",
-        "future>=0.14.3"
+        "future>=0.14.3",
+        "XlsxWriter>=0.7.7"
     ],
 
     #misc files to include
