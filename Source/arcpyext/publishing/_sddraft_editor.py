@@ -28,6 +28,13 @@ class SDDraftEditor():
         cls.set_element_value(elem, value)
         return elem
 
+    @classmethod
+    def create_config_element(cls, key, value):
+        key_elem = cls.create_element("Key", key)
+        value_elem = cls.create_element("Value", value, {"xsi:type": "xs:string"})
+        return cls.create_element(
+            "PropertySetProperty", [key_elem, value_elem], {"xsi:type": "typens:PropertySetProperty"})
+
     @staticmethod
     def enum_to_str(value, enum, exception_message):
         if isinstance(value, basestring):
