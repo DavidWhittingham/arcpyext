@@ -51,6 +51,16 @@ class SDDraftBase():
     #region Properties
 
     @property
+    def access_information(self):
+        """Gets the value of the access_information attribute for the service."""
+        return self._editor.get_element_value(self._editor.get_first_element_by_tag("AccessInformation", self._item_info_element))
+
+    @access_information.setter
+    def access_information(self, value):
+        """Sets the value of the access_information attribute for the service."""
+        self._editor.set_element_value(self._editor.get_first_element_by_tag("AccessInformation", self._item_info_element), value)
+
+    @property
     def capabilities(self):
         """Gets or sets a list of capabilities (as defined by self.Capability enumerator) that are enabled for this
         service.
