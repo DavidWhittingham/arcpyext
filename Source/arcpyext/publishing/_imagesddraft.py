@@ -69,6 +69,15 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
             self._editor.enum_list_to_str(values, self.CompressionMethod, "Compression method specified is of an unknown type."))
 
     @property
+    def allowed_fields(self):
+        values = self._editor.get_element_value(self._get_allowed_fields_element())
+        return values.split(",")
+
+    @allowed_fields.setter
+    def allowed_fields(self, values):
+        self._editor.set_element_value(self._get_allowed_fields_element(), ",".join(values))
+
+    @property
     def allowed_mosaic_methods(self):
         return [self.MosaicMethod(item) for item in
             self._editor.get_element_value(self._get_allowed_mosaic_methods_element()).split(",")]
@@ -186,6 +195,9 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
 
     def _get_allowed_compressions_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AllowedCompressions")
+    
+    def _get_allowed_fields_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, "AllowedFields")
 
     def _get_allowed_mosaic_methods_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AllowedMosaicMethods")
