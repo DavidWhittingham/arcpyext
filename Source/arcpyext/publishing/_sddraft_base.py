@@ -2,6 +2,7 @@ import datetime
 import re
 
 from abc import ABCMeta
+from decimal import Decimal
 
 from enum import Enum
 
@@ -29,7 +30,9 @@ class SDDraftBase():
     _ISOLATION_KEY = "Isolation"
     _MAX_INSTANCES_KEY = "MaxInstances"
     _MAX_RECORD_COUNT_KEY = "maxRecordCount"
+    _MAX_SCALE_KEY = "maxScale"
     _MIN_INSTANCES_KEY = "MinInstances"
+    _MIN_SCALE_KEY = "minScale"
     _OUTPUT_DIR_KEY = "outputDir"
     _RECYCLE_START_TIME_KEY = "recycleStartTime"
     _RECYCLE_INTERVAL_KEY = "recycleInterval"
@@ -200,6 +203,16 @@ class SDDraftBase():
             self._editor.set_element_value(elem, value)
 
     @property
+    def max_scale(self):
+        """Gets the maximum scale for this service."""
+        return Decimal(self._editor.get_element_value(self._max_scale_element))
+
+    @max_scale.setter
+    def max_scale(self, value):
+        """Sets the maximum scale for this service."""
+        self._editor.set_element_value(self._max_scale_element, Decimal(value))
+
+    @property
     def min_instances(self):
         """Gets the minimum number of instances that the published service will run."""
         return int(self._editor.get_element_value(self._min_instances_elements[0]))
@@ -216,6 +229,16 @@ class SDDraftBase():
         if value > self.max_instances:
             # Min instances can't be bigger than max instances, so make the same size
             self.max_instances = value
+
+    @property
+    def min_scale(self):
+        """Gets the maximum scale for this service."""
+        return Decimal(self._editor.get_element_value(self._min_scale_element))
+
+    @min_scale.setter
+    def min_scale(self, value):
+        """Sets the maximum scale for this service."""
+        self._editor.set_element_value(self._min_scale_element, Decimal(value))
 
     @property
     def name(self):
@@ -423,8 +446,16 @@ class SDDraftBase():
         return [self._editor.get_value_element_by_key(self._config_props, self._MAX_RECORD_COUNT_KEY)]
 
     @property
+    def _max_scale_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, self._MAX_SCALE_KEY)
+
+    @property
     def _min_instances_elements(self):
         return [self._editor.get_value_element_by_key(self._service_props, self._MIN_INSTANCES_KEY)]
+
+    @property
+    def _min_scale_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, self._MIN_SCALE_KEY)
 
     @property
     def _name_elements(self):
@@ -468,6 +499,8 @@ class SDDraftBase():
     @property
     def _wait_timeout_elements(self):
         return [self._editor.get_value_element_by_key(self._service_props, self._WAIT_TIMEOUT_KEY)]
+
+    #endregion
 
     #region Methods
 
