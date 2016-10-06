@@ -2,13 +2,11 @@ import datetime
 
 import pytest
 
-from decimal import Decimal
-
 from .. helpers import *
 
 SCALES = [
-    (Decimal("1.1"), Decimal("1.1")),
-    ("1.1", Decimal("1.1"))
+    (1.1, 1.1),
+    ("1.1", 1.1)
 ]
 
 @pytest.mark.parametrize(("cluster_name", "expected"), [

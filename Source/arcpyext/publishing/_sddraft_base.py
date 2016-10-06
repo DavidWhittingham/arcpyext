@@ -2,7 +2,6 @@ import datetime
 import re
 
 from abc import ABCMeta
-from decimal import Decimal
 
 from enum import Enum
 
@@ -205,12 +204,12 @@ class SDDraftBase():
     @property
     def max_scale(self):
         """Gets the maximum scale for this service."""
-        return Decimal(self._editor.get_element_value(self._max_scale_element))
+        return float(self._editor.get_element_value(self._max_scale_element))
 
     @max_scale.setter
     def max_scale(self, value):
         """Sets the maximum scale for this service."""
-        self._editor.set_element_value(self._max_scale_element, Decimal(value))
+        self._editor.set_element_value(self._max_scale_element, float(value))
 
     @property
     def min_instances(self):
@@ -233,12 +232,12 @@ class SDDraftBase():
     @property
     def min_scale(self):
         """Gets the maximum scale for this service."""
-        return Decimal(self._editor.get_element_value(self._min_scale_element))
+        return float(self._editor.get_element_value(self._min_scale_element))
 
     @min_scale.setter
     def min_scale(self, value):
         """Sets the maximum scale for this service."""
-        self._editor.set_element_value(self._min_scale_element, Decimal(value))
+        self._editor.set_element_value(self._min_scale_element, float(value))
 
     @property
     def name(self):
