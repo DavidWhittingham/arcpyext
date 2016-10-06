@@ -2,7 +2,14 @@ import datetime
 
 import pytest
 
+from decimal import Decimal
+
 from .. helpers import *
+
+SCALES = [
+    (Decimal("1.1"), Decimal("1.1")),
+    ("1.1", Decimal("1.1"))
+]
 
 @pytest.mark.parametrize(("cluster_name", "expected"), [
     ("Default", "Default"),
@@ -54,6 +61,16 @@ def test_idle_timeout(sddraft, timeout, ex):
     else:
         sddraft.idle_timeout = timeout
         assert sddraft.idle_timeout == timeout
+
+@pytest.mark.parametrize(("scale", "exp_scale"), SCALES)
+def text_max_scale(sddraft, scale, exp_scale):
+    sddraft.max_scale = scale
+    assert sddraft.max_scale == exp_scale
+
+@pytest.mark.parametrize(("scale", "exp_scale"), SCALES)
+def text_min_scale(sddraft, scale, exp_scale):
+    sddraft.min_scale = scale
+    assert sddraft.min_scale == exp_scale
 
 @pytest.mark.parametrize(("instances"), [
     (1), (2), (8)

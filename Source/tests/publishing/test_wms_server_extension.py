@@ -21,9 +21,8 @@ from ogc_metadata_extension_mixin import *
 from custom_get_capabilities_extension_mixin import *
 
 @pytest.mark.parametrize(("srs", "expected"), [
-    ([102100,102113,3857], [102100,102113,3857]),
-    (["102100","102113","3857"], [102100,102113,3857]),
-    ("102100,102113,3857", [102100,102113,3857]),
+    (["EPSG:102100","EPSG:102113","EPSG:3857"], ["EPSG:102100","EPSG:102113","EPSG:3857"]),
+    ("EPSG:102100,EPSG:102113,EPSG:3857", ["EPSG:102100","EPSG:102113","EPSG:3857"]),
     (None, []),
     ("", [])
 ])
