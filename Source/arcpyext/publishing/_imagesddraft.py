@@ -3,10 +3,11 @@ from enum import Enum
 from ._jpip_server_extension import JpipServerExtension
 from ._sddraft_base import SDDraftBase
 from ._sddraft_cacheable import SDDraftCacheable
+from ._sddraft_image_dimensions import SDDraftImageDimensions
 from ._wcs_server_extension import WcsServerExtension
 from ._wms_server_extension import WmsServerExtension
 
-class ImageSDDraft(SDDraftCacheable, SDDraftBase):
+class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
     """Class for editing a Service Definition Draft for an Image Service.
 
     Must be instantiated from an existing on-disk Image SDDraft file."""
@@ -141,26 +142,6 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
             self._editor.verify_int(value, "Maximum Download Size Limit", allow_none = True))
 
     @property
-    def max_image_height(self):
-        return self._editor.get_element_value(self._get_max_image_height_element())
-
-    @max_image_height.setter
-    def max_image_height(self, value):
-        self._editor.set_element_value(
-            self._get_max_image_height_element(),
-            self._editor.verify_int(value, "Maximum Download Height", allow_none = True))
-
-    @property
-    def max_image_width(self):
-        return self._editor.get_element_value(self._get_max_image_width_element())
-
-    @max_image_width.setter
-    def max_image_width(self, value):
-        self._editor.set_element_value(
-            self._get_max_image_width_element(),
-            self._editor.verify_int(value, "Maximum Download Width", allow_none = True))
-
-    @property
     def max_mosaic_image_count(self):
         return self._editor.get_element_value(self._get_max_mosaic_image_count_element())
 
@@ -195,7 +176,7 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
 
     def _get_allowed_compressions_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AllowedCompressions")
-    
+
     def _get_allowed_fields_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AllowedFields")
 
@@ -216,12 +197,6 @@ class ImageSDDraft(SDDraftCacheable, SDDraftBase):
 
     def _get_max_download_size_limit_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "MaxDownloadSizeLimit")
-
-    def _get_max_image_height_element(self):
-        return self._editor.get_value_element_by_key(self._config_props, "MaxImageHeight")
-
-    def _get_max_image_width_element(self):
-        return self._editor.get_value_element_by_key(self._config_props, "MaxImageWidth")
 
     def _get_max_mosaic_image_count_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "MaxMosaicImageCount")

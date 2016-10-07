@@ -19,6 +19,7 @@ def sddraft():
 
 from sddraftbase import *
 from sddraft_cacheable import *
+from sddraft_image_dimensions import *
 
 @pytest.mark.parametrize(("mode", "expected", "ex"), [
     (MapSDDraft.AntiAliasingMode.none, MapSDDraft.AntiAliasingMode.none, None),
