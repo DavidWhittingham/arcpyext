@@ -125,11 +125,9 @@ class SDDraftExtension():
         elem = self._editor.get_value_element_by_key(self._extension_properties, key)
         if elem == None:
             # element doesn't exist, presume caller knows what they're doing and create the property
-            key_elem = self._editor.create_element("Key", key)
-            value_elem = self._editor.create_element("Value", value, {"xsi:type": "xs:string"})
-            new_elem = self._editor.create_element(
-                "PropertySetProperty", [key_elem, value_elem], {"xsi:type": "typens:PropertySetProperty"})
-            self._editor.append_element(self._extension_properties, new_elem)
+            self._editor.append_element(
+                self._extension_properties,
+                self._editor.create_config_element(key, value))
         else:
             self._editor.set_element_value(
                 self._editor.get_value_element_by_key(self._extension_properties, key), value)

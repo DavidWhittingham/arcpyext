@@ -80,6 +80,14 @@
 							<Key>maxRecordCount</Key>
 							<Value xsi:type="xs:string">1000</Value>
 						</PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>exportTilesAllowed</Key>
+                <Value xsi:type='xs:string'>false</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type='typens:PropertySetProperty'>
+                <Key>maxExportTilesCount</Key>
+                <Value xsi:type='xs:string'>100000</Value>
+            </PropertySetProperty>
 						<PropertySetProperty xsi:type="typens:PropertySetProperty">
 							<Key>cacheDir</Key>
 							<Value xsi:type="xs:string"/>

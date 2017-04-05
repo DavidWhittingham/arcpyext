@@ -52,7 +52,7 @@ class WmsServerExtension(CustomGetCapabilitiesExtensionMixin, OgcMetadataExtensi
         """
         value = self._get_prop_value(self._ADDITIONAL_SPATIAL_REF_SYS_KEY)
         if value != None and value != "":
-            return [int(srs) for srs in value.split(",")]
+            return [srs for srs in value.split(",")]
         else:
             return []
 

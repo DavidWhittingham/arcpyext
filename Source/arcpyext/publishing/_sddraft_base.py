@@ -29,11 +29,15 @@ class SDDraftBase():
     _ISOLATION_KEY = "Isolation"
     _MAX_INSTANCES_KEY = "MaxInstances"
     _MAX_RECORD_COUNT_KEY = "maxRecordCount"
+    _MAX_SCALE_KEY = "maxScale"
     _MIN_INSTANCES_KEY = "MinInstances"
+    _MIN_SCALE_KEY = "minScale"
+    _OUTPUT_DIR_KEY = "outputDir"
     _RECYCLE_START_TIME_KEY = "recycleStartTime"
     _RECYCLE_INTERVAL_KEY = "recycleInterval"
     _RESOURCES_KEY = "Resources"
     _USAGE_TIMEOUT_KEY = "UsageTimeout"
+    _VIRTUAL_OUTPUT_DIR_KEY = "virtualOutputDir"
     _WAIT_TIMEOUT_KEY = "WaitTimeout"
 
     #endregion
@@ -47,6 +51,16 @@ class SDDraftBase():
     #endregion
 
     #region Properties
+
+    @property
+    def access_information(self):
+        """Gets the value of the access_information attribute for the service."""
+        return self._editor.get_element_value(self._editor.get_first_element_by_tag("AccessInformation", self._item_info_element))
+
+    @access_information.setter
+    def access_information(self, value):
+        """Sets the value of the access_information attribute for the service."""
+        self._editor.set_element_value(self._editor.get_first_element_by_tag("AccessInformation", self._item_info_element), value)
 
     @property
     def capabilities(self):
@@ -188,6 +202,16 @@ class SDDraftBase():
             self._editor.set_element_value(elem, value)
 
     @property
+    def max_scale(self):
+        """Gets the maximum scale for this service."""
+        return float(self._editor.get_element_value(self._max_scale_element))
+
+    @max_scale.setter
+    def max_scale(self, value):
+        """Sets the maximum scale for this service."""
+        self._editor.set_element_value(self._max_scale_element, float(value))
+
+    @property
     def min_instances(self):
         """Gets the minimum number of instances that the published service will run."""
         return int(self._editor.get_element_value(self._min_instances_elements[0]))
@@ -206,6 +230,16 @@ class SDDraftBase():
             self.max_instances = value
 
     @property
+    def min_scale(self):
+        """Gets the maximum scale for this service."""
+        return float(self._editor.get_element_value(self._min_scale_element))
+
+    @min_scale.setter
+    def min_scale(self, value):
+        """Sets the maximum scale for this service."""
+        self._editor.set_element_value(self._min_scale_element, float(value))
+
+    @property
     def name(self):
         """Gets the name of the service."""
         name_props = self._name_elements
@@ -218,6 +252,27 @@ class SDDraftBase():
             raise ValueError("Name string cannot be empty")
         for prop in self._name_elements:
             self._editor.set_element_value(prop, value)
+
+    @property
+    def output_dir(self):
+        """Gets the output directory for the service."""
+        output_dir_element = self._output_dir_element
+        if not output_dir_element:
+            return None
+
+        return self._editor.get_element_value(output_dir_element)
+
+    @output_dir.setter
+    def output_dir(self, value):
+        """Sets the output directory for the service.  This is paired with the virtual output directory property."""
+        output_dir_element = self._output_dir_element
+        if not output_dir_element:
+            # Create an outputDir element and append it to the configuration properties
+            self._editor.append_element(
+                self._config_props,
+                self._editor.create_config_element(self._OUTPUT_DIR_KEY, value))
+        else:
+            self._editor.set_element_value(output_dir_element, value)
 
     @property
     def recycle_interval(self):
@@ -309,6 +364,27 @@ class SDDraftBase():
             self._editor.set_element_value(elem, value)
 
     @property
+    def virtual_output_dir(self):
+        """Gets the virtual output directory for the service."""
+        virtual_output_dir_element = self._virtual_output_dir_element
+        if not virtual_output_dir_element:
+            return None
+
+        return self._editor.get_element_value(virtual_output_dir_element)
+
+    @virtual_output_dir.setter
+    def virtual_output_dir(self, value):
+        """Sets the virtual output directory for the service.  This is paired with the output directory property."""
+        virtual_output_dir_element = self._output_dir_element
+        if not virtual_output_dir_element:
+            # Create a virtualOutputDir element and append it to the configuration properties
+            self._editor.append_element(
+                self._config_props,
+                self._editor.create_config_element(self._VIRTUAL_OUTPUT_DIR_KEY, value))
+        else:
+            self._editor.set_element_value(virtual_output_dir_element, value)
+
+    @property
     def wait_timeout(self):
         """Gets the wait timeout (in seconds) for the service."""
         return int(self._editor.get_element_value(self._wait_timeout_elements[0]))
@@ -327,7 +403,7 @@ class SDDraftBase():
 
     @property
     def _config_props(self):
-        return list(self._service_config.find("./Definition/ConfigurationProperties/PropertyArray"))
+        return self._service_config.find("./Definition/ConfigurationProperties/PropertyArray")
 
     @property
     def _description_elements(self):
@@ -369,8 +445,16 @@ class SDDraftBase():
         return [self._editor.get_value_element_by_key(self._config_props, self._MAX_RECORD_COUNT_KEY)]
 
     @property
+    def _max_scale_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, self._MAX_SCALE_KEY)
+
+    @property
     def _min_instances_elements(self):
         return [self._editor.get_value_element_by_key(self._service_props, self._MIN_INSTANCES_KEY)]
+
+    @property
+    def _min_scale_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, self._MIN_SCALE_KEY)
 
     @property
     def _name_elements(self):
@@ -378,6 +462,10 @@ class SDDraftBase():
             self._editor.get_first_element_by_tag("SVCManifest").find("Name"),
             self._editor.get_first_element_by_tag("SVCConfiguration").find("Name")
         ]
+
+    @property
+    def _output_dir_element(self):
+        self._editor.get_value_element_by_key(self._config_props, self._OUTPUT_DIR_KEY)
 
     @property
     def _recycle_interval_element(self):
@@ -404,8 +492,14 @@ class SDDraftBase():
         return [self._editor.get_value_element_by_key(self._service_props, self._USAGE_TIMEOUT_KEY)]
 
     @property
+    def _virtual_output_dir_element(self):
+        self._editor.get_value_element_by_key(self._config_props, self._VIRTUAL_OUTPUT_DIR_KEY)
+
+    @property
     def _wait_timeout_elements(self):
         return [self._editor.get_value_element_by_key(self._service_props, self._WAIT_TIMEOUT_KEY)]
+
+    #endregion
 
     #region Methods
 

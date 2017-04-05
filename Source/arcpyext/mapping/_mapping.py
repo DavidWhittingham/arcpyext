@@ -21,7 +21,7 @@ def change_data_sources(map, data_sources):
 
         for layer, layer_source in izip_longest(layers, layer_sources):
             try:
-                if layer.isGroupLayer or layer_source == None:
+                if layer_source == None:
                     continue
 
                 if not layer.supports("dataSource") or not layer.supports("workspacePath"):
@@ -212,7 +212,7 @@ def _change_data_source(layer, workspace_path, dataset_name = None, workspace_ty
 
 
 def _get_layer_details(layer):
-    if layer.isGroupLayer:
+    if layer.isGroupLayer and not layer.isNetworkAnalystLayer:
         return None
 
     details = {

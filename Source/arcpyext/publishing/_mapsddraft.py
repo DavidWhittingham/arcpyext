@@ -7,11 +7,12 @@ from ._na_server_extension import NaServerExtension
 from ._schematics_server_extension import SchematicsServerExtension
 from ._sddraft_base import SDDraftBase
 from ._sddraft_cacheable import SDDraftCacheable
+from ._sddraft_image_dimensions import SDDraftImageDimensions
 from ._wcs_server_extension import WcsServerExtension
 from ._wfs_server_extension import WfsServerExtension
 from ._wms_server_extension import WmsServerExtension
 
-class MapSDDraft(SDDraftCacheable, SDDraftBase):
+class MapSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
     """Class for editing a Service Definition Draft.
 
     Must be instantiated from an on-disk SDDraft file generated."""
