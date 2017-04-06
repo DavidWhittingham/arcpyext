@@ -9,6 +9,15 @@ SCALES = [
     ("1.1", 1.1)
 ]
 
+@pytest.mark.parametrize(("access_information"), [
+    ("This is a test description"),
+    ("This is a much longer test description, it should still work\nIt includes line breaks, we'll see how they go."),
+    ("")
+])
+def test_access_information(sddraft, access_information):
+    sddraft.access_information = access_information
+    assert sddraft.access_information == access_information
+
 @pytest.mark.parametrize(("cluster_name", "expected"), [
     ("Default", "Default"),
     ("NonDefaultCluster", "NonDefaultCluster")
