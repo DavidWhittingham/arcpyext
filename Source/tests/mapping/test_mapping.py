@@ -10,7 +10,7 @@ CLIP2_DATA_SOURCE = { "workspacePath": os.path.abspath("{0}/../samples/".format(
 TEST_DATA_SOURCE = { "workspacePath": os.path.abspath("{0}/../samples/test_data_table2.gdb".format(os.path.dirname(__file__))) }
 
 def pytest_funcarg__map():
-    print("MXD: " + MXD_PATH)
+    # print("MXD: " + MXD_PATH)
     return arcpy.mapping.MapDocument(MXD_PATH)
 
 @pytest.mark.parametrize(("data_sources", "layer_data_sources_equal", "table_data_sources_equal", "raises_ex", "ex_type"), [
@@ -27,9 +27,9 @@ def test_change_data_sources(map, data_sources, layer_data_sources_equal, table_
 
     data_tables = arcpy.mapping.ListTableViews(map)
     old_table_sources = []
-    
+
     for table in data_tables:
-        print table.name
+        # print table.name
         old_table_sources.append(table.dataSource)
 
     if (raises_ex):
@@ -41,11 +41,11 @@ def test_change_data_sources(map, data_sources, layer_data_sources_equal, table_
         for idx, layer in enumerate(layers):
             if layer.isGroupLayer or not layer.supports("workspacePath"):
                 continue
-            print layer.dataSource
-            print old_data_sources[idx]
+            # print layer.dataSource
+            # print old_data_sources[idx]
             assert (layer.dataSource == old_data_sources[idx]) == layer_data_sources_equal[idx]
-        
-        for idx, table in enumerate(data_tables):                
-            print table.dataSource
-            print old_table_sources[idx]
+
+        for idx, table in enumerate(data_tables):
+            # print table.dataSource
+            # print old_table_sources[idx]
             assert (table.dataSource == old_table_sources[idx]) == table_data_sources_equal[idx]
