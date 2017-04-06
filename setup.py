@@ -4,6 +4,7 @@ except ImportError:
     from distutils.core import setup
 
 with open('arcpyext/_version.py') as fin: exec(fin)
+with open('requirements.txt') as fin: requirements=[s.strip() for s in fin.readlines()]
 
 packages = [
     "arcpyext",
@@ -21,11 +22,7 @@ setup(
     packages = packages,
 
     #dependencies
-    install_requires = [
-        "enum34>=1.0.4",
-        "future>=0.14.3",
-        "XlsxWriter>=0.7.7"
-    ],
+    install_requires = requirements,
 
     #misc files to include
     package_data = {
