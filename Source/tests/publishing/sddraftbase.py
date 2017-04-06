@@ -170,6 +170,15 @@ def test_summary(sddraft, summary):
     sddraft.summary = summary
     assert sddraft.summary == summary
 
+@pytest.mark.parametrize(("title"), [
+    ("This is a title"),
+    ("This is a much longer title, it should still work\nIt includes line breaks, we'll see how they go."),
+    ("")
+])
+def test_title(sddraft, title):
+    sddraft.title = title
+    assert sddraft.title == title
+
 @pytest.mark.parametrize(("timeout", "ex"), [
     (0, None),
     (100, None),
