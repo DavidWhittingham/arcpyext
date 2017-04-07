@@ -40,3 +40,7 @@ nosetests.xml
 
 # Esri Products
 *.lock
+
+/.cache/
+/pie.bat
+/venvs/

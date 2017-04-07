@@ -20,7 +20,7 @@ class SDDraftEditor():
         string_values = []
         for val in values:
             string_values.append(cls.enum_to_str(val, enum, exception_message))
-        return ",".join(set(string_values))
+        return ",".join(string_values)
 
     @classmethod
     def create_element(cls, tag, value, attrib = {}):

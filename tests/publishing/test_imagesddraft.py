@@ -38,7 +38,7 @@ def test_allowed_compressions(sddraft, methods, expected, ex):
             sddraft.allowed_compressions = methods
     else:
         sddraft.allowed_compressions = methods
-        assert set(sddraft.allowed_compressions) == set(expected)
+        assert sddraft.allowed_compressions == expected
 
 @pytest.mark.parametrize(("methods", "expected", "ex"), [
     ([ImageSDDraft.MosaicMethod.north_west], [ImageSDDraft.MosaicMethod.north_west], None),

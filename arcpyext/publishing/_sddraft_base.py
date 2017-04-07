@@ -351,6 +351,16 @@ class SDDraftBase():
         self._editor.set_element_value(self._summary_element, value)
 
     @property
+    def title(self):
+        """Gets the value of the title attribute for the service."""
+        return self._editor.get_element_value(self._editor.get_first_element_by_tag("Title", self._item_info_element))
+
+    @title.setter
+    def title(self, value):
+        """Sets the value of the title attribute for the service."""
+        self._editor.set_element_value(self._editor.get_first_element_by_tag("Title", self._item_info_element), value)
+
+    @property
     def usage_timeout(self):
         """Gets the usage timeout (in seconds) for the service."""
         return int(self._editor.get_element_value(self._usage_timeout_elements[0]))

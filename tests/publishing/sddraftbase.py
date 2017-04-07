@@ -9,6 +9,15 @@ SCALES = [
     ("1.1", 1.1)
 ]
 
+@pytest.mark.parametrize(("access_information"), [
+    ("This is a test description"),
+    ("This is a much longer test description, it should still work\nIt includes line breaks, we'll see how they go."),
+    ("")
+])
+def test_access_information(sddraft, access_information):
+    sddraft.access_information = access_information
+    assert sddraft.access_information == access_information
+
 @pytest.mark.parametrize(("cluster_name", "expected"), [
     ("Default", "Default"),
     ("NonDefaultCluster", "NonDefaultCluster")
@@ -160,6 +169,15 @@ def test_replace_existing(sddraft, replace, expected):
 def test_summary(sddraft, summary):
     sddraft.summary = summary
     assert sddraft.summary == summary
+
+@pytest.mark.parametrize(("title"), [
+    ("This is a title"),
+    ("This is a much longer title, it should still work\nIt includes line breaks, we'll see how they go."),
+    ("")
+])
+def test_title(sddraft, title):
+    sddraft.title = title
+    assert sddraft.title == title
 
 @pytest.mark.parametrize(("timeout", "ex"), [
     (0, None),

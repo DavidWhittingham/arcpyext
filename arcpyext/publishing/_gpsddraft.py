@@ -32,7 +32,7 @@ class GPSDDraft(SDDraftBase):
     def execution_type(self):
         """Gets or sets the execution level for the service (as defined by the GPSDDraft.ExecutionType enumerated 
         type).
-        
+
         """
         return self.ExecutionType(self._editor.get_element_value(self._execution_type_elements[0]))
 
@@ -70,7 +70,7 @@ class GPSDDraft(SDDraftBase):
     @property
     def result_map_server(self):
         """Gets or sets a value indicating whether or not the results should be viewed with a map service.
-        
+
         :type: bool
         """
         return self._editor.value_to_boolean(
@@ -85,7 +85,7 @@ class GPSDDraft(SDDraftBase):
     @property
     def show_messages(self):
         """Gets or sets a value indicating what level of messaging should be shown with the service.
-        
+
         :type: GPSDDraft.MessageLevel
         """
         return self.MessageLevel(self._editor.get_element_value(self._show_messages_elements[0]))

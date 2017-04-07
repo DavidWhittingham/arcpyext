@@ -17,7 +17,7 @@ def in_table(workspace):
 
 @pytest.fixture
 def edit_session(request, workspace):
-    print(workspace)
+    # print(workspace)
     edit = arcpy.da.Editor(workspace)
     edit.startEditing()
 
