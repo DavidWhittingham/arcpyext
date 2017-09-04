@@ -1,9 +1,14 @@
+import logging
 import re
 from itertools import izip_longest
 
 import arcpy
 
 from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
+
+# Configure module logging
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 def change_data_sources(map, data_sources):
     """ """
@@ -30,14 +35,14 @@ def change_data_sources(map, data_sources):
 
 
                 if layer.supports("dataSource"):
-                    print(u"Layer '{0}': Current datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
+                    logger.debug(u"Layer '{0}': Current datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
 
-                print(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode("ascii", "ignore"))
+                logger.debug(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode("ascii", "ignore"))
                 _change_data_source(layer, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("schema"))
-                print(u"Layer '{0}': Workspace path updated to: '{1}'".format(layer.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
+                logger.debug(u"Layer '{0}': Workspace path updated to: '{1}'".format(layer.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
 
                 if layer.supports("dataSource"):
-                    print(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
+                    logger.debug(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
 
             except MapLayerError as mle:
                 errors.append(mle)
@@ -50,9 +55,9 @@ def change_data_sources(map, data_sources):
             if layer_source == None:
                 continue
 
-            print(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode("ascii", "ignore"))
+            logger.debug(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode("ascii", "ignore"))
             _change_data_source(data_table, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("schema"))
-            print(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
+            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
 
         except MapLayerError as mle:
             errors.append(mle)
@@ -152,20 +157,20 @@ def validate_map(map):
     broken_layers = arcpy.mapping.ListBrokenDataSources(map)
 
     if len(broken_layers) > 0:
-        print(u"Map '{0}': Broken data sources:".format(map.title))
+        logger.debug(u"Map '{0}': Broken data sources:".format(map.title))
         for layer in broken_layers:
-            print(u" {0}".format(layer.name))
+            logger.debug(u" {0}".format(layer.name))
             if not hasattr(layer, "supports"):
                 #probably a TableView
-                print(u"  workspace: {0}".format(layer.workspacePath))
-                print(u"  datasource: {0}".format(layer.dataSource))
+                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
+                logger.debug(u"  datasource: {0}".format(layer.dataSource))
                 continue
 
             #Some sort of layer
             if layer.supports("workspacePath"):
-                print(u"  workspace: {0}".format(layer.workspacePath))
+                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
             if layer.supports("dataSource"):
-                print(u"  datasource: {0}".format(layer.dataSource))
+                logger.debug(u"  datasource: {0}".format(layer.dataSource))
 
         return False
 
