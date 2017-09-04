@@ -233,7 +233,10 @@ def _get_layer_details(layer):
 
     if layer.supports("serviceProperties"):
         details["serviceType"] = layer.serviceProperties["ServiceType"]
-        details["userName"] = layer.serviceProperties["UserName"]
+        
+        if "UserName" in layer.serviceProperties:
+            # File GDB doesn't support username and throws an exception
+            details["userName"] = layer.serviceProperties["UserName"]
 
         if layer.serviceProperties["ServiceType"].upper() == "SDE":
             details["server"] = layer.serviceProperties["Server"]
