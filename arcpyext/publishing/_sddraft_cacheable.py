@@ -3,6 +3,16 @@ from _sddraft_base import SDDraftBase
 class SDDraftCacheable(SDDraftBase):
 
     @property
+    def cache_dir(self):
+        """Gets the directory that cached tiles should be stored in."""
+        return self._editor.get_element_value(self._cache_dir_element)
+
+    @cache_dir.setter
+    def cache_dir(self, value):
+        """Sets the directory that cached tiles should be stored in."""
+        return self._editor.set_element_value(self._cache_dir_element, value)
+
+    @property
     def cache_on_demand(self):
         """Gets a boolean value that descrbies if the service should generate cache tiles on demand."""
         return self._editor.value_to_boolean(self._editor.get_element_value(self._cache_on_demand_element))
@@ -48,6 +58,20 @@ class SDDraftCacheable(SDDraftBase):
         self._editor.set_element_value(self._max_export_tiles_count_element, value)
 
     @property
+    def use_local_cache_dir(self):
+        """Gets the directory that cached tiles should be stored in."""
+        return self._editor.value_to_boolean(self._editor.get_element_value(self._use_local_cache_dir_element))
+
+    @use_local_cache_dir.setter
+    def use_local_cache_dir(self, value):
+        """Sets the directory that cached tiles should be stored in."""
+        return self._editor.set_element_value(self._use_local_cache_dir_element, self._editor.value_to_boolean(value))
+
+    @property
+    def _cache_dir_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, "cacheDir")
+
+    @property
     def _cache_on_demand_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "cacheOnDemand")
 
@@ -62,3 +86,7 @@ class SDDraftCacheable(SDDraftBase):
     @property
     def _max_export_tiles_count_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "maxExportTilesCount")
+
+    @property
+    def _use_local_cache_dir_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, "useLocalCacheDir")
