@@ -5,6 +5,7 @@ except ImportError:
 
 with open('arcpyext/_version.py') as fin: exec(fin)
 with open('requirements.txt') as fin: requirements=[s.strip() for s in fin.readlines()]
+with open('readme.rst') as fin: long_description = fin.read()
 
 packages = [
     "arcpyext",
@@ -32,6 +33,7 @@ setup(
     #PyPI MetaData
     author = __author__,
     description = "Extended functionality for Esri's ArcPy site-package",
+    long_description = long_description,
     license = "BSD 3-Clause",
     keywords = "arcgis esri arcpy",
     url = "https://github.com/DavidWhittingham/arcpyext",
