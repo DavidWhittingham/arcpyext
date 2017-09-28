@@ -23,9 +23,9 @@ def out_gdb():
 #     "*"
 # ])
 def test_to_json(in_gdb, out_file):
-    arcpyext.schema.to_json(in_gdb, out_file)
+    arcpyext.schematransform.to_json(in_gdb, out_file)
     assert(1==1)
 
 def test_to_gdb(in_file, out_gdb):
-    arcpyext.schema.to_gdb(in_file, out_gdb)
+    arcpyext.schematransform.to_gdb(in_file, out_gdb)
     assert(1==1)

@@ -363,6 +363,8 @@ def _normalise_data_type(type):
         return 'FLOAT'    
     elif type == 'Double':
         return 'DOUBLE'    
+    elif type == 'Date':
+        return 'DATE'           
     elif type == 'GlobalID':
         return 'GLOBALID'       
     return type      
