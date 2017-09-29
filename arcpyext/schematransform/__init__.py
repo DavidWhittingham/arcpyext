@@ -1,1 +1,1 @@
-from ._schematransform import to_json, to_gdb
+from ._schematransform import to_json, to_gdb, to_xml
