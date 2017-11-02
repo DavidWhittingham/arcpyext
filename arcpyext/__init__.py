@@ -12,3 +12,4 @@ from . import data
 from . import mapping
 from . import publishing
 from . import toolbox
+from . import schematransform

@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+        "schema"
+    ],
+    "definitions": {
+        "domain": {
+            "required": [
+                "name",
+                "type",
+                "subType"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "pattern": "^Domain$"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subType": {
+                    "type": "string",
+                    "enum": [
+                        "CodedValue",
+                        "Range"
+                    ]
+                },
+                "values": {
+                    "type": "array"
+                }
+            }
+        },
+        "table": {
+            "required": [
+                "name",
+                "type",
+                "fields"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "pattern": "^Table$"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "array"
+                }
+            }
+        }
+    },
+    "id": "http://example.com/example.json",
+    "properties": {
+        "schema": {
+            "type": "array",
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/table"
+                },
+                {
+                    "$ref": "#/definitions/domain"
+                }
+            ]
+        }
+    },
+    "type": "object"
+}
