@@ -1,21 +1,10 @@
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 with open('arcpyext/_version.py') as fin: exec(fin)
 with open('requirements.txt') as fin: requirements=[s.strip() for s in fin.readlines()]
 with open('readme.rst') as fin: long_description = fin.read()
 
-packages = [
-    "arcpyext",
-    "arcpyext.conversion",
-    "arcpyext.data",
-    "arcpyext.exceptions",
-    "arcpyext.mapping",
-    "arcpyext.publishing",
-    "arcpyext.toolbox"
-]
+packages = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"])
 
 setup(
     name = "arcpyext",
