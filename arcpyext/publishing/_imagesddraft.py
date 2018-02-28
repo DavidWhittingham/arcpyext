@@ -99,15 +99,6 @@ class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
         self._editor.set_element_value(self._get_available_fields_element(), ",".join(values))
 
     @property
-    def client_caching_allowed(self):
-        return self._editor.value_to_boolean(self._editor.get_element_value(self._get_client_caching_allowed_element()))
-
-    @client_caching_allowed.setter
-    def client_caching_allowed(self, value):
-        value = self._editor.value_to_boolean(value)
-        self._editor.set_element_value(self._get_client_caching_allowed_element(), value)
-
-    @property
     def copyright(self):
         self._editor.get_element_value(self._get_copyright_element())
 
@@ -194,9 +185,6 @@ class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
 
     def _get_available_fields_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AvailableFields")
-
-    def _get_client_caching_allowed_element(self):
-        return self._editor.get_value_element_by_key(self._config_props, "clientCachingAllowed")
 
     def _get_copyright_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "copyright")
