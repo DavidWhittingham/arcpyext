@@ -14,13 +14,24 @@ class SDDraftCacheable(SDDraftBase):
 
     @property
     def cache_on_demand(self):
-        """Gets a boolean value that descrbies if the service should generate cache tiles on demand."""
+        """Gets a boolean value that describes if the service should generate cache tiles on demand."""
         return self._editor.value_to_boolean(self._editor.get_element_value(self._cache_on_demand_element))
 
     @cache_on_demand.setter
     def cache_on_demand(self, value):
         """Sets a boolean value that descrbies if the service should generate cache tiles on demand."""
         self._editor.set_element_value(self._cache_on_demand_element, self._editor.value_to_boolean(value))
+
+    @property
+    def client_caching_allowed(self):
+        """Gets a boolean value that describes if the service should allow the client to cache tiles locally."""
+        return self._editor.value_to_boolean(self._editor.get_element_value(self._client_caching_allowed_element))
+
+    @client_caching_allowed.setter
+    def client_caching_allowed(self, value):
+        """Sets a boolean value that describes if the service should allow the client to cache tiles locally."""
+        value = self._editor.value_to_boolean(value)
+        self._editor.set_element_value(self._client_caching_allowed_element, value)
 
     @property
     def keep_cache(self):
@@ -74,6 +85,10 @@ class SDDraftCacheable(SDDraftBase):
     @property
     def _cache_on_demand_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "cacheOnDemand")
+
+    @property
+    def _client_caching_allowed_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, "clientCachingAllowed")
 
     @property
     def _export_tiles_allowed_element(self):
