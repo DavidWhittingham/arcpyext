@@ -23,15 +23,22 @@ def check_analysis(analysis):
                                             message = message, code = code, layers = ", ".join([layer.name for layer in layerlist])))
         raise ServDefDraftCreateError("Analysis Errors: \n{errs}".format(errs = "\n".join(err_message_list)))
 
-def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None):
+def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False):
     if not validate_map(map):
         raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 
     if os.path.exists(sd_draft_path):
         os.remove(sd_draft_path)
 
-    analysis = arcpy.mapping.CreateMapSDDraft(map, sd_draft_path, service_name, server_type = "ARCGIS_SERVER",
-                                   copy_data_to_server = False, folder_name = folder_name, summary = summary)
+    analysis = arcpy.mapping.CreateMapSDDraft(
+        map, 
+        sd_draft_path, 
+        service_name, 
+        server_type = "ARCGIS_SERVER",
+        copy_data_to_server = copy_data_to_server, 
+        folder_name = folder_name, 
+        summary = summary)
+        
     check_analysis(analysis)
 
     analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)
