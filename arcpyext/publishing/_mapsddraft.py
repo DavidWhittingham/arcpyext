@@ -43,7 +43,6 @@ class MapSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
         self._schematics_server_extension = SchematicsServerExtension(editor)
         self._wcs_server_extension = WcsServerExtension(editor)
         self._wfs_server_extension = WfsServerExtension(editor)
-
         self._wms_server_extension = WmsServerExtension(editor)
 
     #region Properties
