@@ -107,6 +107,16 @@ class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
         self._editor.set_element_value(self._get_copyright_element(), value)
 
     @property
+    def default_jpeg_compression_quality(self):
+        return self._editor.get_element_value(self._get_default_jpeg_compression_quality_element())
+
+    @default_jpeg_compression_quality.setter
+    def default_jpeg_compression_quality(self, value):
+        self._editor.set_element_value(
+            self._get_default_jpeg_compression_quality_element(),
+            self._editor.verify_int(value, "Default JPEG Compression Quality", allow_none = False))
+
+    @property
     def default_resampling_method(self):
         value = self._editor.get_element_value(self._get_default_resampling_method_element())
         return self.ResamplingMethod(int(value))
@@ -203,3 +213,6 @@ class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
 
     def _get_return_jpgpng_as_jpg_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "ReturnJPGPNGAsJPG")
+
+    def _get_default_jpeg_compression_quality_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, "DefaultCompressionQuality")
