@@ -57,7 +57,7 @@ class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
     def allowed_compressions(self):
         """Gets a list of the image compression methods (by type name) that are currently enabled for the service."""
         return [self.CompressionMethod(item) for item in
-            self._editor.get_element_value(self._get_allowed_compressions_element()).split(",")]
+            self._editor.get_element_value(self._allowed_compressions_element).split(",")]
 
     @allowed_compressions.setter
     def allowed_compressions(self, values):
@@ -66,66 +66,67 @@ class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
         Valid values are contained in the 'arcpyext.mapping.ImageSDDraft.CompressionMethod' enumerated type.
         """
         self._editor.set_element_value(
-            self._get_allowed_compressions_element(),
+            self._allowed_compressions_element,
             self._editor.enum_list_to_str(values, self.CompressionMethod, "Compression method specified is of an unknown type."))
 
     @property
     def allowed_fields(self):
-        values = self._editor.get_element_value(self._get_allowed_fields_element())
+        values = self._editor.get_element_value(self._allowed_fields_element)
         return values.split(",")
 
     @allowed_fields.setter
     def allowed_fields(self, values):
-        self._editor.set_element_value(self._get_allowed_fields_element(), ",".join(values))
+        self._editor.set_element_value(self._allowed_fields_element, ",".join(values))
 
     @property
     def allowed_mosaic_methods(self):
         return [self.MosaicMethod(item) for item in
-            self._editor.get_element_value(self._get_allowed_mosaic_methods_element()).split(",")]
+            self._editor.get_element_value(self._allowed_mosaic_methods_element).split(",")]
 
     @allowed_mosaic_methods.setter
     def allowed_mosaic_methods(self, values):
         self._editor.set_element_value(
-            self._get_allowed_mosaic_methods_element(),
+            self._allowed_mosaic_methods_element,
             self._editor.enum_list_to_str(values, self.MosaicMethod, "Mosaic method specified is of an unknown type."))
 
     @property
     def available_fields(self):
-        values = self._editor.get_element_value(self._get_available_fields_element())
+        values = self._editor.get_element_value(self._available_fields_element)
         return values.split(",")
 
     @available_fields.setter
     def available_fields(self, values):
-        self._editor.set_element_value(self._get_available_fields_element(), ",".join(values))
+        self._editor.set_element_value(self._available_fields_element, ",".join(values))
 
     @property
     def copyright(self):
-        self._editor.get_element_value(self._get_copyright_element())
+        self._editor.get_element_value(self._copyright_elements[0])
 
     @copyright.setter
     def copyright(self, value):
-        self._editor.set_element_value(self._get_copyright_element(), value)
+        for elem in self._copyright_elements:
+            self._editor.set_element_value(elem, value)
 
     @property
     def default_jpeg_compression_quality(self):
-        return self._editor.get_element_value(self._get_default_jpeg_compression_quality_element())
+        return self._editor.get_element_value(self._default_jpeg_compression_quality_element)
 
     @default_jpeg_compression_quality.setter
     def default_jpeg_compression_quality(self, value):
         self._editor.set_element_value(
-            self._get_default_jpeg_compression_quality_element(),
+            self._default_jpeg_compression_quality_element,
             self._editor.verify_int(value, "Default JPEG Compression Quality", allow_none = False))
 
     @property
     def default_resampling_method(self):
-        value = self._editor.get_element_value(self._get_default_resampling_method_element())
+        value = self._editor.get_element_value(self._default_resampling_method_element)
         return self.ResamplingMethod(int(value))
 
     @default_resampling_method.setter
     def default_resampling_method(self, value):
         if not isinstance(value, self.ResamplingMethod):
             value = self.ResamplingMethod(value)
-        self._editor.set_element_value(self._get_default_resampling_method_element(), value.value)
+        self._editor.set_element_value(self._default_resampling_method_element, value.value)
 
     @property
     def jpip_server(self):
@@ -133,42 +134,42 @@ class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
 
     @property
     def max_download_image_count(self):
-        return self._editor.get_element_value(self._get_max_download_image_count_element())
+        return self._editor.get_element_value(self._max_download_image_count_element)
 
     @max_download_image_count.setter
     def max_download_image_count(self, value):
         self._editor.set_element_value(
-            self._get_max_download_image_count_element(),
+            self._max_download_image_count_element,
             self._editor.verify_int(value, "Maximum Download Image Count", allow_none = True))
 
     @property
     def max_download_size_limit(self):
-        return self._editor.get_element_value(self._get_max_download_size_limit_element())
+        return self._editor.get_element_value(self._max_download_size_limit_element)
 
     @max_download_size_limit.setter
     def max_download_size_limit(self, value):
         self._editor.set_element_value(
-            self._get_max_download_size_limit_element(),
+            self._max_download_size_limit_element,
             self._editor.verify_int(value, "Maximum Download Size Limit", allow_none = True))
 
     @property
     def max_mosaic_image_count(self):
-        return self._editor.get_element_value(self._get_max_mosaic_image_count_element())
+        return self._editor.get_element_value(self._max_mosaic_image_count_element)
 
     @max_mosaic_image_count.setter
     def max_mosaic_image_count(self, value):
         self._editor.set_element_value(
-            self._get_max_mosaic_image_count_element(),
+            self._max_mosaic_image_count_element,
             self._editor.verify_int(value, "Maximum Mosaic Count", allow_none = True))
 
     @property
     def return_jpgpng_as_jpg(self):
-        return self._editor.value_to_boolean(self._editor.get_element_value(self._get_return_jpgpng_as_jpg_element()))
+        return self._editor.value_to_boolean(self._editor.get_element_value(self._return_jpgpng_as_jpg_element))
 
     @return_jpgpng_as_jpg.setter
     def return_jpgpng_as_jpg(self, value):
         value = self._editor.value_to_boolean(value)
-        self._editor.set_element_value(self._get_return_jpgpng_as_jpg_element(), value)
+        self._editor.set_element_value(self._return_jpgpng_as_jpg_element, value)
 
     @property
     def wcs_server(self):
@@ -184,35 +185,55 @@ class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
     # PRIVATE PROPERTIES #
     ######################
 
-    def _get_allowed_compressions_element(self):
+    @property
+    def _allowed_compressions_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AllowedCompressions")
 
-    def _get_allowed_fields_element(self):
+    @property
+    def _allowed_fields_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AllowedFields")
 
-    def _get_allowed_mosaic_methods_element(self):
+    @property
+    def _allowed_mosaic_methods_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AllowedMosaicMethods")
 
-    def _get_available_fields_element(self):
+    @property
+    def _available_fields_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "AvailableFields")
 
-    def _get_copyright_element(self):
-        return self._editor.get_value_element_by_key(self._config_props, "copyright")
+    @property
+    def _copyright_elements(self):
+        return [
+            self._editor.get_value_element_by_key(self._config_props, "copyright"),
+            self._editor.get_first_element_by_tag("Credits", self._item_info_element)
+        ]
 
-    def _get_default_resampling_method_element(self):
+    @property
+    def _default_jpeg_compression_quality_element(self):
+        return self._editor.get_value_element_by_key(self._config_props, "DefaultCompressionQuality")
+
+    @property
+    def _default_resampling_method_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "DefaultResamplingMethod")
 
-    def _get_max_download_image_count_element(self):
+    @property
+    def _description_elements(self):
+        return super(ImageSDDraft, self)._description_elements.append(
+            self._editor.get_value_element_by_key(self._config_props, "description")
+        )
+
+    @property
+    def _max_download_image_count_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "MaxDownloadImageCount")
 
-    def _get_max_download_size_limit_element(self):
+    @property
+    def _max_download_size_limit_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "MaxDownloadSizeLimit")
 
-    def _get_max_mosaic_image_count_element(self):
+    @property
+    def _max_mosaic_image_count_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "MaxMosaicImageCount")
 
-    def _get_return_jpgpng_as_jpg_element(self):
+    @property
+    def _return_jpgpng_as_jpg_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "ReturnJPGPNGAsJPG")
-
-    def _get_default_jpeg_compression_quality_element(self):
-        return self._editor.get_value_element_by_key(self._config_props, "DefaultCompressionQuality")
