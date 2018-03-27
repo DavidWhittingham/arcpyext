@@ -1,5 +1,9 @@
 from pie import *
 
+@task
+def build():
+    cmd(r'python setup.py clean --all bdist_wheel')
+
 
 @task
 def setup():
@@ -30,11 +34,6 @@ def test():
         cmd(r'python -m pytest -s tests')
 
 
-# @task
-# def register():
-#     cmd(r'python setup.py register')
-
-
-@task
-def build(upload=False):
-    cmd(r'python setup.py clean --all bdist_wheel{}'.format(' upload' if upload else ''))
+@task([OptionsParameter('version')])
+def upload(version):
+    cmd(r'python -m twine upload dist\arcpyext-{}-py2-none-any.whl'.format(version))
