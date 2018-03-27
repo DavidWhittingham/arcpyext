@@ -163,23 +163,6 @@ class MapSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
         return self._schematics_server_extension
 
     @property
-    def tags(self):
-        """Gets a list of tags for the service.
-
-        :type: list(str)
-        """
-        return [self._editor.get_element_value(elem) for elem in self._tags_element]
-
-    @tags.setter
-    def tags(self, values):
-        """Gets a list of tags for the service.
-
-        :type: list(str)
-        """
-        tag_elements = [self._editor.create_element("String", value) for value in values]
-        self._editor.set_element_value(self._tags_element, tag_elements)
-
-    @property
     def text_anti_aliasing_mode(self):
         """Gets the current anti-aliasing mode for map text."""
         return self.TextAntiAliasingMode(self._editor.get_element_value(self._text_anti_aliasing_element))
@@ -228,10 +211,6 @@ class MapSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
     @property
     def _schema_locking_enabled_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "schemaLockingEnabled")
-
-    @property
-    def _tags_element(self):
-        return self._editor.get_first_element_by_tag("Tags", self._item_info_element)
 
     @property
     def _text_anti_aliasing_element(self):

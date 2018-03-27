@@ -351,6 +351,23 @@ class SDDraftBase():
         self._editor.set_element_value(self._summary_element, value)
 
     @property
+    def tags(self):
+        """Gets a list of tags for the service.
+
+        :type: list(str)
+        """
+        return [self._editor.get_element_value(elem) for elem in self._tags_element]
+
+    @tags.setter
+    def tags(self, values):
+        """Gets a list of tags for the service.
+
+        :type: list(str)
+        """
+        tag_elements = [self._editor.create_element("String", value) for value in values]
+        self._editor.set_element_value(self._tags_element, tag_elements)
+
+    @property
     def title(self):
         """Gets the value of the title attribute for the service."""
         return self._editor.get_element_value(self._editor.get_first_element_by_tag("Title", self._item_info_element))
@@ -496,6 +513,10 @@ class SDDraftBase():
     @property
     def _summary_element(self):
         return self._item_info_element.find("Snippet")
+
+    @property
+    def _tags_element(self):
+        return self._editor.get_first_element_by_tag("Tags", self._item_info_element)
 
     @property
     def _usage_timeout_elements(self):
