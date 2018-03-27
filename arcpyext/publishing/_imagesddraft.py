@@ -218,9 +218,13 @@ class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
 
     @property
     def _description_elements(self):
-        return super(ImageSDDraft, self)._description_elements.append(
+        elem = super(ImageSDDraft, self)._description_elements
+        
+        elem.append(
             self._editor.get_value_element_by_key(self._config_props, "description")
         )
+
+        return elem
 
     @property
     def _max_download_image_count_element(self):
