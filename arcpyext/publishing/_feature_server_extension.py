@@ -11,10 +11,11 @@ class FeatureServerExtension(SDDraftExtension):
 
     class Capability(Enum):
         create = "Create"
-        query = "Query"
-        update = "Update"
         delete = "Delete"
+        extract = "Extract"
+        query = "Query"
         sync = "Sync"
+        update = "Update"
 
     _ALLOW_GEOMETRY_UPDATES_KEY = "allowGeometryUpdates"
     _ALLOW_OTHERS_TO_DELETE_KEY = "allowOthersToDelete"
