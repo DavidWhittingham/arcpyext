@@ -447,10 +447,6 @@ class SDDraftBase():
         ]
 
     @property
-    def _output_dir_element(self):
-        self._editor.get_value_element_by_key(self._config_props, self._OUTPUT_DIR_KEY)
-
-    @property
     def _recycle_interval_element(self):
         return self._editor.get_value_element_by_key(self._service_props, self._RECYCLE_INTERVAL_KEY)
 
@@ -477,10 +473,6 @@ class SDDraftBase():
     @property
     def _usage_timeout_elements(self):
         return [self._editor.get_value_element_by_key(self._service_props, self._USAGE_TIMEOUT_KEY)]
-
-    @property
-    def _virtual_output_dir_element(self):
-        self._editor.get_value_element_by_key(self._config_props, self._VIRTUAL_OUTPUT_DIR_KEY)
 
     @property
     def _wait_timeout_elements(self):
