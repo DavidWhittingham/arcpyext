@@ -7,8 +7,7 @@ import arcpy
 from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
 
 # Configure module logging
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+logger = logging.getLogger("arcpyext.mapping")
 
 def change_data_sources(map, data_sources):
     """ """
