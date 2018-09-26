@@ -32,12 +32,10 @@ class SDDraftBase():
     _MAX_SCALE_KEY = "maxScale"
     _MIN_INSTANCES_KEY = "MinInstances"
     _MIN_SCALE_KEY = "minScale"
-    _OUTPUT_DIR_KEY = "outputDir"
     _RECYCLE_START_TIME_KEY = "recycleStartTime"
     _RECYCLE_INTERVAL_KEY = "recycleInterval"
     _RESOURCES_KEY = "Resources"
     _USAGE_TIMEOUT_KEY = "UsageTimeout"
-    _VIRTUAL_OUTPUT_DIR_KEY = "virtualOutputDir"
     _WAIT_TIMEOUT_KEY = "WaitTimeout"
 
     #endregion
@@ -254,27 +252,6 @@ class SDDraftBase():
             self._editor.set_element_value(prop, value)
 
     @property
-    def output_dir(self):
-        """Gets the output directory for the service."""
-        output_dir_element = self._output_dir_element
-        if not output_dir_element:
-            return None
-
-        return self._editor.get_element_value(output_dir_element)
-
-    @output_dir.setter
-    def output_dir(self, value):
-        """Sets the output directory for the service.  This is paired with the virtual output directory property."""
-        output_dir_element = self._output_dir_element
-        if not output_dir_element:
-            # Create an outputDir element and append it to the configuration properties
-            self._editor.append_element(
-                self._config_props,
-                self._editor.create_config_element(self._OUTPUT_DIR_KEY, value))
-        else:
-            self._editor.set_element_value(output_dir_element, value)
-
-    @property
     def recycle_interval(self):
         """Gets the recycle interval (in hours)."""
         return self._editor.get_element_value(self._recycle_interval_element)
@@ -389,27 +366,6 @@ class SDDraftBase():
             raise ValueError("Timeout cannot be less than zero.")
         for elem in self._usage_timeout_elements:
             self._editor.set_element_value(elem, value)
-
-    @property
-    def virtual_output_dir(self):
-        """Gets the virtual output directory for the service."""
-        virtual_output_dir_element = self._virtual_output_dir_element
-        if not virtual_output_dir_element:
-            return None
-
-        return self._editor.get_element_value(virtual_output_dir_element)
-
-    @virtual_output_dir.setter
-    def virtual_output_dir(self, value):
-        """Sets the virtual output directory for the service.  This is paired with the output directory property."""
-        virtual_output_dir_element = self._output_dir_element
-        if not virtual_output_dir_element:
-            # Create a virtualOutputDir element and append it to the configuration properties
-            self._editor.append_element(
-                self._config_props,
-                self._editor.create_config_element(self._VIRTUAL_OUTPUT_DIR_KEY, value))
-        else:
-            self._editor.set_element_value(virtual_output_dir_element, value)
 
     @property
     def wait_timeout(self):

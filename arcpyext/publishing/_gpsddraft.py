@@ -1,10 +1,10 @@
 from enum import Enum
 
 from ._sddraft_base import SDDraftBase
+from ._sddraft_output_dir import SDDraftOutputDirMixin
 from ._wps_server_extension import WpsServerExtension
 
-
-class GPSDDraft(SDDraftBase):
+class GPSDDraft(SDDraftOutputDirMixin, SDDraftBase):
 
     class Capability(Enum):
         uploads = "Uploads"

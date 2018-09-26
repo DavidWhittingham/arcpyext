@@ -4,10 +4,11 @@ from ._jpip_server_extension import JpipServerExtension
 from ._sddraft_base import SDDraftBase
 from ._sddraft_cacheable import SDDraftCacheable
 from ._sddraft_image_dimensions import SDDraftImageDimensions
+from ._sddraft_output_dir import SDDraftOutputDirMixin
 from ._wcs_server_extension import WcsServerExtension
 from ._wms_server_extension import WmsServerExtension
 
-class ImageSDDraft(SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
+class ImageSDDraft(SDDraftOutputDirMixin, SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
     """Class for editing a Service Definition Draft for an Image Service.
 
     Must be instantiated from an existing on-disk Image SDDraft file."""

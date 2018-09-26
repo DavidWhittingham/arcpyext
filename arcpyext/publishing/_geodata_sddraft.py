@@ -1,11 +1,12 @@
 from enum import Enum
 
 from ._sddraft_base import SDDraftBase
+from ._sddraft_output_dir import SDDraftOutputDirMixin
 from ._wcs_server_extension import WcsServerExtension
 from ._wfs_server_extension import WfsServerExtension
 
 
-class GeodataSDDraft(SDDraftBase):
+class GeodataSDDraft(SDDraftOutputDirMixin, SDDraftBase):
 
     class Capability(Enum):
         query = "Query"
