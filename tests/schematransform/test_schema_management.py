@@ -1,7 +1,20 @@
-import os.path
+import os
+import shutil
+
 import arcpy
 import pytest
+
 import arcpyext
+
+output_dir = os.path.normpath("{0}/output".format(os.path.dirname(__file__)))
+
+def setup_module(module):
+    """ setup any state specific to the execution of the given module."""
+
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    
+    os.makedirs(output_dir)
 
 @pytest.fixture(scope="module")
 def in_gdb():
