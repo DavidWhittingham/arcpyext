@@ -1,14 +1,19 @@
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from builtins import (bytes, dict, int, list, object, range, str, ascii, chr, hex, input, next, oct, open, pow, round,
+                      super, filter, map, zip)
+
 from enum import Enum
 
 from ._jpip_server_extension import JpipServerExtension
 from ._sddraft_base import SDDraftBase
 from ._sddraft_cacheable import SDDraftCacheable
 from ._sddraft_image_dimensions import SDDraftImageDimensions
+from ._sddraft_max_record_count import SDDraftMaxRecordCountMixin
 from ._sddraft_output_dir import SDDraftOutputDirMixin
 from ._wcs_server_extension import WcsServerExtension
 from ._wms_server_extension import WmsServerExtension
 
-class ImageSDDraft(SDDraftOutputDirMixin, SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
+class ImageSDDraft(SDDraftMaxRecordCountMixin, SDDraftOutputDirMixin, SDDraftCacheable, SDDraftImageDimensions, SDDraftBase):
     """Class for editing a Service Definition Draft for an Image Service.
 
     Must be instantiated from an existing on-disk Image SDDraft file."""
@@ -220,7 +225,7 @@ class ImageSDDraft(SDDraftOutputDirMixin, SDDraftCacheable, SDDraftImageDimensio
     @property
     def _description_elements(self):
         elem = super(ImageSDDraft, self)._description_elements
-        
+
         elem.append(
             self._editor.get_value_element_by_key(self._config_props, "description")
         )

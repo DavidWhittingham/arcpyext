@@ -1,3 +1,7 @@
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from builtins import (bytes, dict, int, list, object, range, str, ascii, chr, hex, input, next, oct, open, pow, round,
+                      super, filter, map, zip)
+
 import os.path
 import shutil
 
@@ -17,7 +21,8 @@ def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
     return GeodataSDDraft(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
 
-from sddraftbase import *
+from .sddraftbase import *
+from .sddraft_max_record_count import *
 
 @pytest.mark.parametrize(("capabilities", "expected", "ex"), [
     ([GeodataSDDraft.Capability.query], [GeodataSDDraft.Capability.query], None),

@@ -1,3 +1,7 @@
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from builtins import (bytes, dict, int, list, object, range, str, ascii, chr, hex, input, next, oct, open, pow, round,
+                      super, filter, map, zip)
+
 import datetime
 import re
 
@@ -28,7 +32,6 @@ class SDDraftBase():
     _INSTANCES_PER_CONTAINER_KEY = "InstancesPerContainer"
     _ISOLATION_KEY = "Isolation"
     _MAX_INSTANCES_KEY = "MaxInstances"
-    _MAX_RECORD_COUNT_KEY = "maxRecordCount"
     _MAX_SCALE_KEY = "maxScale"
     _MIN_INSTANCES_KEY = "MinInstances"
     _MIN_SCALE_KEY = "minScale"
@@ -185,19 +188,6 @@ class SDDraftBase():
         if value < self.min_instances:
             # Max instances can't be smaller than min instances, so make the same size
             self.min_instances = value
-
-    @property
-    def max_record_count(self):
-        """Gets the maximum number of records that can be returned by the service."""
-        return int(self._editor.get_element_value(self._max_record_count_elements[0]))
-
-    @max_record_count.setter
-    def max_record_count(self, value):
-        """Sets the maximum number of records that can be returned by the service."""
-        if value < 0:
-            raise ValueError("Maximum record count cannot be less than zero.")
-        for elem in self._max_record_count_elements:
-            self._editor.set_element_value(elem, value)
 
     @property
     def max_scale(self):
@@ -422,10 +412,6 @@ class SDDraftBase():
     @property
     def _max_instances_elements(self):
         return [self._editor.get_value_element_by_key(self._service_props, self._MAX_INSTANCES_KEY)]
-
-    @property
-    def _max_record_count_elements(self):
-        return [self._editor.get_value_element_by_key(self._config_props, self._MAX_RECORD_COUNT_KEY)]
 
     @property
     def _max_scale_element(self):
