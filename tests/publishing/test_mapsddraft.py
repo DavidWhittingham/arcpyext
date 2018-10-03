@@ -1,3 +1,7 @@
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from builtins import (bytes, dict, int, list, object, range, str, ascii, chr, hex, input, next, oct, open, pow, round,
+                      super, filter, map, zip)
+
 import os.path
 import shutil
 
@@ -17,9 +21,10 @@ def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
     return MapSDDraft(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
 
-from sddraftbase import *
-from sddraft_cacheable import *
-from sddraft_image_dimensions import *
+from .sddraftbase import *
+from .sddraft_cacheable import *
+from .sddraft_image_dimensions import *
+from .sddraft_max_record_count import *
 
 @pytest.mark.parametrize(("mode", "expected", "ex"), [
     (MapSDDraft.AntiAliasingMode.none, MapSDDraft.AntiAliasingMode.none, None),

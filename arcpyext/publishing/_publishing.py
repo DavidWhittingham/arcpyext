@@ -9,6 +9,7 @@ from ._mapsddraft import MapSDDraft
 from ._imagesddraft import ImageSDDraft
 from ._geodata_sddraft import GeodataSDDraft
 from ._gpsddraft import GPSDDraft
+from ._geocode_sddraft import GeocodeSDDraft
 from ._sddraft_editor import SDDraftEditor
 
 
@@ -31,14 +32,14 @@ def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name =
         os.remove(sd_draft_path)
 
     analysis = arcpy.mapping.CreateMapSDDraft(
-        map, 
-        sd_draft_path, 
-        service_name, 
+        map,
+        sd_draft_path,
+        service_name,
         server_type = "ARCGIS_SERVER",
-        copy_data_to_server = copy_data_to_server, 
-        folder_name = folder_name, 
+        copy_data_to_server = copy_data_to_server,
+        folder_name = folder_name,
         summary = summary)
-        
+
     check_analysis(analysis)
 
     analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)
@@ -73,6 +74,9 @@ def convert_toolbox_to_service_draft(toolbox_path, sd_draft_path, get_result_fn,
     check_analysis(analysis)
 
     return load_gp_sddraft(sd_draft_path)
+
+def load_geocode_sddraft(path):
+    return GeocodeSDDraft(SDDraftEditor(path))
 
 def load_geodata_sddraft(path):
     return GeodataSDDraft(SDDraftEditor(path))

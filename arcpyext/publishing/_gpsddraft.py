@@ -1,10 +1,15 @@
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from builtins import (bytes, dict, int, list, object, range, str, ascii, chr, hex, input, next, oct, open, pow, round,
+                      super, filter, map, zip)
+
 from enum import Enum
 
 from ._sddraft_base import SDDraftBase
+from ._sddraft_max_record_count import SDDraftMaxRecordCountMixin
+from ._sddraft_output_dir import SDDraftOutputDirMixin
 from ._wps_server_extension import WpsServerExtension
 
-
-class GPSDDraft(SDDraftBase):
+class GPSDDraft(SDDraftMaxRecordCountMixin, SDDraftOutputDirMixin, SDDraftBase):
 
     class Capability(Enum):
         uploads = "Uploads"
@@ -30,7 +35,7 @@ class GPSDDraft(SDDraftBase):
 
     @property
     def execution_type(self):
-        """Gets or sets the execution level for the service (as defined by the GPSDDraft.ExecutionType enumerated 
+        """Gets or sets the execution level for the service (as defined by the GPSDDraft.ExecutionType enumerated
         type).
 
         """

@@ -1,17 +1,23 @@
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from builtins import (bytes, dict, int, list, object, range, str, ascii, chr, hex, input, next, oct, open, pow, round,
+                      super, filter, map, zip)
+
 from enum import Enum
 
 from ._sddraft_base import SDDraftBase
+from ._sddraft_max_record_count import SDDraftMaxRecordCountMixin
+from ._sddraft_output_dir import SDDraftOutputDirMixin
 from ._wcs_server_extension import WcsServerExtension
 from ._wfs_server_extension import WfsServerExtension
 
 
-class GeodataSDDraft(SDDraftBase):
+class GeodataSDDraft(SDDraftMaxRecordCountMixin, SDDraftOutputDirMixin, SDDraftBase):
 
     class Capability(Enum):
         query = "Query"
         extraction = "Extraction"
         replication = "Replication"
-    
+
     def __init__(self, editor):
         super(GeodataSDDraft, self).__init__(editor)
         self._wcs_server_extension = WcsServerExtension(editor)
@@ -40,7 +46,7 @@ class GeodataSDDraft(SDDraftBase):
         if not "Query" in values:
             # ArcMap doesn't allow Query to be disabled for Geodata services.
             values.update(["Query"])
-        
+
         self._editor.set_element_value(self._capabilities_element, ",".join(values))
 
     @property

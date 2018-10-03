@@ -9,8 +9,8 @@ MXD_PATH = os.path.abspath("{0}/../samples/test_mapping.mxd".format(os.path.dirn
 CLIP2_DATA_SOURCE = { "workspacePath": os.path.abspath("{0}/../samples/".format(os.path.dirname(__file__))), "datasetName": "statesp020_clip2" }
 TEST_DATA_SOURCE = { "workspacePath": os.path.abspath("{0}/../samples/test_data_table2.gdb".format(os.path.dirname(__file__))) }
 
-def pytest_funcarg__map():
-    # print("MXD: " + MXD_PATH)
+@pytest.fixture(scope="module")
+def map():
     return arcpy.mapping.MapDocument(MXD_PATH)
 
 @pytest.mark.parametrize(("data_sources", "layer_data_sources_equal", "table_data_sources_equal", "raises_ex", "ex_type"), [

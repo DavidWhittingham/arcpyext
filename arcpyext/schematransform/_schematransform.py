@@ -1,19 +1,25 @@
-import arcpy
+import io
 import json
-import io 
+import logging
 import os
 import shutil
-import time 
+import time
+
+import arcpy
+
 
 TABLE = "Table"
 FEATURE_CLASS = "FeatureClass"
 RELATIONSHIP = "RelationshipClass"
 DOMAIN = "Domain"
-CODED_VALUE = 'CodedValue'
-RANGE = 'CodedValue'
+CODED_VALUE = "CodedValue"
+RANGE = "CodedValue"
 
 OUTPUT_GDB = 1
 OUTPUT_XML = 2
+
+# Configure module logging
+logger = logging.getLogger("arcpyext.schematransform")
 
 def trace(method):
 
@@ -21,41 +27,41 @@ def trace(method):
         ts = time.time()
         result = method(*args, **kw)
         te = time.time()
-        name = '' 
+        name = ''
 
         for arg in args:
-            if type(arg) is dict and 'name' in arg:
-                name = arg['name']
+            if type(arg) is dict and "name" in arg:
+                name = arg["name"]
 
-        # print '%r (%r, %r) %2.2f sec' % (method.__name__, args, kw, te-ts)
-        print '%r %r %2.2f sec' % (method.__name__, name, te-ts)
+        logger.debug("%r %r %2.2f sec" % (method.__name__, name, te-ts))
         return result
 
     return timed
 
-#
-# Convert gdb into a JSON gdb schema representation. The json file can can be used as an intermediate file from which 
-# schema changes can be performed and from which new file gdb / xml workspaces versions can be generated. 
-#
 def to_json(in_gdb, out_file):
-    print 'Transform gdb schema to json'
-    print 'From: %s' % in_gdb
-    print 'To: %s' % out_file
+    """
+    Convert GDB into a JSON gdb schema representation.
+
+    The JSON file can can be used as an intermediate file from which schema changes can be performed and from which
+    new File GDB or XML Workspaces versions can be generated.
+    """
+
+    logger.info("Transform GDB schema to JSON, from '{0}' to '{1}'...".format(in_gdb, out_file))
 
     arcpy.env.workspace = in_gdb
 
     if not arcpy.Exists(in_gdb):
-        raise Exception('Input gdb not found')
+        raise IOError('Input GDB not found')
 
-    print 'Profiling source gdb'
+    logger.info("Profiling source gdb...")
     domains = arcpy.da.ListDomains(in_gdb)
-    datasets = [c for c in arcpy.Describe(in_gdb).children]  
-    tables = [c for c in datasets if c.dataType == TABLE]  
-    fcs = [c for c in datasets if c.dataType == FEATURE_CLASS]  
-    rs =  [c for c in datasets if c.dataType == RELATIONSHIP]  
+    datasets = [c for c in arcpy.Describe(in_gdb).children]
+    tables = [c for c in datasets if c.dataType == TABLE]
+    fcs = [c for c in datasets if c.dataType == FEATURE_CLASS]
+    rs =  [c for c in datasets if c.dataType == RELATIONSHIP]
 
-    print 'Exporting'
-    with io.open(out_file, 'w', encoding='utf-8') as f:
+    logger.info("Exporting...")
+    with io.open(out_file, "w", encoding = "utf-8") as f:
 
         domains = list(map(lambda x: _domain_to_json(x), domains))
         fcs = list(map(lambda x: _fc_to_json(x), fcs))
@@ -65,25 +71,24 @@ def to_json(in_gdb, out_file):
         _json_to_file(f,  {
             'schema': domains + fcs + tables + rs
         })
-    
-    print 'Done'
 
-#
-# Convert a JSON gdb schema representation into a file/sde geodatabase
-#
+    logger.info("Transform done.")
+
 def to_gdb(in_file, out_gdb):
-    print 'Transform json to gdb'
-    print 'From: %s' % in_file
-    print 'To: %s' % out_gdb
+    """
+    Convert a JSON gdb schema representation into a file/sde geodatabase
+    """
+
+    logger.info("Transform JSOB to GDB, from '{0}' to '{1}'...".format(in_file, out_gdb))
 
     if not arcpy.Exists(in_file):
-        print in_file
-        raise Exception('Input file not found')
+        logger.debug("Input file: {0}".format(in_file))
+        raise IOError("Input file not found")
 
     if arcpy.Exists(out_gdb):
-        shutil.rmtree(out_gdb, ignore_errors=False) 
+        shutil.rmtree(out_gdb, ignore_errors = False)
 
-    print 'Creating output gdb'  
+    logger.info("Creating output File GDB...")
     out_gdb_mem = "in_memory"
     arcpy.env.workspace = out_gdb
     out_path = os.path.dirname(out_gdb)
@@ -92,20 +97,20 @@ def to_gdb(in_file, out_gdb):
 
     with open(in_file) as f:
 
-        print 'Parsing json'
-        schema = json.load(f, encoding='utf-8')
+        logger.info("Parsing json")
+        schema = json.load(f, encoding = "utf-8")
 
         # Domains
-        print 'Domains'
+        logger.info("Domains")
         for x in schema['schema']:
             if x['type'] == DOMAIN:
-                _json_to_domain(OUTPUT_GDB, out_gdb, x)    
+                _json_to_domain(OUTPUT_GDB, out_gdb, x)
 
         # Enable in-memory mode
         arcpy.env.workspace = out_gdb_mem
 
         # Tables
-        print 'Tables'
+        logger.info("Tables")
         for x in schema['schema']:
             if x['type'] == TABLE:
                 _json_to_t(OUTPUT_GDB, out_gdb_mem, x)
@@ -117,66 +122,64 @@ def to_gdb(in_file, out_gdb):
             if x['type'] == TABLE:
                 _t_from_memory_to_disk(out_gdb_mem, out_gdb, x)
             elif x['type'] == FEATURE_CLASS:
-                _fc_from_memory_to_disk(out_gdb_mem, out_gdb, x)                       
+                _fc_from_memory_to_disk(out_gdb_mem, out_gdb, x)
 
         # Disable in-memory mode
-        arcpy.env.workspace = out_gdb             
+        arcpy.env.workspace = out_gdb
 
         # Add global ID columns (not supported by in-memory workspaces)
-        print 'Global Ids'
+        logger.info("Global Ids'")
         for x in schema['schema']:
             if x['type'] == TABLE or x['type'] == FEATURE_CLASS:
                 _add_global_id(out_gdb, x)
 
         # Add global ID columns (not supported by in-memory workspaces)
-        print 'Bind domains'
+        logger.info("Bind domains")
         for x in schema['schema']:
             if x['type'] == TABLE or x['type'] == FEATURE_CLASS:
                 _bind_domain(out_gdb, x)
 
         # Indexes
-        print 'Indexes'
+        logger.info("Indexes")
         for x in schema['schema']:
             if x['type'] == TABLE or x['type'] == FEATURE_CLASS:
                 _add_indices(OUTPUT_GDB, out_gdb, x)
 
         # Relationships
-        print 'Relationships'
+        logger.info("Relationships")
         for x in schema['schema']:
             if x['type'] == RELATIONSHIP:
                 _add_r(out_gdb, x)
-    
-    print 'Done'    
 
-#
-# Convert JSON gdb schema into an XML Workspace 
-#
-# Status: Incomplete. I've only been able to successfully output domains and tables (without indexes, which
-# have broken run-time). I choose to use string templates for now given how verbose the xml libraries are
-# to use. 
-#
+    logger.info("Transform done.")
+
 def to_xml(in_file, out_file):
-    print 'Transform json to xml workspace'
-    print 'From: %s' % in_file
-    print 'To: %s' % out_file
+    """
+    Convert JSON gdb schema into an XML Workspace
+
+    Status: Incomplete. I've only been able to successfully output domains and tables (without indexes, which have 
+    broken run-time). I choose to use string templates for now given how verbose the xml libraries are to use.
+    """
+
+    logger.info("Transform JSON to XML Workspace, from '{0}'' to '{1}'...")
 
     if not arcpy.Exists(in_file):
-        print in_file
-        raise Exception('Input file not found')
+        logger.error("Input file not found: {0}".format(in_file))
+        raise IOError('Input file not found')
 
     if arcpy.Exists(out_file):
-        os.remove(out_file) 
+        os.remove(out_file)
 
-    print 'Creating output xml workspace'  
+    logger.info("Creating output xml workspace")
     with open(in_file) as f:
 
-        print 'Parsing json'
-        schema = json.load(f, encoding='utf-8')
+        logger.info("Parsing json")
+        schema = json.load(f, encoding = "utf-8")
 
-        with io.open(out_file, 'w', encoding='utf-8') as fo:
+        with io.open(out_file, 'w', encoding = "utf-8") as fo:
 
             _xml_to_file(
-                fo, 
+                fo,
                 """<?xml version="1.0" encoding="UTF-8"?>
                     <esri:Workspace xmlns:esri='http://www.esri.com/schemas/ArcGIS/10.3' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
                         <WorkspaceDefinition xsi:type='esri:WorkspaceDefinition'>
@@ -185,18 +188,18 @@ def to_xml(in_file, out_file):
             )
 
             # Domains
-            print 'Domains'
+            logger.info("Domains")
             _xml_to_file(fo, """<Domains xsi:type='esri:ArrayOfDomain'>""")
             for x in schema['schema']:
                 if x['type'] == DOMAIN:
-                    res = _json_to_domain(OUTPUT_XML, None, x)   
+                    res = _json_to_domain(OUTPUT_XML, None, x)
                     _xml_to_file(fo, res)
 
             _xml_to_file(fo, """</Domains>""")
 
             # Tables
             _xml_to_file(fo, """<DatasetDefinitions xsi:type='esri:ArrayOfDataElement'>""")
-            print 'Tables'
+            logger.info("Tables")
             for x in schema['schema']:
                 if x['type'] == TABLE:
                     res = _json_to_t(OUTPUT_XML, None, x)
@@ -206,14 +209,14 @@ def to_xml(in_file, out_file):
             _xml_to_file(fo, """</DatasetDefinitions>""")
 
             _xml_to_file(
-                fo, 
+                fo,
                 """</WorkspaceDefinition>
                    <WorkspaceData xsi:type='esri:WorkspaceData'></WorkspaceData>
                 </esri:Workspace>"""
-            ) 
+            )
 
-    
-    print 'Done'    
+
+    logger.info("Transform done.")
 
 ###############################################################################
 # PRIVATE FUNCTIONS
@@ -223,19 +226,19 @@ def to_xml(in_file, out_file):
 # To XML methods
 #----------------
 def _xml_to_file(f, o):
-    f.write(unicode(o))           
+    f.write(unicode(o))
 
 #----------------
 # To JSON methods
 #----------------
 
 def _json_to_file(f, o):
-    f.write(json.dumps(o, sort_keys=False, indent=4, ensure_ascii=False))           
+    f.write(json.dumps(o, sort_keys=False, indent=4, ensure_ascii=False))
 
 def _fields_to_json(fields):
     return [
         {
-            'name': v.name,  
+            'name': v.name,
             'aliasName': v.aliasName,
             'type': v.type,
             'defaultValue': v.defaultValue,
@@ -252,13 +255,13 @@ def _fields_to_json(fields):
 def _indexes_to_json(indexes):
     return [
         {
-            'name': v.name,  
+            'name': v.name,
             'fields': _fields_to_json(v.fields),
             'ascending': v.isAscending,
             'unique': v.isUnique
         } for v in indexes
     ]
-    
+
 
 def _t_to_json(x):
 
@@ -268,7 +271,7 @@ def _t_to_json(x):
         'fields': _fields_to_json(x.fields),
         'indexes': _indexes_to_json(x.indexes)
     }
-       
+
 def _fc_to_json(x):
     res = {
         'name': x.name,
@@ -279,8 +282,8 @@ def _fc_to_json(x):
         'geometryType': x.shapeType,
         'sr': x.spatialReference.exportToString(),
     }
-    
-    return res 
+
+    return res
 
 def _r_to_json(x):
     res = {
@@ -293,8 +296,8 @@ def _r_to_json(x):
         'cardinality': x.cardinality,
         'isComposite': x.isComposite
     }
-    
-    return res 
+
+    return res
 
 # @see http://desktop.arcgis.com/en/arcmap/10.3/analyze/arcpy-data-access/domain.htm
 def _domain_to_json(x):
@@ -306,17 +309,17 @@ def _domain_to_json(x):
         'description': x.description
     }
 
-    try:    
+    try:
         if x.domainType == CODED_VALUE:
             res['values'] = [{'k': v[0],  'v': v[1]} for v in x.codedValues.items()]
         elif x.domainType == RANGE:
             res['min'] = x.range[0]
             res['max'] = x.range[1]
     except:
-        print 'Unexpected error:', sys.exc_info()[0]
+        logger.error("Unexpected error: {0}".format(sys.exc_info()[0]))
         res['error'] = 'Error'
-    
-    return res 
+
+    return res
 
 #---------------
 # To GDB methods
@@ -326,29 +329,29 @@ def _domain_to_json(x):
 def _add_fields(output_target, out_gdb, x):
 
     if output_target == OUTPUT_GDB:
-        
+
         for f in x['fields']:
             type = _json_type_to_gdb_type(f['type'])
             if type in ['TEXT', 'FLOAT', 'DOUBLE', 'SHORT', 'LONG', 'DATE', 'BLOB', 'RASTER', 'GUID']:
                 arcpy.AddField_management(
-                    in_table=out_gdb + '/' + x['name'], 
-                    field_name=f['name'], 
+                    in_table=out_gdb + '/' + x['name'],
+                    field_name=f['name'],
                     field_type=type,
                     field_alias=f['aliasName'],
-                    field_length=f['length'], 
+                    field_length=f['length'],
                     field_precision=f['precision'],
-                    field_scale=f['scale'], 
-                    field_is_nullable='NULLABLE' if f['nullable'] else 'NON_NULLABLE', 
-                    field_is_required='REQUIRED' if f['required'] else 'NON_REQUIRED', 
+                    field_scale=f['scale'],
+                    field_is_nullable='NULLABLE' if f['nullable'] else 'NON_NULLABLE',
+                    field_is_required='REQUIRED' if f['required'] else 'NON_REQUIRED',
                     field_domain=f['domain'] if f['domain'] else 'None'
-                )   
+                )
 
     elif output_target == OUTPUT_XML:
 
-        return list(map(lambda f: 
+        return list(map(lambda f:
             """<Field xsi:type="esri:Field">
                 <Name>%(name)s</Name>
-                <AliasName>%(alias)s</AliasName>                
+                <AliasName>%(alias)s</AliasName>
                 <Type>%(type)s</Type>
                 <IsNullable>%(nullable)s</IsNullable>
                 <Length>%(length)s</Length>
@@ -358,15 +361,15 @@ def _add_fields(output_target, out_gdb, x):
                 <Editable>%(editable)s</Editable>
                 <ModelName>%(name)s</ModelName>
             </Field>""" % {
-                'name': f['name'], 
-                'alias': f['aliasName'], 
-                'type': _json_type_to_xml_type(f['type']), 
-                'length': f['length'], 
-                'nullable': 'true' if f['nullable'] else 'false',  
+                'name': f['name'],
+                'alias': f['aliasName'],
+                'type': _json_type_to_xml_type(f['type']),
+                'length': f['length'],
+                'nullable': 'true' if f['nullable'] else 'false',
                 'editable': 'true' if f['editable'] else 'false',
-                'required': 'true' if f['required'] else 'false', 
-                'scale': f['scale'] or 0, 
-                'precision': f['precision'] or 0 
+                'required': 'true' if f['required'] else 'false',
+                'scale': f['scale'] or 0,
+                'precision': f['precision'] or 0
             }
         , x['fields']))
 
@@ -376,15 +379,15 @@ def _add_global_id(out_gdb, x):
     for f in x['fields']:
         type = _json_type_to_gdb_type(f['type'])
         if type == 'GLOBALID':
-            arcpy.AddGlobalIDs_management(in_datasets=[out_gdb + '/' + x['name']])        
+            arcpy.AddGlobalIDs_management(in_datasets=[out_gdb + '/' + x['name']])
 
 @trace
 def _bind_domain(out_gdb, x):
     for f in x['fields']:
         if f['domain']:
-            print f['domain']
+            logger.info(f['domain'])
             arcpy.AssignDomainToField_management(
-                in_table=out_gdb + '/' + x['name'], 
+                in_table=out_gdb + '/' + x['name'],
                 field_name=f['name'],
                 domain_name=f['domain'])
 
@@ -395,15 +398,15 @@ def _add_indices(output_target, out_gdb, x):
         for i in x['indexes']:
             if i['fields'][0]['type'] not in ['OID', 'Geometry', 'GlobalID']:
                 arcpy.AddIndex_management(
-                    in_table=out_gdb + '/' + x['name'], 
-                    index_name=i['name'], 
-                    fields=[f['name'] for f in i['fields']], 
-                    unique='UNIQUE' if i['unique'] else 'NON_UNIQUE', 
-                    ascending='ASCENDING' if i['ascending'] else 'NON_ASCENDING')       
+                    in_table=out_gdb + '/' + x['name'],
+                    index_name=i['name'],
+                    fields=[f['name'] for f in i['fields']],
+                    unique='UNIQUE' if i['unique'] else 'NON_UNIQUE',
+                    ascending='ASCENDING' if i['ascending'] else 'NON_ASCENDING')
 
     elif output_target == OUTPUT_XML:
 
-        return list(map(lambda i: 
+        return list(map(lambda i:
             """<Index xsi:type="esri:Index">
                     <Name>%(name)s</Name>
                     <IsUnique>%(isUnique)s</IsUnique>
@@ -414,12 +417,12 @@ def _add_indices(output_target, out_gdb, x):
                         </FieldArray>
                     </Fields>
                 </Index>""" % {
-                'name': i['name'], 
+                'name': i['name'],
                 'isUnique':'true' if i['unique'] else 'false',
                 'isAscending':'true' if i['ascending'] else 'false',
                 'fields':  "\n".join(_add_fields(output_target, None, i))
             }
-        , x['indexes']))                             
+        , x['indexes']))
 
 @trace
 def _add_r(out_gdb, x):
@@ -428,12 +431,12 @@ def _add_r(out_gdb, x):
     destination=x['destinationClassNames'][0]
     originField=x['originClassKeys'][0][0]
     destinationField=x['originClassKeys'][1][0]
-    print '%s %s %s %s' % (origin, originField, destination, destinationField)
+    logger.debug("{0} {1} {2} {3}".format(origin, originField, destination, destinationField))
 
     arcpy.CreateRelationshipClass_management(
         out_relationship_class=x['name'],
-        origin_table=origin, 
-        destination_table=destination, 
+        origin_table=origin,
+        destination_table=destination,
         relationship_type='COMPOSITE' if x['isComposite'] else 'SIMPLE',
         forward_label='To child',
         backward_label='To parent',
@@ -442,7 +445,7 @@ def _add_r(out_gdb, x):
         attributed='NONE',
         origin_primary_key=originField,
         origin_foreign_key=destinationField
-    )          
+    )
 
 @trace
 def _json_to_t(output_target, out_gdb, x):
@@ -506,17 +509,17 @@ def _json_to_t(output_target, out_gdb, x):
 
         return template % {
             'dsId': 0,
-            'name': x['name'], 
-            'type': _json_type_to_xml_type(x['type']), 
+            'name': x['name'],
+            'type': _json_type_to_xml_type(x['type']),
             'fields': "\n".join(_add_fields(output_target, out_gdb, x)),
-            'indexes': "\n".join(_add_indices(output_target, out_gdb, x)) 
+            'indexes': "\n".join(_add_indices(output_target, out_gdb, x))
         }
 
 @trace
 def _json_to_fc(output_target, out_gdb, x):
     if output_target == OUTPUT_GDB:
         arcpy.CreateFeatureclass_management(
-            out_gdb, 
+            out_gdb,
             x['name'],
             geometry_type=x['geometryType'],
             spatial_reference=arcpy.SpatialReference().loadFromString(x['sr']))
@@ -527,17 +530,17 @@ def _json_to_fc(output_target, out_gdb, x):
 def _json_to_domain(output_target, out_gdb, x):
 
     if output_target == OUTPUT_GDB:
-    
+
         # Process: Create the coded value domain
         arcpy.CreateDomain_management(
-            out_gdb, 
-            x['name'], 
-            field_type=_json_type_to_gdb_type(x['fieldType']), 
+            out_gdb,
+            x['name'],
+            field_type=_json_type_to_gdb_type(x['fieldType']),
             domain_type='CODED' if x['subType'] == 'CodedValue' else 'RANGE',
             domain_description=x['description'])
 
-        for kv in x['values']:        
-            arcpy.AddCodedValueToDomain_management(out_gdb, x['name'], kv['k'], kv['v'])    
+        for kv in x['values']:
+            arcpy.AddCodedValueToDomain_management(out_gdb, x['name'], kv['k'], kv['v'])
 
     elif output_target == OUTPUT_XML:
 
@@ -552,12 +555,8 @@ def _json_to_domain(output_target, out_gdb, x):
                     %(domains)s
                 </CodedValues>
             </Domain>"""
-        
-        # print x['fieldType']
-        # print  _json_type_to_xml_type(x['fieldType'])
-        # print  _json_type_to_xml_attr_type(x['fieldType'])
 
-        domains = list(map(lambda kv: 
+        domains = list(map(lambda kv:
             """<CodedValue xsi:type='esri:CodedValue'>
                 <Name>%(v)s</Name>
                 <Code xsi:type='xs:%(type)s'>%(k)s</Code>
@@ -569,76 +568,76 @@ def _json_to_domain(output_target, out_gdb, x):
 @trace
 def _t_from_memory_to_disk(in_gdb, out_gdb, x):
     arcpy.CreateTable_management(
-        out_path=out_gdb, 
-        out_name=x['name'], 
+        out_path=out_gdb,
+        out_name=x['name'],
         template=in_gdb + '/' + x['name'])
 
 @trace
 def _fc_from_memory_to_disk(in_gdb, out_gdb, x):
     arcpy.CreateFeatureclass_management(
-        out_path=out_gdb, 
-        out_name=x['name'], 
-        template=in_gdb + '/' + x['name'])        
+        out_path=out_gdb,
+        out_name=x['name'],
+        template=in_gdb + '/' + x['name'])
 
 def _json_type_to_gdb_type(type):
     # type = type.lower()
     if type == 'String':
         return 'TEXT'
     elif type == 'Integer':
-        return 'LONG'    
+        return 'LONG'
     elif type == 'SmallInteger':
-        return 'SHORT'    
+        return 'SHORT'
     elif type == 'Float':
-        return 'FLOAT'    
+        return 'FLOAT'
     elif type == 'Double':
-        return 'DOUBLE'    
+        return 'DOUBLE'
     elif type == 'Date':
-        return 'DATE'           
+        return 'DATE'
     elif type == 'GlobalID':
-        return 'GLOBALID'       
-    return type      
+        return 'GLOBALID'
+    return type
 
 def _json_type_to_xml_type(type):
     # type = type.lower()
     if type == 'String':
         return 'esriFieldTypeString'
     elif type == 'Text':
-        return 'esriFieldTypeString'       
+        return 'esriFieldTypeString'
     elif type == 'Integer':
-        return 'esriFieldTypeInteger'   
+        return 'esriFieldTypeInteger'
     elif type == 'Long':
         return 'esriFieldTypeInteger'
     elif type == 'SmallInteger':
-        return 'esriFieldTypeSmallInteger'    
+        return 'esriFieldTypeSmallInteger'
     elif type == 'Short':
-        return 'esriFieldTypeSmallInteger'        
+        return 'esriFieldTypeSmallInteger'
     elif type == 'Float':
-        return 'esriFieldTypeFloat'    
+        return 'esriFieldTypeFloat'
     elif type == 'Double':
-        return 'esriFieldTypeDouble'    
+        return 'esriFieldTypeDouble'
     elif type == 'Date':
-        return 'esriFieldTypeDate'           
+        return 'esriFieldTypeDate'
     elif type == 'GlobalID':
-        return 'esriFieldTypeGlobalID'       
+        return 'esriFieldTypeGlobalID'
     elif type == 'OID':
-        return 'esriFieldTypeOID'       
-    return type   
+        return 'esriFieldTypeOID'
+    return type
 
 def _json_type_to_xml_attr_type(type):
     # type = type.lower()
     if type == 'String':
         return 'string'
     elif type == 'Text':
-        return 'string'            
-    elif type == 'Integer':        
-        return 'int'    
+        return 'string'
+    elif type == 'Integer':
+        return 'int'
     elif type == 'Long':
-        return 'int'            
+        return 'int'
     elif type == 'Short':
-        return 'short'            
+        return 'short'
     elif type == 'SmallInteger':
-        return 'short'    
-    return type  
+        return 'short'
+    return type
 
 def _normalise_cardinality(type):
     # type = type.lower()
@@ -648,5 +647,4 @@ def _normalise_cardinality(type):
         return 'ONE_TO_ONE'
     elif type == 'ManyToMany':
         return 'MANY_TO_MANY'
-    return type              
-
+    return type

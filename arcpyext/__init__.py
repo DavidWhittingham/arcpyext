@@ -5,6 +5,10 @@ Python Library that extends the Esri ArcPy library with useful helper functions.
 
 from ._version import *
 
+# setup module logging with null handler
+import logging
+logging.getLogger("arcpyext").addHandler(logging.NullHandler())
+
 import arcpy
 
 from . import conversion

@@ -4,7 +4,7 @@ pie - Python Interactive Executor
 Enables a user to execute predefined tasks that may accept parameters and options from the command line without any other required packages.
 Great for bootstrapping a development environment, and then interacting with it.
 """
-__VERSION__='0.2.2'
+__VERSION__='0.2.4'
 
 
 import inspect
@@ -69,15 +69,26 @@ class TaskWrapper(object):
         self.hidden=False
 
     def __call__(self,*args,**kwargs):
-        # args might be a tuple, but we want to append to it
-        args=list(args)
-        # go through parameters and make sure we have arguments for each, otherwise inject or prompt for them
-        for i,p in enumerate(self.params):
-            if len(args)<=i:
-                kwargs[p.name]=p.getValue()
+        # get arg names and defaults from the function
+        (arg_names,varargs,keywords,defaults)=inspect.getargspec(self.fn)
+        # map defaults to an arg name
+        defaults=dict(zip(arg_names[len(defaults)-1:],defaults)) if defaults is not None else {}
+        # map provided values to an arg name
+        provided=dict(zip(arg_names[:len(args)],args))
+        provided.update(kwargs)
+
+        # for each param, get the value and add to provided if not already there, otherwise make sure it's converted
+        for param in self.params:
+            if param.name not in arg_names:
+                raise Exception('{} not a valid parameter of task {}'.format(param.name,fn.__name__))
+            if param.name not in provided:
+                # provide a default if one exists
+                default=defaults.get(param.name,Parameter.NO_VALUE)
+                provided[param.name]=param.getValue(default)
             else:
-                args[i]=p.convertValue(args[i])
-        return self.fn(*args,**kwargs)
+                provided[param.name]=param.convertValue(provided[param.name])
+
+        return self.fn(**provided)
 
 
 def task(parameters=[],namespace=None):
@@ -138,22 +149,36 @@ def importTasks():
 # ----------------------------------------
 class Parameter(object):
     """Parameter base class for specifying how to handle parameters for tasks"""
-    def __init__(self,name,prompt=None,inputFn=INPUT_FN,conversionFn=lambda o:o):
+    NO_VALUE=object()
+
+    def __init__(self,name,prompt=None,inputFn=NO_VALUE,conversionFn=lambda o:o,use_default=False):
+        """
+        name - must match the name of the function argument
+        prompt - a string that is used if needed to prompt for input
+        inputFn - the function to use to prompt for input
+        conversionFn - the function used to convert a string to the correct type
+        use_default - if True - if the function argument has a default, use it
+                      otherwise, suggest the default in the prompt but still prompt, an empty string input will be converted to the default value
+        """
         self.name=name
         self.prompt=prompt
-        self.inputFn=inputFn
+        self.inputFn=inputFn if inputFn is not self.NO_VALUE else INPUT_FN
         self.conversionFn=conversionFn
+        self.use_default=use_default
 
-    # add a value property that calls getValue which can then be overridden.
-    @property
-    def value(self):
-        return self.getValue()
-
-    def getValue(self):
-        # TODO: provide a default value when prompting the user - would be best to use the default value as provided with the function definition, rather than add a 'default' attribute.
-        # prompt for the value
-        promptStr=self.prompt if self.prompt else 'Please enter a value for {}: '.format(self.name)
-        v=self.inputFn(promptStr)
+    def getValue(self,default):
+        """Gets a value for a missing argument, suggesting a default if provided."""
+        if default is Parameter.NO_VALUE or self.use_default==False:
+            # prompt for the value
+            promptStr=self.prompt
+            if promptStr is None:
+                defaultStr=' (default: {!r})'.format(default) if default is not Parameter.NO_VALUE else ''
+                promptStr='Please enter a value for {}{}: '.format(self.name,defaultStr)
+            v=self.inputFn(promptStr)
+            if default is not Parameter.NO_VALUE and v=='': v=default
+        else:
+            # self.use_default must be True and self.default must not be Parameter.NO_VALUE
+            v=default
         return self.convertValue(v)
 
     def convertValue(self,v):
@@ -163,16 +188,18 @@ class Parameter(object):
 
 class OptionsParameter(Parameter):
     """A parameter that is asked for once (or provided on the command line) and then this value is stored in options and used wherever else an OptionsParameter of the same name is referenced."""
-    NO_VALUE=object()
 
-    def getValue(self):
-        v=getattr(options,self.name,self.NO_VALUE)
-        if v is self.NO_VALUE:
-            v=super(OptionsParameter,self).getValue()
-            setattr(options,self.name,v)
+    def getValue(self,default):
+        v=getattr(options,self.name,Parameter.NO_VALUE)
+        if v is Parameter.NO_VALUE:
+            v=super(OptionsParameter,self).getValue(default)
         return v
 
-
+    def convertValue(self,v):
+        """Whenever a value is converted, make sure that converted value is persisted to options."""
+        v=super(OptionsParameter,self).convertValue(v)
+        setattr(options,self.name,v)
+        return v
 
 # ----------------------------------------
 # operations
@@ -491,7 +518,8 @@ def main(args):
                     importTasks()
                 except Exception as e:
                     # pick up the specific case of not being able to find a pie_tasks module/package
-                    if isinstance(e,ImportError) and e.message=='No module named pie_tasks':
+                    # handle different attributes and messages in py2 vs py3
+                    if isinstance(e,ImportError) and (getattr(e,'message','')=='No module named pie_tasks' or getattr(e,'msg','')=="No module named 'pie_tasks'"):
                         print('pie_tasks could not be found.')
                     else:
                         print('An error occurred when importing pie_tasks:\n'+traceback.format_exc())

@@ -1,3 +1,3 @@
-__version__ = "0.5.24"
+__version__ = "0.5.26"
 __author__ = "David Whittingham; David Payne; Adam Kerz; Peter Reyne; Daniel Baternik"
-__copyright__ = "Copyright (C) 2016 David Whittingham"
+__copyright__ = "Copyright (C) 2018 David Whittingham"
