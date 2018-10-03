@@ -328,7 +328,7 @@ def list_layers(mxdPath):
     for i in range(0, mapDoc.MapCount):
         
         pMap = CType(mapDoc.Map(i), esriCarto.IMap)
-        print(pMap.Name)
+        # print(pMap.Name)
 
         # Enumerate layer descriptions
         descriptors = CType(mxdServer.LayerDescriptors(pMap.Name), esriSystem.IArray)
@@ -373,11 +373,12 @@ def list_layers(mxdPath):
 
     mapDoc.Close()
     
-    print(res)
+    # print(res)
+    return res 
 
-GetStandaloneModules()
-InitStandalone()
-list_layers("G:/LARIE/AutoPublish/SIRGIS-Services/Test/Test-88401-1.mxd")        
+# GetStandaloneModules()
+# InitStandalone()
+# list_layers("G:/LARIE/AutoPublish/SIRGIS-Services/Test/Test-88401-1.mxd")        
 
 # ***************************************************************
 # NOTE: The following examples, by default, expect to be run
