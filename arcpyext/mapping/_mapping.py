@@ -1,6 +1,7 @@
 import logging
 import re
 from itertools import izip_longest
+from arcobjects import init_arcobjects_context, list_layers
 
 import arcpy
 
@@ -107,16 +108,19 @@ def list_document_data_sources(map):
                     # Data frame number one
                     {
                         # Layer number one
-                        "name":          "Layer Name",
-                        "longName":      "Layer Group/Layer Name",
-                        "datasetName":   "(Optional) dataset name",
-                        "dataSource":    "(Optional) data source name",
-                        "serviceType":   "(Optional) service type, e.g. SDE, MapServer, IMS",
-                        "userName":      "(Optional) user name",
-                        "server":        "(Optional) server address/hostname",
-                        "service":       "(Optional) name or number of the ArcSDE Service",
-                        "database":      "(Optional) name of the database",
-                        "workspacePath": "(Optional) workspace path"
+                        "ID":               "Layer ID",
+                        "name":             "Layer Name",
+                        "longName":         "Layer Group/Layer Name",
+                        "datasetName":      "(Optional) dataset name",
+                        "dataSource":       "(Optional) data source name",
+                        "serviceType":      "(Optional) service type, e.g. SDE, MapServer, IMS",
+                        "userName":         "(Optional) user name",
+                        "server":           "(Optional) server address/hostname",
+                        "service":          "(Optional) name or number of the ArcSDE Service",
+                        "database":         "(Optional) name of the database",
+                        "workspacePath":    "(Optional) workspace path"
+                        "visible":          "(Optional) visibility"
+                        "definitionQuery":  "definition query on the layer"
                     },
                     # ...more layers
                 ],
@@ -124,10 +128,10 @@ def list_document_data_sources(map):
             ],
             "tableViews": [
                 {
-                    "datasetName": "dataset name",
-                    "dataSource": "data source",
-                    "definitionQuery": "definition query on the table",
-                    "workspacePath": "workspace path"
+                    "datasetName":          "dataset name",
+                    "dataSource":           "data source",
+                    "definitionQuery":      "definition query on the table",
+                    "workspacePath":        "workspace path"
                 }
             ]
         }
@@ -137,11 +141,31 @@ def list_document_data_sources(map):
     :returns: dict
 
     """
+    layers = [[_get_layer_details(layer) for layer in arcpy.mapping.ListLayers(df)] for df in arcpy.mapping.ListDataFrames(map)]
+    tableViews = [_get_table_details(table) for table in arcpy.mapping.ListTableViews(map)]
 
-    return {
-        "layers": [[_get_layer_details(layer) for layer in arcpy.mapping.ListLayers(df)] for df in arcpy.mapping.ListDataFrames(map)],
-        "tableViews": [_get_table_details(table) for table in arcpy.mapping.ListTableViews(map)]
+    # Enrich arcpy data with additional information that is only accessible via arcobjects 
+    try:
+
+        init_arcobjects_context()
+        additional_layer_info = list_layers(map.filePath)
+
+        for l in layers:
+            layer_info = additional_layer_info[l.name]
+            if layer_info is not None:
+                print("Found %s" % l.name)
+                l["Id"] = layer_info.ID
+                l["visible"] =layer_info.Visible
+                l["definitionQuery"] = layer_info.DefinitionExpression
+
+    except:
+        print("Could not read additional layer info using arcobjects")
+
+    res = {
+        "layers": layers,
+        "tableViews": tableViews
     }
+
 
 def validate_map(map):
     """Analyse the map for broken layers and return a boolean indicating if it is in a valid state or not.
