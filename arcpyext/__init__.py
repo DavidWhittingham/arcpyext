@@ -17,3 +17,4 @@ from . import mapping
 from . import publishing
 from . import toolbox
 from . import schematransform
+from . import arcobjects
