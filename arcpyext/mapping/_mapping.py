@@ -1,11 +1,11 @@
 import logging
 import re
 from itertools import izip_longest
-from arcobjects import init_arcobjects_context, list_layers
 
 import arcpy
 
 from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
+from ..arcobjects import init_arcobjects_context, list_layers
 
 # Configure module logging
 logger = logging.getLogger("arcpyext.mapping")
@@ -148,19 +148,29 @@ def list_document_data_sources(map):
 
         init_arcobjects_context()
         additional_layer_info = list_layers(map.filePath)
+        # print(layers)
+        print(additional_layer_info)
 
-        for l in layers:
-            layer_info = additional_layer_info[l.name]
-            if layer_info is not None:
-                print("Found %s" % l.name)
-                l["Id"] = layer_info.ID
-                l["visible"] =layer_info.Visible
-                l["definitionQuery"] = layer_info.DefinitionExpression
+        for layerGroup in layers:
+            for l in layerGroup:
+                if l is not None:
+                    print(2)
+                    # print(l)
+                    # layerName = l['name']
+                    # print("layer %s" % layerName)                
+                    layer_info = additional_layer_info[layerName]
+                    # print(3)
+                    if layer_info is not None:
+                        # print("Found %s" % layerName)
+                        l["Id"] = layer_info['ID']
+                        l["visible"] = layer_info['Visible']
+                        l["definitionQuery"] = layer_info['DefinitionExpression']
 
     except:
         print("Could not read additional layer info using arcobjects")
+        raise Exception("stop")
 
-    res = {
+    return {
         "layers": layers,
         "tableViews": tableViews
     }
