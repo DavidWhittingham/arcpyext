@@ -103,25 +103,25 @@ def test_list_document_data_sources(data_sources, layer_data_sources_equal, tabl
     # }
 
     # Dataframes
-    assert(len(result['layers'] == 1))
+    assert(len(result['layers']) == 1)
 
     # Dataframe 1
-    assert(len(result['layers'][0] == 3))
+    assert(len(result['layers'][0]) == 4)
 
     # Layer 1
-    assert(len(result['layers'][0][0]['ID'] == 0))
-    assert(len(result['layers'][0][0]['name'] == "Layer 1"))
-    assert(len(result['layers'][0][0]['datasetName'] == "statesp020_clip1"))
+    assert(result['layers'][0][0]['ID'] == 0)
+    assert(result['layers'][0][0]['name'] == "Layer 1")
+    assert(result['layers'][0][0]['datasetName'] == "statesp020_clip1")
 
     # Layer 2
-    assert(len(result['layers'][0][1]['ID'] == 1))
-    assert(len(result['layers'][0][1]['name'] == "Layer 2 (Duplicated)"))
-    assert(len(result['layers'][0][1]['datasetName'] == "statesp020_clip1"))
+    assert(result['layers'][0][1]['ID'] == 1)
+    assert(result['layers'][0][1]['name'] == "Layer 2 (Duplicated)")
+    assert(result['layers'][0][1]['datasetName'] == "statesp020_clip1")
 
     # Layer 3
-    assert(len(result['layers'][0][3]['ID'] == 3))
-    assert(len(result['layers'][0][3]['name'] == "Layer 3 (Nested)"))
-    assert(len(result['layers'][0][3]['datasetName'] == "statesp020_clip1"))
+    assert(result['layers'][0][3]['ID'] == 3)
+    assert(result['layers'][0][3]['name'] == "Layer 3 (Nested)")
+    assert(result['layers'][0][3]['datasetName'] == "statesp020_clip1")
 
     # Tables
-    assert(len(result['tableViews'] == 1))
+    assert(len(result['tableViews']) == 1)
