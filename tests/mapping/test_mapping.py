@@ -70,3 +70,58 @@ def test_list_document_data_sources(data_sources, layer_data_sources_equal, tabl
     map = arcpy.mapping.MapDocument(MXD_COMPLEX_PATH)
     result = arcpyext.mapping.list_document_data_sources(map)
     print(result)
+
+    # Expecting:
+    # {
+    #     "layers": [
+    #         [
+    #           {
+    #             "datasetName": "statesp020_clip1",
+    #             "workspacePath": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples",
+    #             "name": "Layer 1",
+    #             "dataSource": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020_clip1.shp",
+    #             "longName": "Layer 1"
+    #           },
+    #           {
+    #             "datasetName": "statesp020_clip1",
+    #             "workspacePath": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples",
+    #             "name": "Layer 2 (Duplicated)",
+    #             "dataSource": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020_clip1.shp",
+    #             "longName": "Layer 2 (Duplicated)"
+    #           },
+    #           "None",             // This is a group layer
+    #           {
+    #             "datasetName": "statesp020_clip1",
+    #             "workspacePath": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples",
+    #             "name": "Layer 3 (Nested)",
+    #             "dataSource": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020_clip1.shp",
+    #             "longName": "New Group Layer\\Layer 3 (Nested)"
+    #           }
+#           ]
+    #     ],
+    #     "tableViews: [{'definitionQuery': u'', 'datasetName': u'statesp020.txt', 'dataSource': u'G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020.txt', 'workspacePath': u'G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples'}]}]
+    # }
+
+    # Dataframes
+    assert(len(result['layers'] == 1))
+
+    # Dataframe 1
+    assert(len(result['layers'][0] == 3))
+
+    # Layer 1
+    assert(len(result['layers'][0][0]['ID'] == 0))
+    assert(len(result['layers'][0][0]['name'] == "Layer 1"))
+    assert(len(result['layers'][0][0]['datasetName'] == "statesp020_clip1"))
+
+    # Layer 2
+    assert(len(result['layers'][0][1]['ID'] == 1))
+    assert(len(result['layers'][0][1]['name'] == "Layer 2 (Duplicated)"))
+    assert(len(result['layers'][0][1]['datasetName'] == "statesp020_clip1"))
+
+    # Layer 3
+    assert(len(result['layers'][0][3]['ID'] == 3))
+    assert(len(result['layers'][0][3]['name'] == "Layer 3 (Nested)"))
+    assert(len(result['layers'][0][3]['datasetName'] == "statesp020_clip1"))
+
+    # Tables
+    assert(len(result['tableViews'] == 1))

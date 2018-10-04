@@ -148,27 +148,21 @@ def list_document_data_sources(map):
 
         init_arcobjects_context()
         additional_layer_info = list_layers(map.filePath)
-        # print(layers)
-        print(additional_layer_info)
 
         for layerGroup in layers:
             for l in layerGroup:
                 if l is not None:
-                    print(2)
-                    # print(l)
-                    # layerName = l['name']
+                    layerName = l['name']
                     # print("layer %s" % layerName)                
                     layer_info = additional_layer_info[layerName]
-                    # print(3)
                     if layer_info is not None:
-                        # print("Found %s" % layerName)
                         l["Id"] = layer_info['ID']
                         l["visible"] = layer_info['Visible']
                         l["definitionQuery"] = layer_info['DefinitionExpression']
 
-    except:
+    except Exception as e:
         print("Could not read additional layer info using arcobjects")
-        raise Exception("stop")
+        print(e)
 
     return {
         "layers": layers,
