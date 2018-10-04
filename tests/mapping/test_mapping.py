@@ -109,17 +109,17 @@ def test_list_document_data_sources(data_sources, layer_data_sources_equal, tabl
     assert(len(result['layers'][0]) == 4)
 
     # Layer 1
-    assert(result['layers'][0][0]['ID'] == 0)
+    assert(result['layers'][0][0]['id'] == 0)
     assert(result['layers'][0][0]['name'] == "Layer 1")
     assert(result['layers'][0][0]['datasetName'] == "statesp020_clip1")
 
     # Layer 2
-    assert(result['layers'][0][1]['ID'] == 1)
+    assert(result['layers'][0][1]['id'] == 1)
     assert(result['layers'][0][1]['name'] == "Layer 2 (Duplicated)")
     assert(result['layers'][0][1]['datasetName'] == "statesp020_clip1")
 
     # Layer 3
-    assert(result['layers'][0][3]['ID'] == 3)
+    assert(result['layers'][0][3]['id'] == 3)
     assert(result['layers'][0][3]['name'] == "Layer 3 (Nested)")
     assert(result['layers'][0][3]['datasetName'] == "statesp020_clip1")
 

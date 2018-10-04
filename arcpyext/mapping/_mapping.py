@@ -107,7 +107,7 @@ def list_document_data_sources(map):
                     # Data frame number one
                     {
                         # Layer number one
-                        "ID":               "Layer ID",
+                        "id":               "Layer ID",
                         "name":             "Layer Name",
                         "longName":         "Layer Group/Layer Name",
                         "datasetName":      "(Optional) dataset name",
@@ -156,7 +156,7 @@ def list_document_data_sources(map):
                     # print("layer %s" % layerName)                
                     layer_info = additional_layer_info[layerName]
                     if layer_info is not None:
-                        l["Id"] = layer_info['ID']
+                        l["id"] = layer_info['ID']
                         l["visible"] = layer_info['Visible']
                         l["definitionQuery"] = layer_info['DefinitionExpression']
 
