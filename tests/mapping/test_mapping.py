@@ -1,8 +1,7 @@
 import os.path
-
+import json 
 import arcpy
 import pytest
-
 import arcpyext
 
 MXD_PATH = os.path.abspath(
@@ -70,7 +69,7 @@ def test_change_data_sources(map, data_sources, layer_data_sources_equal, table_
 def test_list_document_data_sources(mxd, raises_ex, ex_type):
     map = arcpy.mapping.MapDocument(mxd)
     result = arcpyext.mapping.list_document_data_sources(map)
-    print(result)
+    # print(json.dumps(result))
 
     # Expecting:
     # {
@@ -110,12 +109,12 @@ def test_list_document_data_sources(mxd, raises_ex, ex_type):
     assert len(result['layers'][0]) == 5, "Layer count"
 
     # Layer 1
-    assert(result['layers'][0][0]['id'] == 0)
+    assert(result['layers'][0][0]['id'] == 1)
     assert(result['layers'][0][0]['name'] == "Layer 1")
     assert(result['layers'][0][0]['datasetName'] == "statesp020_clip1")
 
     # Layer 2
-    assert(result['layers'][0][1]['id'] == 1)
+    assert(result['layers'][0][1]['id'] == 2)
     assert(result['layers'][0][1]['name'] == "Layer 2")
     assert(result['layers'][0][1]['datasetName'] == "statesp020_clip2")
 
@@ -136,11 +135,13 @@ def test_compare_map_documents(mxd_a, mxd_b, layers_added, layers_updated, layer
     a = arcpy.mapping.MapDocument(mxd_a)
     b = arcpy.mapping.MapDocument(mxd_b)
     result = arcpyext.mapping.compare(a, b)
-    print(result)
+    print(json.dumps(result))
 
     assert len(result['added']) == layers_added, "Expected %s a" % layers_added
-    assert len(result['updated']) == layers_updated, "Expected %s u" % layers_updated
-    assert len(result['removed']) == layers_removed, "Expected %s d" % layers_removed
+    assert len(result['updated']
+               ) == layers_updated, "Expected %s u" % layers_updated
+    assert len(result['removed']
+               ) == layers_removed, "Expected %s d" % layers_removed
 
     # # Dataframes
     # assert(len(result['layers']) == 1)

@@ -184,35 +184,95 @@ def compare(mapA, mapB):
     
     try:
 
+        # Scalar equality check
         eq = lambda a, b, k: b[k] == a[k] if k in a and k in b else False
+
+        # Dictionary equality check. Sort is used to ensure consistent order before comparision
+        def sort(obj):
+            if isinstance(obj, dict):
+                return sorted((k, sort(v)) for k, v in obj.items())
+            if isinstance(obj, list):
+                return sorted(sort(x) for x in obj)
+            else:
+                return obj
+
+        arrEq = lambda a, b, k: sort(a[k]) == sort(b[k]) if k in a and k in b else False
+        
+        # Who are you? Who am I? 
+        def _express_diff(a, b, k, type):
+            return {
+                "type": type,
+                "was": a[k] if k in a else None,
+                "now": b[k] if k in b else None
+            }
+            
 
         def _layer_diff(a, b):
 
             # Layer change reasons
-            layer_index_changed = 1
-            layer_name_changed = 2
-            layer_datasource_changed = 3
-            layer_visibility_changed = 4
+            layer_id_changed = 401
+            layer_name_changed = 402
+            layer_datasource_changed = 403
+            layer_visibility_changed = 404
+            layer_fields_changed = 405
 
             diff = []
-            
-            if not eq(a, b, 'id'):
-                diff.append(layer_index_changed)
-            elif not eq(a, b, 'name'):
-                diff.append(layer_name_changed)
-            elif not eq(a, b, 'visible'):
-                diff.append(layer_visibility_changed)
-            elif not eq(a, b, 'workspacePath'):
-                diff.append(layer_datasource_changed)
-            elif not eq(a, b, 'datasetName'):
-                diff.append(layer_datasource_changed)
-            elif not eq(a, b, 'database'):
-                diff.append(layer_datasource_changed)
-            elif not eq(a, b, 'server'):
-                diff.append(layer_datasource_changed) 
-            elif not eq(a, b, 'service'): 
-                diff.append(layer_datasource_changed)
 
+            tests = [
+                {
+                    "k": "id",
+                    "v": layer_id_changed
+                },
+                {
+                    "k": "name",
+                    "v": layer_name_changed
+                },
+                {
+                    "k": "visible",
+                    "v": layer_visibility_changed
+                },
+                {
+                    "k": "workspacePath",
+                    "v": layer_datasource_changed
+                },
+                {
+                    "k": "datasetName",
+                    "v": layer_datasource_changed
+                },
+                {
+                    "k": "database",
+                    "v": layer_datasource_changed
+                },
+                {
+                    "k": "server",
+                    "v": layer_datasource_changed
+                },
+                {
+                    "k": "service",
+                    "v": layer_datasource_changed
+                },
+                {
+                    "k": "fields",
+                    "v": layer_fields_changed,
+                    "array": True
+                }
+            ]
+
+            # Test each property for changes
+            for test in tests:
+
+                k =  test["k"]
+                v =  test["v"]
+                isArray = test["array"] == True if "array" in test else False
+
+                if k in a or k in b:
+                    if isArray == True:
+                        if not arrEq(a, b,k):
+                            diff.append(_express_diff(a, b,k, v))        
+                    else:
+                        if not eq(a, b,k):
+                            diff.append(_express_diff(a, b,k,v))            
+         
             return diff 
 
         a = list_document_data_sources(mapA)
@@ -417,6 +477,19 @@ def _get_layer_details(layer):
 
     if layer.supports("workspacePath"):
         details["workspacePath"] = layer.workspacePath
+
+    # Fields
+    # @see https://desktop.arcgis.com/en/arcmap/10.4/analyze/arcpy-functions/describe.htm
+    desc = arcpy.Describe(layer)
+    if desc.dataType == "FeatureLayer":
+        field_info = desc.fieldInfo
+        details["fields"] = []
+        for index in range(0, field_info.count):
+            details["fields"].append({
+                "index": index,
+                "name": field_info.getFieldName(index),
+                "visible": field_info.getVisible(index) == "VISIBLE"
+            })
 
     return details
 
