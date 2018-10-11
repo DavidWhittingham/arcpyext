@@ -328,7 +328,6 @@ def list_layers(mxdPath):
     for i in range(0, mapDoc.MapCount):
         
         pMap = CType(mapDoc.Map(i), esriCarto.IMap)
-        # print(pMap.Name)
 
         # Enumerate layer descriptions
         descriptors = CType(mxdServer.LayerDescriptors(pMap.Name), esriSystem.IArray)
@@ -344,32 +343,41 @@ def list_layers(mxdPath):
             res[name]['Visible'] = desc.Visible
             res[name]['DefinitionExpression'] = desc.DefinitionExpression
 
+    # Override layers Ids with fixed layer Ids (if set)
+    try:
 
-        # # Enumerate layer data sources
-        # print("List layers")
-        # pEnumLayer = CType(pMap.Layers(0, True), esriCarto.IEnumLayer)  # CLSID(esriCarto.DataLayer)
-        # pEnumLayer.Reset()
-        # x = pEnumLayer.Next()
-        # pLayer = CType(x, esriCarto.ILayer)
+        # Dataframes
+        for mapIndex in range(0, mapDoc.MapCount):
+            map = CType(mapDoc.Map(mapIndex), esriCarto.IMap)
 
-        # while pLayer is not None:
+            # Layers
+            for layerIndex in range(0, map.LayerCount):
 
-        #     if res[pLayer.Name] is None:
-        #         res[pLayer.Name] = {
-        #             'name': pLayer.Name
-        #         }
-            
-        #     pLayerProps = CType(x, esriCarto.ILayerGeneralProperties)
-        #     pLayerData = CType(x, esriCarto.IDataLayer)
-        #     pLayerDataSet = CType(x, esriGeoDatabase.IDataset)
-            
-        #     if pLayerDataSet is not None:
-        #         # print(pLayerDataSet.Name)
-        #         print(CType(pLayerDataSet.FullName, esriSystem.IName).NameString)
-            
-        #     # Next iteration
-        #     x = pEnumLayer.Next()
-        #     pLayer = CType(x, esriCarto.ILayer)
+                layer = CType(map.Layer(layerIndex), esriCarto.ILayer)
+                layerExt = CType(map.Layer(layerIndex), esriCarto.ILayerExtensions)
+
+                # Extensions
+                for extIndex in range(0, layerExt.ExtensionCount):
+                    ext = CType(layerExt.Extension(extIndex), esriCarto.IServerLayerExtension)
+
+                    # Extension properties               
+                    props = CType(ext.ServerProperties, esriSystem.IPropertySet) 
+                    propSet = props.GetAllProperties()
+                    # print(ext.ServerProperties.Count, propSet)
+
+                    names = propSet[0]
+                    values = propSet[1]
+
+                    for nameIndex in range(0, len(names)):                        
+                        # print(names[nameIndex])
+                        # print(values[nameIndex])
+                        if names[nameIndex] == "ServiceLayerID":
+                            fixedLayerId = values[nameIndex]
+                            if res[layer.Name]['ID'] <> fixedLayerId:
+                                res[layer.Name]['ID'] = fixedLayerId
+
+    except Exception as e:
+        print("Could not resolve fixed layer IDs", e)        
 
     mapDoc.Close()
     
