@@ -215,6 +215,7 @@ def compare(mapA, mapB):
             layer_datasource_changed = 403
             layer_visibility_changed = 404
             layer_fields_changed = 405
+            layer_definition_query_changed = 406
 
             diff = []
 
@@ -252,6 +253,10 @@ def compare(mapA, mapB):
                     "v": layer_datasource_changed
                 },
                 {
+                    "k": "definitionQuery",
+                    "v": layer_definition_query_changed
+                },
+                {
                     "k": "fields",
                     "v": layer_fields_changed,
                     "array": True
@@ -281,44 +286,55 @@ def compare(mapA, mapB):
         # Flatten layer structure 
         aLayers = [item for sublist in a['layers'] for item in sublist if item is not None]
         bLayers = [item for sublist in b['layers'] for item in sublist if item is not None]
-
+        
+        # To correlate a layer in map a and map b, we run a series of specificity tests. Tests are ordered from 
+        # most specific, to least specific. These tests apply a process of elimination methodology to correlate layers 
+        # between the 2 maps        
         added = []
         updated = []
         removed = []
-        resolved = {}
-        
-        # To correlate a layer in map a and map b, we run a series of specificity tests. Tests are ordered from 
-        # most specific, to least specific.
+        resolvedA = {}
+        resolvedB = {}
+        isResolvedA = lambda x: x['name'] in resolvedA
+        isResolvedB = lambda x: x['name'] in resolvedB
         sameId = lambda a, b: eq(a, b, 'id')
         sameName = lambda a, b: eq(a, b, 'name')
         sameDatasource = lambda a, b: eq(a, b, 'datasetName')
-        isResolved = lambda x: x['name'] in resolved
-
-        # Test: Find layers with the same id/name and datasource
-        matcher1 = lambda a, b: b if sameId(a, b) and sameName(a, b) and sameDatasource(a, b) else None
-
-        # Test: Find layers with the same id/name but with a differing datasource
-        matcher2 = lambda a, b: b if sameId(a, b) and sameName(a, b) and not isResolved(a) and not isResolved(b) else None
-
-        # Test: Find layers with the same id and datasource but with a different name
-        matcher3 = lambda a, b: b if sameId(a, b) and sameDatasource(a, b) and not isResolved(a) and not isResolved(b) else None
-
-        # Test: Find layers with the same name and dtasource but with a different id
-        matcher4 = lambda a, b: b if sameName(a, b) and sameDatasource(a, b) and not isResolved(a) and not isResolved(b) else None
-
-        # Test: Find layers with the same name but a different id and datasource
-        matcher5 = lambda a, b: b if sameName(a, b) and not isResolved(a) and not isResolved(b) else None
 
         tests = [
-            {'fn': matcher1, 'desc': "unchanged", 'ignore': True},
-            {'fn': matcher2, 'desc': "same name and id, datasource changed"},
-            {'fn': matcher3, 'desc': "same id and datasource, name changed"},
-            {'fn': matcher4, 'desc': "same name and datasource, id changed"},
-            {'fn': matcher5, 'desc': "same name, id/datasource changed"},
+            {
+                'fn': lambda a, b: b if sameId(a, b) and sameName(a, b) and sameDatasource(a, b) else None, 
+                'desc': "same id/name and datasource. Unchanged", 
+                'ignore': True
+            },
+            {
+                'fn': lambda a, b: b if sameId(a, b) and sameName(a, b) and not isResolvedA(a) and not isResolvedB(b) else None,
+                'desc': "same name and id, datasource changed"
+            },
+            {
+                'fn': lambda a, b: b if sameId(a, b) and sameDatasource(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
+                'desc': "same id and datasource, name changed"
+            },
+            {
+                # TODO this should be skipped if we can verify that fixed layer IDs are not used
+                'fn': lambda a, b: b if sameId(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
+                'desc': "same id. Assumed valid if fixed data sources enabled" 
+            },            
+            {
+                'fn': lambda a, b: b if sameName(a, b) and sameDatasource(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
+                'desc': "same name and datasource, id changed"
+            },
+            {
+                'fn': lambda a, b: b if sameName(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
+                'desc': "same name, id/datasource changed"
+            },
         ]
 
         # For every b layer, run a series of tests to find the correlating A layer (if any)
         for bLayer in bLayers:
+            match = None
+
+            # Find A layer that correlates to B layer
             for aLayer in aLayers:
                 for index, test in enumerate(tests):
                     matcher = test['fn']
@@ -326,43 +342,32 @@ def compare(mapA, mapB):
                     ignore = True if 'ignore' in test and test['ignore'] == True else False
                     match = matcher(aLayer, bLayer)
                     if match is not None:
-                        # print(index + 1, aLayer['name'], bLayer['name'], aLayer['id'], bLayer['id'], aLayer['datasetName'], bLayer['datasetName'], desc)
-                        resolved[aLayer['name']] = True
-                        resolved[bLayer['name']] = True
+
+                        # Updated layer
+                        resolvedA[aLayer['name']] = True
+                        resolvedB[bLayer['name']] = True
                         bLayer['diff'] = _layer_diff(aLayer, bLayer)
-                        # print(index + 1, resolved)
                         
                         # Add layers that have changes (and are not skipped by the ignore flag) to the result list
                         if not ignore or len(bLayer['diff']) > 0:
-                            updated.append(bLayer)
-                            break                             
+                            updated.append(bLayer)                        
+                            break
+            
+            # New layer
+            if match is None and not isResolvedB(bLayer):
+                print("Add", bLayer['name'])
+                resolvedB[bLayer['name']] = True
+                added.append(bLayer)                
       
-        # Added layers
-        # print(11111, resolved)
-        for bLayer in bLayers:
-            found = False 
-            for aLayer in aLayers:
-                if aLayer['name'] == bLayer['name']:
-                    found = True
-                    break
-            if found == False and not isResolved(bLayer):
-                resolved[bLayer['name']] = True
-                added.append(bLayer)
-
         # Removed layers
-        # print(11111, resolved)
+        print(11111, resolvedA)
         for aLayer in aLayers:
-            found = False 
-            for bLayer in bLayers:
-                if aLayer['name'] == bLayer['name']:
-                    found = True
-                    break
-            # print(aLayer['name'], found, isResolved(aLayer))
-            if found == False and not isResolved(aLayer):
-                resolved[aLayer['name']] = True
+            if not isResolvedA(aLayer):
+                resolvedA[aLayer['name']] = True
                 removed.append(aLayer)
 
-        # print('resolved', resolved)
+        print('resolvedA', resolvedA)
+        print('resolvedB', resolvedB)
 
         return {
             'added': added,
