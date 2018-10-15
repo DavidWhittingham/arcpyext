@@ -60,6 +60,16 @@ class ImageSDDraft(SDDraftMaxRecordCountMixin, SDDraftOutputDirMixin, SDDraftCac
     #####################
 
     @property
+    def allow_function(self):
+        return self._editor.value_to_boolean(self._editor.get_element_value(self._allow_function_elements[0]))
+
+    @allow_function.setter
+    def allow_function(self, value):
+        value = self._editor.value_to_boolean(value)
+        for elem in self._allow_function_elements:
+            self._editor.set_element_value(elem, value)
+
+    @property
     def allowed_compressions(self):
         """Gets a list of the image compression methods (by type name) that are currently enabled for the service."""
         return [self.CompressionMethod(item) for item in
@@ -169,6 +179,17 @@ class ImageSDDraft(SDDraftMaxRecordCountMixin, SDDraftOutputDirMixin, SDDraftCac
             self._editor.verify_int(value, "Maximum Mosaic Count", allow_none = True))
 
     @property
+    def raster_functions(self):
+        values = self._editor.get_element_value(self._raster_functions_elements[0])
+        return values.split(",") if values else []
+
+    @raster_functions.setter
+    def raster_functions(self, values):
+        value = ",".join(values)
+        for elem in self._raster_functions_elements:
+            self._editor.set_element_value(elem, value)
+
+    @property
     def return_jpgpng_as_jpg(self):
         return self._editor.value_to_boolean(self._editor.get_element_value(self._return_jpgpng_as_jpg_element))
 
@@ -190,6 +211,13 @@ class ImageSDDraft(SDDraftMaxRecordCountMixin, SDDraftOutputDirMixin, SDDraftCac
     ######################
     # PRIVATE PROPERTIES #
     ######################
+
+    @property
+    def _allow_function_elements(self):
+        return [
+            self._editor.get_value_element_by_key(self._config_props, "allowFunction"),
+            self._editor.get_value_element_by_key(self._service_props, "allowFunction")
+        ]
 
     @property
     def _allowed_compressions_element(self):
@@ -243,6 +271,17 @@ class ImageSDDraft(SDDraftMaxRecordCountMixin, SDDraftOutputDirMixin, SDDraftCac
     @property
     def _max_mosaic_image_count_element(self):
         return self._editor.get_value_element_by_key(self._config_props, "MaxMosaicImageCount")
+
+    @property
+    def _raster_functions_elements(self):
+        return [
+            self._editor.get_value_element_by_key(self._config_props, "rasterFunctions")
+
+            # Under at least certain version of ArcGIS Desktop, some properties get duplicated.
+            # Through testing, it's been determined that they are ignored, either when creating the Service Definition,
+            # or when published to ArcGIS Server.
+            #self._editor.get_value_element_by_key(self._service_props, "rasterFunctions")
+        ]
 
     @property
     def _return_jpgpng_as_jpg_element(self):
