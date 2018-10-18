@@ -181,203 +181,270 @@ def compare(mapA, mapB):
     :returns: dict
 
     """
+
+    # Scalar equality check
+    eq = lambda a, b, k: b[k] == a[k] if k in a and k in b else False    
+
+    # Dictionary equality check. Sort is used to ensure consistent order before comparision
+    def sort(obj):
+        if isinstance(obj, dict):
+            return sorted((k, sort(v)) for k, v in obj.items())
+        if isinstance(obj, list):
+            return sorted(sort(x) for x in obj)
+        else:
+            return obj
+
+    arrEq = lambda a, b, k: sort(a[k]) == sort(b[k]) if k in a and k in b else False
     
-    try:
+    # Who are you? Who am I? 
+    def _express_diff(a, b, k, type):
+        return {
+            "type": type,
+            "was": a[k] if k in a else None,
+            "now": b[k] if k in b else None
+        }    
 
-        # Scalar equality check
-        eq = lambda a, b, k: b[k] == a[k] if k in a and k in b else False
+    # 
+    # Compare data frames
+    # 
+    def compare_data_frames():
+    
+        data_frame_count_changed = 301
+        data_frame_cs_code_changed = 302
+        data_frame_cs_name_changed = 303
+        data_frame_cs_type_changed = 304
+        diff = []
 
-        # Dictionary equality check. Sort is used to ensure consistent order before comparision
-        def sort(obj):
-            if isinstance(obj, dict):
-                return sorted((k, sort(v)) for k, v in obj.items())
-            if isinstance(obj, list):
-                return sorted(sort(x) for x in obj)
-            else:
-                return obj
+        try:
 
-        arrEq = lambda a, b, k: sort(a[k]) == sort(b[k]) if k in a and k in b else False
-        
-        # Who are you? Who am I? 
-        def _express_diff(a, b, k, type):
-            return {
-                "type": type,
-                "was": a[k] if k in a else None,
-                "now": b[k] if k in b else None
-            }
+            data_frame_a = [x for x in arcpy.mapping.ListDataFrames(mapA) if x.type == "DATAFRAME_ELEMENT"]
+            data_frame_b = [x for x in arcpy.mapping.ListDataFrames(mapB) if x.type == "DATAFRAME_ELEMENT"]
+
+            lenA = len(data_frame_a)
+            lenB = len(data_frame_b)
+
+            if lenB == 0 or lenA != lenB:
+                diff.append({
+                    "type": data_frame_count_changed,
+                    "was": lenA,
+                    "now": lenB
+                })
+
+            for index, a in enumerate(data_frame_a):
+
+                b = data_frame_b[index]
+                   
+                if a.spatialReference.factoryCode != b.spatialReference.factoryCode:
+                    diff.append({
+                        "type": data_frame_cs_code_changed,
+                        "was": a.spatialReference.factoryCode,
+                        "now": b.spatialReference.factoryCode,
+                    })
+
+                if a.spatialReference.type != b.spatialReference.type:
+                    diff.append({
+                        "type": data_frame_cs_type_changed,
+                        "was": a.spatialReference.type,
+                        "now": b.spatialReference.type,
+                    })                    
+
+                if a.spatialReference.name != b.spatialReference.name:
+                    diff.append({
+                        "type": data_frame_cs_name_changed,
+                        "was": a.spatialReference.name,
+                        "now": b.spatialReference.name,
+                    })                                        
+                
+        except Exception as e:
+            print("Error comparing data frames")
+            print(e)
+
+        finally:
+            return diff           
+
+    # 
+    # Compare layers
+    # 
+    def compare_layers():
+
+        try:    
+
+            def _layer_diff(a, b):
+
+                # Layer change reasons
+                layer_id_changed = 401
+                layer_name_changed = 402
+                layer_datasource_changed = 403
+                layer_visibility_changed = 404
+                layer_fields_changed = 405
+                layer_definition_query_changed = 406
+
+                diff = []
+
+                tests = [
+                    {
+                        "k": "id",
+                        "v": layer_id_changed
+                    },
+                    {
+                        "k": "name",
+                        "v": layer_name_changed
+                    },
+                    {
+                        "k": "visible",
+                        "v": layer_visibility_changed
+                    },
+                    {
+                        "k": "workspacePath",
+                        "v": layer_datasource_changed
+                    },
+                    {
+                        "k": "datasetName",
+                        "v": layer_datasource_changed
+                    },
+                    {
+                        "k": "database",
+                        "v": layer_datasource_changed
+                    },
+                    {
+                        "k": "server",
+                        "v": layer_datasource_changed
+                    },
+                    {
+                        "k": "service",
+                        "v": layer_datasource_changed
+                    },
+                    {
+                        "k": "definitionQuery",
+                        "v": layer_definition_query_changed
+                    },
+                    {
+                        "k": "fields",
+                        "v": layer_fields_changed,
+                        "array": True
+                    }
+                ]
+
+                # Test each property for changes
+                for test in tests:
+
+                    k =  test["k"]
+                    v =  test["v"]
+                    isArray = test["array"] == True if "array" in test else False
+
+                    if k in a or k in b:
+                        if isArray == True:
+                            if not arrEq(a, b,k):
+                                diff.append(_express_diff(a, b,k, v))        
+                        else:
+                            if not eq(a, b,k):
+                                diff.append(_express_diff(a, b,k,v))            
             
+                return diff 
+        
+            a = list_document_data_sources(mapA)
+            b = list_document_data_sources(mapB)
 
-        def _layer_diff(a, b):
-
-            # Layer change reasons
-            layer_id_changed = 401
-            layer_name_changed = 402
-            layer_datasource_changed = 403
-            layer_visibility_changed = 404
-            layer_fields_changed = 405
-            layer_definition_query_changed = 406
-
-            diff = []
+            # Flatten layer structure 
+            aLayers = [item for sublist in a['layers'] for item in sublist if item is not None]
+            bLayers = [item for sublist in b['layers'] for item in sublist if item is not None]
+            
+            # To correlate a layer in map a and map b, we run a series of specificity tests. Tests are ordered from 
+            # most specific, to least specific. These tests apply a process of elimination methodology to correlate layers 
+            # between the 2 maps            
+            added = []
+            updated = []
+            removed = []
+            resolvedA = {}
+            resolvedB = {}
+            isResolvedA = lambda x: x['name'] in resolvedA
+            isResolvedB = lambda x: x['name'] in resolvedB
+            sameId = lambda a, b: eq(a, b, 'id')
+            sameName = lambda a, b: eq(a, b, 'name')
+            sameDatasource = lambda a, b: eq(a, b, 'datasetName')
 
             tests = [
                 {
-                    "k": "id",
-                    "v": layer_id_changed
+                    'fn': lambda a, b: b if sameId(a, b) and sameName(a, b) and sameDatasource(a, b) else None, 
+                    'desc': "same id/name and datasource. Unchanged", 
+                    'ignore': True
                 },
                 {
-                    "k": "name",
-                    "v": layer_name_changed
+                    'fn': lambda a, b: b if sameId(a, b) and sameName(a, b) and not isResolvedA(a) and not isResolvedB(b) else None,
+                    'desc': "same name and id, datasource changed"
                 },
                 {
-                    "k": "visible",
-                    "v": layer_visibility_changed
+                    'fn': lambda a, b: b if sameId(a, b) and sameDatasource(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
+                    'desc': "same id and datasource, name changed"
                 },
                 {
-                    "k": "workspacePath",
-                    "v": layer_datasource_changed
+                    # TODO this should be skipped if we can verify that fixed layer IDs are not used
+                    'fn': lambda a, b: b if sameId(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
+                    'desc': "same id. Assumed valid if fixed data sources enabled" 
+                },            
+                {
+                    'fn': lambda a, b: b if sameName(a, b) and sameDatasource(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
+                    'desc': "same name and datasource, id changed"
                 },
                 {
-                    "k": "datasetName",
-                    "v": layer_datasource_changed
+                    'fn': lambda a, b: b if sameName(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
+                    'desc': "same name, id/datasource changed"
                 },
-                {
-                    "k": "database",
-                    "v": layer_datasource_changed
-                },
-                {
-                    "k": "server",
-                    "v": layer_datasource_changed
-                },
-                {
-                    "k": "service",
-                    "v": layer_datasource_changed
-                },
-                {
-                    "k": "definitionQuery",
-                    "v": layer_definition_query_changed
-                },
-                {
-                    "k": "fields",
-                    "v": layer_fields_changed,
-                    "array": True
-                }
             ]
 
-            # Test each property for changes
-            for test in tests:
+            # For every b layer, run a series of tests to find the correlating A layer (if any)
+            for bLayer in bLayers:
+                match = None
 
-                k =  test["k"]
-                v =  test["v"]
-                isArray = test["array"] == True if "array" in test else False
+                # Find A layer that correlates to B layer
+                for aLayer in aLayers:
+                    for index, test in enumerate(tests):
+                        matcher = test['fn']
+                        desc = test['desc']
+                        ignore = True if 'ignore' in test and test['ignore'] == True else False
+                        match = matcher(aLayer, bLayer)
+                        if match is not None:
 
-                if k in a or k in b:
-                    if isArray == True:
-                        if not arrEq(a, b,k):
-                            diff.append(_express_diff(a, b,k, v))        
-                    else:
-                        if not eq(a, b,k):
-                            diff.append(_express_diff(a, b,k,v))            
-         
-            return diff 
-
-        a = list_document_data_sources(mapA)
-        b = list_document_data_sources(mapB)
-
-        # Flatten layer structure 
-        aLayers = [item for sublist in a['layers'] for item in sublist if item is not None]
-        bLayers = [item for sublist in b['layers'] for item in sublist if item is not None]
+                            # Updated layer
+                            resolvedA[aLayer['name']] = True
+                            resolvedB[bLayer['name']] = True
+                            bLayer['diff'] = _layer_diff(aLayer, bLayer)
+                            
+                            # Add layers that have changes (and are not skipped by the ignore flag) to the result list
+                            if not ignore or len(bLayer['diff']) > 0:
+                                updated.append(bLayer)                        
+                                break
+                
+                # New layer
+                if match is None and not isResolvedB(bLayer):
+                    resolvedB[bLayer['name']] = True
+                    added.append(bLayer)                
         
-        # To correlate a layer in map a and map b, we run a series of specificity tests. Tests are ordered from 
-        # most specific, to least specific. These tests apply a process of elimination methodology to correlate layers 
-        # between the 2 maps        
-        added = []
-        updated = []
-        removed = []
-        resolvedA = {}
-        resolvedB = {}
-        isResolvedA = lambda x: x['name'] in resolvedA
-        isResolvedB = lambda x: x['name'] in resolvedB
-        sameId = lambda a, b: eq(a, b, 'id')
-        sameName = lambda a, b: eq(a, b, 'name')
-        sameDatasource = lambda a, b: eq(a, b, 'datasetName')
-
-        tests = [
-            {
-                'fn': lambda a, b: b if sameId(a, b) and sameName(a, b) and sameDatasource(a, b) else None, 
-                'desc': "same id/name and datasource. Unchanged", 
-                'ignore': True
-            },
-            {
-                'fn': lambda a, b: b if sameId(a, b) and sameName(a, b) and not isResolvedA(a) and not isResolvedB(b) else None,
-                'desc': "same name and id, datasource changed"
-            },
-            {
-                'fn': lambda a, b: b if sameId(a, b) and sameDatasource(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
-                'desc': "same id and datasource, name changed"
-            },
-            {
-                # TODO this should be skipped if we can verify that fixed layer IDs are not used
-                'fn': lambda a, b: b if sameId(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
-                'desc': "same id. Assumed valid if fixed data sources enabled" 
-            },            
-            {
-                'fn': lambda a, b: b if sameName(a, b) and sameDatasource(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
-                'desc': "same name and datasource, id changed"
-            },
-            {
-                'fn': lambda a, b: b if sameName(a, b) and not isResolvedA(a) and not isResolvedB(b) else None, 
-                'desc': "same name, id/datasource changed"
-            },
-        ]
-
-        # For every b layer, run a series of tests to find the correlating A layer (if any)
-        for bLayer in bLayers:
-            match = None
-
-            # Find A layer that correlates to B layer
+            # Removed layers
+            # print(11111, resolvedA)
             for aLayer in aLayers:
-                for index, test in enumerate(tests):
-                    matcher = test['fn']
-                    desc = test['desc']
-                    ignore = True if 'ignore' in test and test['ignore'] == True else False
-                    match = matcher(aLayer, bLayer)
-                    if match is not None:
+                if not isResolvedA(aLayer):
+                    resolvedA[aLayer['name']] = True
+                    removed.append(aLayer)
 
-                        # Updated layer
-                        resolvedA[aLayer['name']] = True
-                        resolvedB[bLayer['name']] = True
-                        bLayer['diff'] = _layer_diff(aLayer, bLayer)
-                        
-                        # Add layers that have changes (and are not skipped by the ignore flag) to the result list
-                        if not ignore or len(bLayer['diff']) > 0:
-                            updated.append(bLayer)                        
-                            break
-            
-            # New layer
-            if match is None and not isResolvedB(bLayer):
-                print("Add", bLayer['name'])
-                resolvedB[bLayer['name']] = True
-                added.append(bLayer)                
-      
-        # Removed layers
-        print(11111, resolvedA)
-        for aLayer in aLayers:
-            if not isResolvedA(aLayer):
-                resolvedA[aLayer['name']] = True
-                removed.append(aLayer)
+            # print('resolvedA', resolvedA)
+            # print('resolvedB', resolvedB)
 
-        print('resolvedA', resolvedA)
-        print('resolvedB', resolvedB)
+        except Exception as e:
+            print("Error comparing layers")
+            print(e)
 
-        return {
-            'added': added,
-            'updated': updated,
-            'removed': removed
-        }
+        finally:
+            return {
+                'added': added,
+                'updated': updated,
+                'removed': removed
+            }
 
-    except Exception as e:
-        print("Error comparing maps")
-        print(e)
+    return {
+        'dataFrames': compare_data_frames(),
+        'layers': compare_layers()
+    }
 
 
 def validate_map(map):
