@@ -127,42 +127,24 @@ def test_list_document_data_sources(mxd, raises_ex, ex_type):
     assert len(result['tableViews']) == 1
 
 
-@pytest.mark.parametrize(("mxd_a", "mxd_b", "layers_added", "layers_updated", "layers_removed", "raises_ex", "ex_type"), [
-    (MXD_COMPLEX_PATH, MXD_COMPLEX_B_PATH, 1, 2, 1, False, None)
+@pytest.mark.parametrize(("mxd_a", "mxd_b", "data_frame_updates", "layers_added", "layers_updated", "layers_removed", "raises_ex", "ex_type"), [
+    (MXD_COMPLEX_PATH, MXD_COMPLEX_B_PATH, 2, 1, 2, 1, False, None)
 ])
-def test_compare_map_documents(mxd_a, mxd_b, layers_added, layers_updated, layers_removed, raises_ex, ex_type):
+def test_compare_map_documents(mxd_a, mxd_b, data_frame_updates, layers_added, layers_updated, layers_removed, raises_ex, ex_type):
     print("compare_map_documents")
     a = arcpy.mapping.MapDocument(mxd_a)
     b = arcpy.mapping.MapDocument(mxd_b)
     result = arcpyext.mapping.compare(a, b)
-    print(json.dumps(result))
 
-    assert len(result['added']) == layers_added, "Expected %s a" % layers_added
-    assert len(result['updated']
+    data_frame_changes = result['dataFrames']
+    layer_changes = result['layers']
+
+    # print(json.dumps(data_frame_changes))
+    # print(json.dumps(layer_changes))
+
+    assert len(data_frame_changes) == data_frame_updates, "Expected %s data frame updates" % data_frame_updates
+    assert len(layer_changes['added']) == layers_added, "Expected %s a" % layers_added
+    assert len(layer_changes['updated']
                ) == layers_updated, "Expected %s u" % layers_updated
-    assert len(result['removed']
+    assert len(layer_changes['removed']
                ) == layers_removed, "Expected %s d" % layers_removed
-
-    # # Dataframes
-    # assert(len(result['layers']) == 1)
-
-    # # Dataframe 1
-    # assert(len(result['layers'][0]) == 4)
-
-    # # Layer 1
-    # assert(result['layers'][0][0]['id'] == 0)
-    # assert(result['layers'][0][0]['name'] == "Layer 1")
-    # assert(result['layers'][0][0]['datasetName'] == "statesp020_clip1")
-
-    # # Layer 2
-    # assert(result['layers'][0][1]['id'] == 1)
-    # assert(result['layers'][0][1]['name'] == "Layer 2 (Duplicated)")
-    # assert(result['layers'][0][1]['datasetName'] == "statesp020_clip1")
-
-    # # Layer 3
-    # assert(result['layers'][0][3]['id'] == 3)
-    # assert(result['layers'][0][3]['name'] == "Layer 3 (Nested)")
-    # assert(result['layers'][0][3]['datasetName'] == "statesp020_clip1")
-
-    # # Tables
-    # assert(len(result['tableViews']) == 1)
