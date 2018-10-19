@@ -110,7 +110,12 @@ def CLSID(MyClass):
     """Return CLSID of MyClass as string"""
     return str(MyClass._reg_clsid_)
 
+
+# Instance reference
+pInit = None
+
 def InitStandalone():
+    global pInit 
     """Init standalone ArcGIS license"""
     # Set ArcObjects version
     import comtypes
@@ -134,6 +139,12 @@ def InitStandalone():
         licenseStatus = pInit.Initialize(eProduct)
         return (licenseStatus == esriSystem.esriLicenseCheckedOut)
     return False
+   
+
+def ShutdownStandalone():
+    global pInit 
+    pInit.Shutdown()
+    pInit = None
 
 # def GetApp(app="ArcMap"):
 #     """In a standalone script, retrieves the first app session found.\n\
@@ -287,6 +298,9 @@ def init_arcobjects_context():
     GetStandaloneModules()
     InitStandalone()
 
+def destroy_arcobjects_context():
+    ShutdownStandalone()
+
 def mxd_exists(mxdPath):
     import comtypes.gen.esriCarto as esriCarto
     pMapDoc = NewObj(esriCarto.MapDocument, esriCarto.IMapDocument)
@@ -339,9 +353,10 @@ def list_layers(mxdPath):
                 'name': name
             }
 
-            res[name]['ID'] = desc.ID
-            res[name]['Visible'] = desc.Visible
-            res[name]['DefinitionExpression'] = desc.DefinitionExpression
+            res[name]['id'] = desc.ID
+            res[name]['hasFixedId'] = False
+            res[name]['visible'] = desc.Visible
+            res[name]['definitionQuery'] = desc.DefinitionExpression
 
     # Override layers Ids with fixed layer Ids (if set)
     try:
@@ -373,8 +388,9 @@ def list_layers(mxdPath):
                         # print(values[nameIndex])
                         if names[nameIndex] == "ServiceLayerID":
                             fixedLayerId = values[nameIndex]
-                            if res[layer.Name]['ID'] <> fixedLayerId:
-                                res[layer.Name]['ID'] = fixedLayerId
+                            if res[layer.Name]['id'] <> fixedLayerId:
+                                res[layer.Name]['id'] = fixedLayerId
+                                res[layer.Name]['hasFixedId'] = True
 
     except Exception as e:
         print("Could not resolve fixed layer IDs", e)        

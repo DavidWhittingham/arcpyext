@@ -5,7 +5,7 @@ from itertools import izip_longest
 import arcpy
 
 from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
-from ..arcobjects import init_arcobjects_context, list_layers
+from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, list_layers
 
 # Configure module logging
 logger = logging.getLogger("arcpyext.mapping")
@@ -148,6 +148,7 @@ def list_document_data_sources(map):
 
         init_arcobjects_context()
         additional_layer_info = list_layers(map.filePath)
+        destroy_arcobjects_context()
 
         for layerGroup in layers:
             for l in layerGroup:
@@ -156,9 +157,12 @@ def list_document_data_sources(map):
                     # print("layer %s" % layerName)                
                     layer_info = additional_layer_info[layerName]
                     if layer_info is not None:
-                        l["id"] = layer_info['ID']
-                        l["visible"] = layer_info['Visible']
-                        l["definitionQuery"] = layer_info['DefinitionExpression']
+                        l["id"] = layer_info['id']
+                        l["hasFixedId"] = layer_info['hasFixedId']
+                        l["visible"] = layer_info['visible']
+                        l["definitionQuery"] = layer_info['definitionQuery']
+        
+
 
     except Exception as e:
         print("Could not read additional layer info using arcobjects")
@@ -366,7 +370,7 @@ def compare(mapA, mapB):
                                 # print(now)
 
                                 diff.append({
-                                    "type": type,
+                                    "type": v,
                                     "was": was, 
                                     "now": now
                                 })
