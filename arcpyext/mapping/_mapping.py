@@ -182,28 +182,6 @@ def compare(mapA, mapB):
 
     """
 
-    # Scalar equality check
-    eq = lambda a, b, k: b[k] == a[k] if k in a and k in b else False    
-
-    # Dictionary equality check. Sort is used to ensure consistent order before comparision
-    def sort(obj):
-        if isinstance(obj, dict):
-            return sorted((k, sort(v)) for k, v in obj.items())
-        if isinstance(obj, list):
-            return sorted(sort(x) for x in obj)
-        else:
-            return obj
-
-    arrEq = lambda a, b, k: sort(a[k]) == sort(b[k]) if k in a and k in b else False
-    
-    # Who are you? Who am I? 
-    def _express_diff(a, b, k, type):
-        return {
-            "type": type,
-            "was": a[k] if k in a else None,
-            "now": b[k] if k in b else None
-        }    
-
     # 
     # Compare data frames
     # 
@@ -269,6 +247,29 @@ def compare(mapA, mapB):
 
         try:    
 
+            # Scalar equality check
+            eq = lambda a, b, k: b[k] == a[k] if k in a and k in b else False    
+
+            # Dictionary equality check. Sort is used to ensure consistent order before comparision
+            def _sort(obj):
+                if isinstance(obj, dict):
+                    return sorted((k, _sort(v)) for k, v in obj.items())
+                if isinstance(obj, list):
+                    return sorted(_sort(x) for x in obj)
+                else:
+                    return obj
+
+            arrEq = lambda a, b, k: _sort(a[k]) == _sort(b[k]) if k in a and k in b else False
+            
+            # Who are you? Who am I? 
+            def _express_diff(a, b, k, type):
+                return {
+                    "type": type,
+                    "was": a[k] if k in a else None,
+                    "now": b[k] if k in b else None
+                }    
+
+
             def _layer_diff(a, b):
 
                 # Layer change reasons
@@ -319,9 +320,13 @@ def compare(mapA, mapB):
                         "v": layer_definition_query_changed
                     },
                     {
+                        # Array fields must provide a hash function. This is used to create a UID that can be used for hashset comparison. 
+                        # An unhash function must also be provided to reverse lookup the raw dict from a hash ID
                         "k": "fields",
                         "v": layer_fields_changed,
-                        "array": True
+                        "array": True,
+                        "hash": lambda _dict: "%s|%s|%s" % (_dict['index'], _dict['name'], _dict['visible']),
+                        "unhash": lambda hash: hash.split("|")[0]
                     }
                 ]
 
@@ -333,12 +338,42 @@ def compare(mapA, mapB):
                     isArray = test["array"] == True if "array" in test else False
 
                     if k in a or k in b:
+
                         if isArray == True:
-                            if not arrEq(a, b,k):
-                                diff.append(_express_diff(a, b,k, v))        
+
+                            # Set comparsion. Find the difference between A and B
+                            hash = test["hash"]
+                            unhash = test["unhash"]
+
+                            hashed_a = [hash(_dict) for _dict in a[k]]
+                            hashed_b = [hash(_dict) for _dict in b[k]]
+
+                            if set(hashed_a) != set(hashed_b):
+
+                                was = list(set(hashed_a).difference(set(hashed_b)))
+                                now = list(set(hashed_b).difference(set(hashed_a)))
+
+                                # print ("was", was)
+                                # print ("now", now)
+
+                                def inflate(arr, index):
+                                    return [x for x in arr if x['index'] == int(index)][0]                                
+
+                                was = [inflate(a[k], x) for x in [unhash(x) for x in was]]
+                                now = [inflate(b[k], x) for x in [unhash(x) for x in now]]
+
+                                # print(was)
+                                # print(now)
+
+                                diff.append({
+                                    "type": type,
+                                    "was": was, 
+                                    "now": now
+                                })
+
                         else:
-                            if not eq(a, b,k):
-                                diff.append(_express_diff(a, b,k,v))            
+                            if not eq(a, b, k):
+                                diff.append(_express_diff(a, b, k, v))
             
                 return diff 
         
@@ -418,7 +453,7 @@ def compare(mapA, mapB):
                 # New layer
                 if match is None and not isResolvedB(bLayer):
                     resolvedB[bLayer['name']] = True
-                    added.append(bLayer)                
+                    added.append(bLayer)
         
             # Removed layers
             # print(11111, resolvedA)
