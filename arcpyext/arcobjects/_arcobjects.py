@@ -51,8 +51,8 @@ def GetLibPath():
                 if RegistryPathExists(candidate):
                     _esriRegistryPath = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, candidate)
                     _esriVersion = version
-                    print("Esri registry base path: %s" % candidate)
-                    print("Esri version: %s" % version)
+                    # print("Esri registry base path: %s" % candidate)
+                    # print("Esri version: %s" % version)
                     break
             if _esriRegistryPath is not None:
                 break
