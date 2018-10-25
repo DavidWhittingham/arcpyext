@@ -74,7 +74,10 @@ def create_replacement_data_sources_list(document_data_sources_list, data_source
 
         new_conn = None
         for template in template_sets:
-            if template["matchCriteria"].issubset(set(item.items())):
+            # The item variable is a layer object which contains a fields property (type list) that can't be serialised and used in set operations
+            # It is not required for datasource matching, so exclude it from the the set logic
+            hashable_layer_fields = [f for f in item.items() if type(f[1]) is not list]
+            if template["matchCriteria"].issubset(set(hashable_layer_fields)):
                 new_conn = template["dataSource"]
                 break
         if new_conn == None and raise_exception_no_change:
