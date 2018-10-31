@@ -594,16 +594,22 @@ def _get_layer_details(layer):
 
     # Fields
     # @see https://desktop.arcgis.com/en/arcmap/10.4/analyze/arcpy-functions/describe.htm
-    desc = arcpy.Describe(layer)
-    if desc.dataType == "FeatureLayer":
-        field_info = desc.fieldInfo
-        details["fields"] = []
-        for index in range(0, field_info.count):
-            details["fields"].append({
-                "index": index,
-                "name": field_info.getFieldName(index),
-                "visible": field_info.getVisible(index) == "VISIBLE"
-            })
+    # Wrapped in a try catch, because fields can only be resolved if the layer's datasource is valid.
+    try:
+        desc = arcpy.Describe(layer)
+        print(desc)
+        if desc.dataType == "FeatureLayer":
+            field_info = desc.fieldInfo
+            details["fields"] = []
+            for index in range(0, field_info.count):
+                details["fields"].append({
+                    "index": index,
+                    "name": field_info.getFieldName(index),
+                    "visible": field_info.getVisible(index) == "VISIBLE"
+                })
+    except Exception as e:
+        print("Could not resolve layer fields (%s). The layer datasource may be broken" % layer.name)
+        
 
     return details
 
