@@ -370,6 +370,7 @@ def list_layers(mxdPath):
 
                 layer = CType(map.Layer(layerIndex), esriCarto.ILayer)
                 layerExt = CType(map.Layer(layerIndex), esriCarto.ILayerExtensions)
+                # print(layer.Name)
 
                 # Extensions
                 for extIndex in range(0, layerExt.ExtensionCount):

@@ -344,7 +344,7 @@ def compare(mapA, mapB):
                     v =  test["v"]
                     isArray = test["array"] == True if "array" in test else False
 
-                    if k in a or k in b:
+                    if k in a and k in b:
 
                         if isArray == True:
 
@@ -381,7 +381,9 @@ def compare(mapA, mapB):
                         else:
                             if not eq(a, b, k):
                                 diff.append(_express_diff(a, b, k, v))
-            
+                    else:
+                        diff.append(_express_diff(a, b, k, v))
+                        
                 return diff 
         
             a = list_document_data_sources(mapA)
@@ -608,8 +610,7 @@ def _get_layer_details(layer):
                     "visible": field_info.getVisible(index) == "VISIBLE"
                 })
     except Exception as e:
-        print("Could not resolve layer fields (%s). The layer datasource may be broken" % layer.name)
-        
+        print("Could not resolve layer fields (%s). The layer datasource may be broken" % layer.name)        
 
     return details
 
