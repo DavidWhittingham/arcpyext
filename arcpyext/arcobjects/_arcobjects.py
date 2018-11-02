@@ -139,42 +139,40 @@ def init_arcobjects_context():
 def destroy_arcobjects_context():
     ShutdownStandalone()
 
-def mxd_exists(mxdPath):
+def mxd_exists(mxd_path):
     import comtypes.gen.esriCarto as esriCarto
     pMapDoc = NewObj(esriCarto.MapDocument, esriCarto.IMapDocument)
-    exists = pMapDoc.IsPresent(mxdPath)
-    valid = pMapDoc.IsMapDocument(mxdPath)
+    exists = pMapDoc.IsPresent(mxd_path)
+    valid = pMapDoc.IsMapDocument(mxd_path)
     return exists and valid
 
-def open_mxd(mxdPath):
+def open_mxd(mxd_path):
     import comtypes.gen.esriSystem as esriSystem
     import comtypes.gen.esriGeoDatabase as esriGeoDatabase
     import comtypes.gen.esriCarto as esriCarto
 
     mapDoc = NewObj(esriCarto.MapDocument, esriCarto.IMapDocument)
 
-    if mxd_exists(mxdPath):
-        mapDoc.Open(mxdPath)
+    if mxd_exists(mxd_path):
+        mapDoc.Open(mxd_path)
         return mapDoc
     else:
         raise Exception("Mxd not found or invalid")
 
-def list_layers(mxdPath):
+def list_layers(mxd_path):
 
     import comtypes.gen.esriSystem as esriSystem
     import comtypes.gen.esriGeoDatabase as esriGeoDatabase
     import comtypes.gen.esriCarto as esriCarto
 
-    mapDoc = open_mxd(mxdPath)
+    # Open MXD
+    mapDoc = open_mxd(mxd_path)
 
     res = {}
 
-    # Open MXD
-    mapDoc.Open(mxdPath)
-
     # Use MxdServer for reading map layer descriptions
     mxdServer = NewObj(esriCarto.MxdServer, esriCarto.IMxdServer)
-    mxdServer.Start(mxdPath)
+    mxdServer.Start(mxd_path)
 
     # Enumerate maps
     for i in range(0, mapDoc.MapCount):
@@ -233,3 +231,30 @@ def list_layers(mxdPath):
     mapDoc.Close()
 
     return res
+
+
+def save_mxd_copy(mxd_path, output_path, version = 10.4):
+    
+    import comtypes.gen.esriSystem as esriSystem
+    
+    # Open MXD
+    mapDoc = open_mxd(mxd_path)
+
+    try:
+
+        # Set version
+        mapVersion = CType(mapDoc, esriSystem.IDocumentVersion)
+        
+        if version == 10.3:
+            mapVersion.DocumentVersion = 6
+        elif version == 10.4:
+            mapVersion.DocumentVersion = 7
+        else:
+            mapVersion.DocumentVersion = 7
+
+        mapDoc.SaveAs(output_path)
+
+    except Exception as e:
+        print("Could not save MXD", e)
+    finally:
+        mapDoc.Close()
