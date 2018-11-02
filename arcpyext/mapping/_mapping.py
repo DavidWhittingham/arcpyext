@@ -5,7 +5,7 @@ from itertools import izip_longest
 import arcpy
 
 from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
-from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, list_layers
+from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, list_layers, save_mxd_copy
 
 # Configure module logging
 logger = logging.getLogger("arcpyext.mapping")
@@ -479,6 +479,10 @@ def compare(map_a, map_b):
         'layers': compare_layers()
     }
 
+def save_map_copy(map, output_path, version):
+    logger.debug("%s %s %s" % (map.filePath, output_path, version))
+    return save_mxd_copy(map.filePath, output_path, version)
+    
 
 def validate_map(map):
     """Analyse the map for broken layers and return a boolean indicating if it is in a valid state or not.
