@@ -231,30 +231,3 @@ def list_layers(mxd_path):
     mapDoc.Close()
 
     return res
-
-
-def save_mxd_copy(mxd_path, output_path, version = 10.4):
-    
-    import comtypes.gen.esriSystem as esriSystem
-    
-    # Open MXD
-    mapDoc = open_mxd(mxd_path)
-
-    try:
-
-        # Set version
-        mapVersion = CType(mapDoc, esriSystem.IDocumentVersion)
-        
-        if version == 10.3:
-            mapVersion.DocumentVersion = 6
-        elif version == 10.4:
-            mapVersion.DocumentVersion = 7
-        else:
-            mapVersion.DocumentVersion = 7
-
-        mapDoc.SaveAs(output_path)
-
-    except Exception as e:
-        print("Could not save MXD", e)
-    finally:
-        mapDoc.Close()
