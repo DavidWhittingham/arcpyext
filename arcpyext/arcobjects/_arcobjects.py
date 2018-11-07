@@ -231,3 +231,4 @@ def list_layers(mxd_path):
     mapDoc.Close()
 
     return res
+

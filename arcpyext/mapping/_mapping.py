@@ -5,7 +5,7 @@ from itertools import izip_longest
 import arcpy
 
 from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
-from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, list_layers, save_mxd_copy
+from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, list_layers
 
 # Configure module logging
 logger = logging.getLogger("arcpyext.mapping")
