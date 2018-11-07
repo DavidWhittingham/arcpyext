@@ -10,6 +10,8 @@ import logging
 logging.getLogger("arcpyext").addHandler(logging.NullHandler())
 
 import arcpy
+from . import _patches as _patches
+_patches.apply()
 
 from . import conversion
 from . import data
