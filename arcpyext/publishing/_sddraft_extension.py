@@ -64,7 +64,9 @@ class SDDraftExtension():
     def capabilities(self, values):
         self._editor.set_element_value(
             self._capabilities_element,
-            self._editor.enum_list_to_str(values, self.Capability, "Capabilities list contains invalid capability."))
+            self._editor.enum_list_to_str(values, self.Capability, "Capabilities list contains invalid capability."),
+            True,
+            True)
 
     @property
     def enabled(self):
