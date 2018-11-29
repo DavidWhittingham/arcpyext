@@ -17,10 +17,16 @@ class SDDraftEditor():
 
     @classmethod
     def enum_list_to_str(cls, values, enum, exception_message):
+        if values == None:
+            return None
+
         string_values = []
         for val in values:
             string_values.append(cls.enum_to_str(val, enum, exception_message))
-        return ",".join(string_values)
+        output = ",".join(string_values)
+        if output == "":
+            return None
+        return output
 
     @classmethod
     def create_element(cls, tag, value, attrib = {}):
@@ -68,18 +74,40 @@ class SDDraftEditor():
         return element.text
 
     @staticmethod
-    def set_element_value(element, value):
+    def set_element_value(element, value, set_xsi_type = False, set_xsi_nil = False):
         if value == None:
             element.text = None
+
+            if set_xsi_nil:
+                if "{http://www.w3.org/2001/XMLSchema-instance}type" in element.attrib:
+                    del element.attrib["{http://www.w3.org/2001/XMLSchema-instance}type"]
+                element.set("{http://www.w3.org/2001/XMLSchema-instance}nil", "true")
             return
+        elif set_xsi_nil:
+            if "{http://www.w3.org/2001/XMLSchema-instance}nil" in element.attrib:
+                    del element.attrib["{http://www.w3.org/2001/XMLSchema-instance}nil"]
+
         if isinstance(value, bool):
             element.text = "true" if value == True else "false"
+            if set_xsi_type:
+                # elementtree doesn't seem to support mapping schemas for values
+                # Arc seems to consistently use the XS namespace, so it's not a problem right now
+                element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:boolean")
             return
-        if isinstance(value, (int, float)):
+        if isinstance(value, int):
             element.text = repr(value)
+            if set_xsi_type:
+                element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:int")
+            return
+        if isinstance(value, float):
+            element.text = repr(value)
+            if set_xsi_type:
+                element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:float")
             return
         if isinstance(value, basestring):
             element.text = value
+            if set_xsi_type:
+                element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:string")
             return
         if isinstance(value, list):
             # assume list of elements, remove all current and set
