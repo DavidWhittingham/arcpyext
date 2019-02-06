@@ -533,10 +533,14 @@ def _change_data_source(layer, workspace_path, dataset_name = None, workspace_ty
                 dataset_name = layer.datasetName
 
         if dataset_name != None:
-            if (schema != None):
-                ds_user, ds_name, fc_user, fc_name = _parse_data_source(dataset_name)
+            # break apart dataset_name into it's component parts
+            ds_user, ds_name, fc_user, fc_name = _parse_data_source(dataset_name)
 
+            if schema != None:
                 dataset_name = "{0}.{1}".format(schema, fc_name)
+            elif workspace_type == "FILEGDB_WORKSPACE":
+                # file GDB's don't have schema/users, so if switching to that type, remove schema (if still included)
+                dataset_name = fc_name
 
             kwargs["dataset_name"] = dataset_name
 
