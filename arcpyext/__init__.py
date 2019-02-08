@@ -1,6 +1,6 @@
 """arcpyext
 
-Python Library that extends the Esri ArcPy library with useful helper functions.
+Python Library that provides useful functions when working with the Esri ArcPy library.
 """
 
 from ._version import *
@@ -15,8 +15,14 @@ _patches.apply()
 
 from . import conversion
 from . import data
-from . import mapping
 from . import publishing
 from . import toolbox
 from . import schematransform
 from . import arcobjects
+
+# import arcpy version-specific mapping modules
+try:
+    import arcpy.mapping
+    from . import mapping
+except (AttributeError, ImportError):
+    pass

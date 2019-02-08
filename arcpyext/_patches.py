@@ -1,5 +1,11 @@
+"""
+This module handles applying patches to Esri's *arcpy* module.  These patches may insert functionality or fix issues
+directly in the *arcpy* module.
+"""
+
 # Python 2/3 compatibility
-from __future__ import (absolute_import, division, print_function, unicode_literals)
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 from future.builtins import *
 from future.builtins.disabled import *
 from future.standard_library import install_aliases
@@ -10,8 +16,14 @@ import re
 
 from decimal import Decimal
 
+
 def apply():
+    """
+    Applies all the patches contained is this module.
+    """
+
     fix_mapping_versions()
+
 
 def fix_mapping_versions():
     """
@@ -21,7 +33,9 @@ def fix_mapping_versions():
     """
 
     # get ArcGIS version as a number
-    ags_version = Decimal(re.search(r"^(\d+\.\d+)", arcpy.GetInstallInfo()['Version'], re.IGNORECASE).group(1))
+    ags_version = Decimal(
+        re.search(r"^(\d+\.\d+)",
+                  arcpy.GetInstallInfo()['Version'], re.IGNORECASE).group(1))
 
     # surrounded in try/pass to fail gracefully in case Esri change the design of this internal API
     try:
