@@ -1,6 +1,14 @@
+# Python 2/3 compatibility
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from future.builtins import *
+from future.builtins.disabled import *
+from future.standard_library import install_aliases
+install_aliases()
+
+# Module start
 import logging
 import re
-from itertools import izip_longest
+from itertools import zip_longest
 
 import arcpy
 
@@ -19,12 +27,12 @@ def change_data_sources(map, data_sources):
     if not 'layers' in data_sources or not 'tableViews' in data_sources:
         raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
 
-    for layers, layer_sources in izip_longest(layers_by_df, data_sources["layers"]):
+    for layers, layer_sources in zip_longest(layers_by_df, data_sources["layers"]):
 
         if layer_sources == None or len(layers) != len(layer_sources):
             raise ChangeDataSourcesError("Number of layers does not match number of data sources.")
 
-        for layer, layer_source in izip_longest(layers, layer_sources):
+        for layer, layer_source in zip_longest(layers, layer_sources):
             try:
                 if layer_source == None:
                     continue
@@ -50,7 +58,7 @@ def change_data_sources(map, data_sources):
     if not len(data_tables) == len(data_sources['tableViews']):
         raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
 
-    for data_table, layer_source in izip_longest(data_tables, data_sources['tableViews']):
+    for data_table, layer_source in zip_longest(data_tables, data_sources['tableViews']):
         try:
             if layer_source == None:
                 continue
@@ -549,7 +557,7 @@ def _change_data_source(layer, workspace_path, dataset_name = None, workspace_ty
 
         layer.replaceDataSource(workspace_path, **kwargs)
 
-    except Exception, e:
+    except Exception as e:
         raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
 
     if hasattr(layer, "isBroken") and layer.isBroken:

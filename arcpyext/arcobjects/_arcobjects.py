@@ -1,5 +1,12 @@
 # Based on code from here: http://www.pierssen.com/arcgis10/python.htm
 
+# Python 2/3 compatibility
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from future.builtins import *
+from future.builtins.disabled import *
+from future.standard_library import install_aliases
+install_aliases()
+
 #**** Initialization ****
 _esriVersion = 10.3
 _esriRegistryPath = None
@@ -221,7 +228,7 @@ def list_layers(mxd_path):
                     for nameIndex in range(0, len(names)):
                         if names[nameIndex] == "ServiceLayerID":
                             fixedLayerId = values[nameIndex]
-                            if res[layer.Name]['id'] <> fixedLayerId:
+                            if res[layer.Name]['id'] != fixedLayerId:
                                 res[layer.Name]['id'] = fixedLayerId
                                 res[layer.Name]['hasFixedId'] = True
 
