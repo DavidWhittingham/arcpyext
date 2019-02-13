@@ -234,7 +234,6 @@ def to_xml(in_file, out_file):
 #----------------
 def _xml_to_file(f, o):
     try: 
-        bool(type(unicode)):
         f.write(unicode(o))
     except:
         f.write(str(o))
