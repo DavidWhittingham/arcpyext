@@ -2,10 +2,7 @@ import os
 import arcpyext
 import pytest
 
-
-
 TOOLBOX_PATH=os.path.abspath("{0}/../samples/test_python_toolbox.pyt".format(os.path.dirname(__file__)))
-
 
 def test_update_toolbox_descriptions():
     pt=arcpyext.toolbox.PythonToolbox(TOOLBOX_PATH)

@@ -26,7 +26,7 @@ def out_json():
 
 @pytest.fixture(scope="module")
 def in_json():
-    return os.path.normpath("{0}/output/output.json".format(os.path.dirname(__file__)))
+    return os.path.normpath("{0}/input/input.json".format(os.path.dirname(__file__)))
 
 @pytest.fixture(scope="module")
 def out_gdb():

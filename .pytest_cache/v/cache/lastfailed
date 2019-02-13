@@ -1,0 +1,21 @@
+{
+  "tests/conversion/test_conversion.py::test_to_csv": true,
+  "tests/mapping/test_mapping.py": true,
+  "tests/publishing/test_feature_server_extension.py": true,
+  "tests/publishing/test_geocodesddraft.py": true,
+  "tests/publishing/test_geodatasddraft.py": true,
+  "tests/publishing/test_gpsddraft.py": true,
+  "tests/publishing/test_imagesddraft.py": true,
+  "tests/publishing/test_jpip_server_extension.py": true,
+  "tests/publishing/test_kml_server_extension.py": true,
+  "tests/publishing/test_mapsddraft.py": true,
+  "tests/publishing/test_mobile_server_extension.py": true,
+  "tests/publishing/test_na_server_extension.py": true,
+  "tests/publishing/test_schematics_server_extension.py": true,
+  "tests/publishing/test_wcs_server_extension.py": true,
+  "tests/publishing/test_wfs_server_extension.py": true,
+  "tests/publishing/test_wms_server_extension.py": true,
+  "tests/publishing/test_wps_server_extension.py": true,
+  "tests/schematransform/test_schema_management.py::test_to_xml": true,
+  "tests/toolbox/test_python_toolbox.py": true
+}

@@ -20,9 +20,10 @@ def runtests():
         cmd.append("--cov-report=term")
         cmd.append("--cov-report=html")
 
-    cmd.append(repr(dirname(abspath(__file__))))
+    cmd.append(dirname(abspath(__file__)))
     
-    pytest.main(" ".join(cmd))
+    #pytest.main(cmd)
+    pytest.main(['-r fsxX', 'c:\\git\\arcpyext\\tests\\schematransform'])
 
 if __name__ == "__main__":
     runtests()
