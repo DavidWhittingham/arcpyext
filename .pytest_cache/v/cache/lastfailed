@@ -16,6 +16,7 @@
   "tests/publishing/test_wfs_server_extension.py": true,
   "tests/publishing/test_wms_server_extension.py": true,
   "tests/publishing/test_wps_server_extension.py": true,
+  "tests/schematransform/test_schema_management.py": true,
   "tests/schematransform/test_schema_management.py::test_to_xml": true,
   "tests/toolbox/test_python_toolbox.py": true
 }
