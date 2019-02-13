@@ -1,1 +1,5 @@
-[]
+[
+  "tests/schematransform/test_schema_management.py::test_to_json",
+  "tests/schematransform/test_schema_management.py::test_to_gdb",
+  "tests/schematransform/test_schema_management.py::test_to_xml"
+]
