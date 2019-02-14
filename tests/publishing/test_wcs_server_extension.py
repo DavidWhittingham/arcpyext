@@ -17,8 +17,8 @@ def server_ext():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
     return WcsServerExtension(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
 
-from ogc_metadata_extension_mixin import *
-from custom_get_capabilities_extension_mixin import *
+from arcpyext.publishing._ogc_metadata_extension_mixin import *
+from arcpyext.publishing._custom_get_capabilities_extension_mixin import *
 
 def test_capabilities(server_ext):
     assert isinstance(type(server_ext).capabilities, property) == True
