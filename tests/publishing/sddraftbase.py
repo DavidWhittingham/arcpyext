@@ -136,7 +136,7 @@ def test_recycle_interval(sddraft, interval, ex):
         assert sddraft.recycle_interval == interval
 
 @pytest.mark.parametrize(("input", "expected", "ex"), [
-    ("12:01", datetime.time(12, 01), None),
+    ("12:01", datetime.time(12, 1), None),
     (datetime.time(14, 35), datetime.time(14, 35), None),
     ("nonsense", None, ValueError)
 ])
