@@ -17,8 +17,8 @@ def server_ext():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
     return WmsServerExtension(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
 
-from ogc_metadata_extension_mixin import *
-from custom_get_capabilities_extension_mixin import *
+from arcpyext.publishing._ogc_metadata_extension_mixin import *
+from arcpyext.publishing._custom_get_capabilities_extension_mixin import *
 
 @pytest.mark.parametrize(("srs", "expected"), [
     (["EPSG:102100","EPSG:102113","EPSG:3857"], ["EPSG:102100","EPSG:102113","EPSG:3857"]),

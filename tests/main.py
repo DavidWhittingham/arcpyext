@@ -22,8 +22,7 @@ def runtests():
 
     cmd.append(dirname(abspath(__file__)))
     
-    #pytest.main(cmd)
-    pytest.main(['-r fsxX', 'c:\\git\\arcpyext\\tests\\schematransform'])
-
+    pytest.main(cmd)
+    
 if __name__ == "__main__":
     runtests()
