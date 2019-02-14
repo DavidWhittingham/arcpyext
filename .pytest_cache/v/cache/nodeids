@@ -1,5 +1,3 @@
 [
-  "tests/schematransform/test_schema_management.py::test_to_json",
-  "tests/schematransform/test_schema_management.py::test_to_gdb",
-  "tests/schematransform/test_schema_management.py::test_to_xml"
+  "tests/mp/test_mp.py::test_list_document_data_sources[C:\\\\git\\\\arcpyext\\\\tests\\\\mp\\\\samples\\\\test\\\\test.aprx-False-None]"
 ]

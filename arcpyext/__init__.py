@@ -25,4 +25,4 @@ try:
     import arcpy.mapping
     from . import mapping
 except (AttributeError, ImportError):
-    pass
+    from . import mp

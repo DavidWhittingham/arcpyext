@@ -13,14 +13,15 @@ def importable(module):
         return False
 
 def runtests():
-    cmd = ["-r fsxX"]
+    cmd = ["-r fsxX trace"]
 
     if importable("pytest_cov"):
         cmd.append("--cov=arcpyext")
         cmd.append("--cov-report=term")
         cmd.append("--cov-report=html")
 
-    cmd.append(dirname(abspath(__file__)))
+    #cmd.append(dirname(abspath(__file__)))
+    cmd.append("C:\\git\\arcpyext\\tests\\mp")
     
     pytest.main(cmd)
     
