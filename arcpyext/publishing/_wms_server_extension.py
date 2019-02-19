@@ -61,7 +61,7 @@ class WmsServerExtension(CustomGetCapabilitiesExtensionMixin, OgcMetadataExtensi
 
     @additional_spatial_ref_sys.setter
     def additional_spatial_ref_sys(self, value):
-        if (value != None) and (not isinstance(value, basestring)) and (not isinstance(value, int)):
+        if (value != None) and (not isinstance(value, str)) and (not isinstance(value, int)):
             # Probably a list of values, convert to string for setting
             value = ",".join([str(s) for s in value])
         self._set_prop_value(self._ADDITIONAL_SPATIAL_REF_SYS_KEY, value)

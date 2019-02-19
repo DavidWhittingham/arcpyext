@@ -18,7 +18,7 @@ def table_to_csv(table, output_file_path, use_field_alias_as_column_header = Fal
     headers = [getattr(f, header_attr) for f in fields]
 
     # setup csv, write column headings
-    with open(output_file_path, "wb+") as csvfile:
+    with open(output_file_path, "w") as csvfile:
         csvwriter = csv.writer(csvfile, dialect="excel")
         csvwriter.writerow(headers)
 
