@@ -50,13 +50,21 @@ class SDDraftEditor():
 
     @staticmethod
     def enum_to_str(value, enum, exception_message):
-        if isinstance(value, basestring):
-            # Convert string to enum to check compatibility
-            # Raises ValueError if unknown value.
-            value = enum(value)
-        elif not isinstance(value, enum):
-            # not a known capability, raise exception
-            raise TypeError(exception_message)
+        # py3 compatibility
+        try:
+            if isinstance(value, basestring):
+                # Convert string to enum to check compatibility
+                # Raises ValueError if unknown value.
+                value = enum(value)
+            elif not isinstance(value, enum):
+                # not a known capability, raise exception
+                raise TypeError(exception_message)
+        except NameError:
+            if isinstance(value, str):
+                value = enum(value)
+            elif not isinstance(value, enum):
+                # not a known capability, raise exception
+                raise TypeError(exception_message)
         return value.value
 
     @staticmethod
@@ -111,11 +119,19 @@ class SDDraftEditor():
             if set_xsi_type:
                 element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:float")
             return
-        if isinstance(value, basestring):
-            element.text = value
-            if set_xsi_type:
-                element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:string")
-            return
+        try:
+            if isinstance(value, basestring):
+                element.text = value
+                if set_xsi_type:
+                    element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:string")
+                return
+        # py3 compatibility
+        except NameError:
+            if isinstance(value, str):
+                element.text = value
+                if set_xsi_type:
+                    element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:string")
+                return
         if isinstance(value, list):
             # assume list of elements, remove all current and set
             for elem in element:
@@ -223,7 +239,8 @@ class SDDraftEditor():
         # Using Minidom because it escapes double quotes, just to be sure we're compatible
 
         xml_string = ET.tostring(self._xmltree.getroot())
-        xml = DOM.parseString(xml_string.encode("utf-8"))
+        decoded_bytes = xml_string.decode('utf-8')
+        xml = DOM.parseString(decoded_bytes.encode("utf-8"))
         f = codecs.open(path, 'w', "utf-8")
         xml.writexml(f, encoding = "utf-8")
         f.close()

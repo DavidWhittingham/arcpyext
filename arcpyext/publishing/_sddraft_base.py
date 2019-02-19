@@ -277,7 +277,7 @@ class SDDraftBase():
         Arguments:
         value -- The recycle time.  Can be a string in format "hh:mm" or a datetime.time object.
         """
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             if self._TIME_STRING_REGEX.match(value) != None:
                 self._editor.set_element_value(self._recycle_start_time_element, value)
             else:
