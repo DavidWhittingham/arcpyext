@@ -1,1 +1,1 @@
-from ._mp import list_document_data_sources
+from ._mp import list_document_data_sources, compare
