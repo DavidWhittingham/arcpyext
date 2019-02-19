@@ -13,15 +13,27 @@ def importable(module):
         return False
 
 def runtests():
-    cmd = ["-r fsxX trace"]
+    cmd = ["-r fsxX"]
+    thisDir = dirname(abspath(__file__))
+
+    # Discover the environment and run appropriate tests
+    try:
+        # py2 arc desktop
+        import arcpy.mapping
+        cmd.append("--ignore=tests\\mp\\")
+        cmd.append("--ignore=tests\\arcobjects\\test_proobjects.py")
+    except:
+        # py3 arc pro
+        cmd.append("--ignore=tests\\mapping\\")
+        cmd.append("--ignore=tests\\arcobjects\\test_arcobjects.py")
 
     if importable("pytest_cov"):
         cmd.append("--cov=arcpyext")
         cmd.append("--cov-report=term")
         cmd.append("--cov-report=html")
 
-    #cmd.append(dirname(abspath(__file__)))
-    cmd.append("C:\\git\\arcpyext\\tests\\mp")
+    cmd.append(thisDir)
+    #cmd.append("C:\\git\\arcpyext\\tests\\arcobjects")
     
     pytest.main(cmd)
     

@@ -7,6 +7,7 @@ from ._version import *
 
 # setup module logging with null handler
 import logging
+logging.basicConfig(filename="./logfile.log")
 logging.getLogger("arcpyext").addHandler(logging.NullHandler())
 
 import arcpy
