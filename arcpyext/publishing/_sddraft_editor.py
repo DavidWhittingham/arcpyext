@@ -52,7 +52,7 @@ class SDDraftEditor():
     def enum_to_str(value, enum, exception_message):
         # py3 compatibility
         try:
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 # Convert string to enum to check compatibility
                 # Raises ValueError if unknown value.
                 value = enum(value)
@@ -120,7 +120,7 @@ class SDDraftEditor():
                 element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:float")
             return
         try:
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 element.text = value
                 if set_xsi_type:
                     element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:string")
