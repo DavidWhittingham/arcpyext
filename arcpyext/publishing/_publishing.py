@@ -58,7 +58,7 @@ def convert_service_draft_to_staged_service(sd_draft, sd_path):
     if os.path.exists(sd_path):
         os.remove(sd_path)
 
-    if isinstance(sd_draft, basestring):
+    if isinstance(sd_draft, str):
         arcpy.StageService_server(sd_draft, sd_path)
     else:
         arcpy.StageService_server(sd_draft.file_path, sd_path)
