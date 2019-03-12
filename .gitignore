@@ -27,6 +27,7 @@ htmlcov
 .tox
 nosetests.xml
 **/schematransform/output
+.log
 
 # Translations
 *.mo
