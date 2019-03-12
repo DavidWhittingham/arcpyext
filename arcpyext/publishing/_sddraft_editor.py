@@ -8,6 +8,7 @@ install_aliases()
 import codecs
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as DOM
+import six #is a py2 to py3 compatibility module.
 
 class SDDraftEditor():
     """Class for containing the core functions for editing a Service Definition Draft document."""
@@ -50,21 +51,15 @@ class SDDraftEditor():
 
     @staticmethod
     def enum_to_str(value, enum, exception_message):
-        # py3 compatibility
-        try:
-            if isinstance(value, str):
-                # Convert string to enum to check compatibility
-                # Raises ValueError if unknown value.
-                value = enum(value)
-            elif not isinstance(value, enum):
-                # not a known capability, raise exception
-                raise TypeError(exception_message)
-        except NameError:
-            if isinstance(value, str):
-                value = enum(value)
-            elif not isinstance(value, enum):
-                # not a known capability, raise exception
-                raise TypeError(exception_message)
+        # py3 compatibility        
+        if isinstance(value, six.string_types):
+            # Convert string to enum to check compatibility
+            # Raises ValueError if unknown value.
+            value = enum(value)
+        elif not isinstance(value, enum):
+            # not a known capability, raise exception
+            raise TypeError(exception_message)
+
         return value.value
 
     @staticmethod
@@ -119,19 +114,11 @@ class SDDraftEditor():
             if set_xsi_type:
                 element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:float")
             return
-        try:
-            if isinstance(value, str):
-                element.text = value
-                if set_xsi_type:
-                    element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:string")
-                return
-        # py3 compatibility
-        except NameError:
-            if isinstance(value, str):
-                element.text = value
-                if set_xsi_type:
-                    element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:string")
-                return
+        if isinstance(value, six.string_types):
+            element.text = value
+            if set_xsi_type:
+                element.set("{http://www.w3.org/2001/XMLSchema-instance}type", "xs:string")
+            return
         if isinstance(value, list):
             # assume list of elements, remove all current and set
             for elem in element:
