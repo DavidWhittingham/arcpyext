@@ -16,14 +16,20 @@ _patches.apply()
 
 from . import conversion
 from . import data
-from . import publishing
 from . import toolbox
 from . import schematransform
-from . import arcobjects
 
 # import arcpy version-specific mapping modules
 try:
+    # py2 arcpy desktop
     import arcpy.mapping
-    from . import mapping
+    from .mapping import *
+    from .mapping import _open_map_document as open_map_document
+    from . import publishing
+    from . import arcobjects
+
 except (AttributeError, ImportError):
-    from . import mp
+    # py3 arcpy pro
+    from .mp import *
+    from .publishing import convert_map_to_service_draft, load_image_sddraft
+

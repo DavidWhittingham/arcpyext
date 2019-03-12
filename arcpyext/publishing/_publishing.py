@@ -31,7 +31,44 @@ def check_analysis(analysis):
                                             message = message, code = code, layers = ", ".join([layer.name for layer in layerlist])))
         raise ServDefDraftCreateError("Analysis Errors: \n{errs}".format(errs = "\n".join(err_message_list)))
 
-def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False):
+def convert_pro_project_to_service_draft(project, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False, server = None, portal_folder = None):
+    from ..mp import validate_pro_project
+
+    # Pro requires a ags url without /arcgis at the end
+    server = server.replace('/arcgis', '')
+
+    if type(project) == str:
+        project = arcpy.mp.ArcGISProject(project)
+
+    if not validate_pro_project(project):
+        raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
+
+    if os.path.exists(sd_draft_path):
+        os.remove(sd_draft_path)
+
+    draft = arcpy.sharing.CreateSharingDraft('STANDALONE_SERVER', # This is a fixed value and doesn't do anything
+                                                'MAP_SERVICE',
+                                                service_name,
+                                                project.listMaps()[0]) #TODO: Do something about using only the first map in the project
+
+    if copy_data_to_server == 'false':
+        draft.copyDataToServer = False
+    elif copy_data_to_server == 'true':
+        draft.copyDataToServer = True
+        
+    #draft.targetServer = server
+    draft.offline = True
+    draft.serverFolder = folder_name
+    draft.portalFolder = portal_folder
+    draft.exportToSDDraft(sd_draft_path)
+
+    return load_map_sddraft(sd_draft_path)
+
+def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False, server = None, portal_folder = None):
+    # server and portal_folder parameters are required for pro services. Ignore in this function.
+    if type(map) == str:
+        map = arcpy.mapping.MapDocument(map)
+    
     if not validate_map(map):
         raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 

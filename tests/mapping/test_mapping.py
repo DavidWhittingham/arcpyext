@@ -19,7 +19,6 @@ TEST_DATA_SOURCE = {"workspacePath": os.path.abspath(
 def map():
     return arcpy.mapping.MapDocument(MXD_PATH)
 
-
 @pytest.mark.parametrize(("data_sources", "layer_data_sources_equal", "table_data_sources_equal", "raises_ex", "ex_type"), [
     ({'layers': [[CLIP2_DATA_SOURCE]], 'tableViews': [
      TEST_DATA_SOURCE]}, [False], [False], False, None),
@@ -141,3 +140,19 @@ def test_compare_map_documents(mxd_a, mxd_b, data_frame_updates, layers_added, l
     assert len(layer_changes['added']) == layers_added, "Expected {0} a".format(layers_added)
     #assert len(layer_changes['updated']) == layers_updated, "Expected {0} u".format(layers_updated)
     assert len(layer_changes['removed']) == layers_removed, "Expected {0} d".format(layers_removed)
+
+def test_create_replacement_data_sources_list():
+    document_data_sources_list = load_pickle('../samples/document_data_sources_list.pkl')
+    data_source_templates = load_pickle('../samples/data_source_templates.pkl')
+
+    arcpyext.mapping.create_replacement_data_sources_list(document_data_sources_list, data_source_templates)
+
+def test_validate_map():
+    #TODO: Test this function. Input is map object
+    pass
+
+def load_pickle(filename):
+    import pickle
+
+    with open(filename, 'rb') as f:
+        return pickle.load(f)

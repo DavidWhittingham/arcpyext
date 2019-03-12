@@ -17,12 +17,10 @@ def runtests():
     thisDir = dirname(abspath(__file__))
 
     # Discover the environment and run appropriate tests
-    try:
+    if importable("arcpy.mapping"):
         # py2 arc desktop
-        import arcpy.mapping
         cmd.append("--ignore=tests\\mp\\")
-        cmd.append("--ignore=tests\\arcobjects\\test_proobjects.py")
-    except:
+    else:
         # py3 arc pro
         cmd.append("--ignore=tests\\mapping\\")
         cmd.append("--ignore=tests\\arcobjects\\test_arcobjects.py")
@@ -33,7 +31,7 @@ def runtests():
         cmd.append("--cov-report=html")
 
     cmd.append(thisDir)
-    #cmd.append("C:\\git\\arcpyext\\tests\\arcobjects")
+    #cmd.append("C:/git/arcpyext/tests/publishing/test_wps_server_extension.py")
     
     pytest.main(cmd)
     
