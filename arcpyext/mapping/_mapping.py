@@ -84,7 +84,7 @@ def create_replacement_data_sources_list(document_data_sources_list, data_source
         for template in template_sets:
             # The item variable is a layer object which contains a fields property (type list) that can't be serialised and used in set operations
             # It is not required for datasource matching, so exclude it from the the set logic
-            hashable_layer_fields = [f for f in item.items() if type(f[1]) is not list]
+            hashable_layer_fields = [f for f in item.items() if not isinstance(f[1], list)]
             if template["matchCriteria"].issubset(set(hashable_layer_fields)):
                 new_conn = template["dataSource"]
                 break
@@ -497,6 +497,8 @@ def validate_map(map):
     :returns: Boolean, True if valid, False if there are one or more broken layers
 
     """
+    if isinstance(map, (str, unicode)):
+        map = arcpy.mapping.MapDocument(map)
 
     broken_layers = arcpy.mapping.ListBrokenDataSources(map)
 
@@ -644,3 +646,9 @@ def _parse_data_source(data_source):
     r = r.groupdict()
 
     return (r.get("ds_user"), r.get("ds_name"), r.get("fc_user"), r.get("fc_name"))
+
+def _open_map_document(mxd):
+    import arcpy
+    if isinstance(mxd, str):
+        return arcpy.mapping.MapDocument(mxd)
+    return mxd

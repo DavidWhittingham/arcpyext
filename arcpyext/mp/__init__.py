@@ -1,1 +1,1 @@
-from ._mp import list_document_data_sources, compare
+from ._mp import list_document_data_sources, change_data_sources, compare, validate_pro_project, create_replacement_data_sources_list, _open_map_document as open_map_document

@@ -10,6 +10,105 @@ from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, li
 # Configure module logging
 logger = logging.getLogger("arcpyext.mp")
 
+def change_data_sources(project, data_sources):
+    """ """
+    if type(project) == str:
+        project = arcpy.mp.ArcGISProject(project)
+
+    errors = []
+    data_tables = []
+    for map in project.listMaps():
+        for table in map.listTables():
+            data_tables.append(table)
+    
+    layers_by_map = [df.listLayers() for df in project.listMaps()]
+
+    if not 'layers' in data_sources or not 'tableViews' in data_sources:
+        raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
+
+    for layer, layer_source in zip(layers_by_map[0], data_sources["layers"]):
+        try:
+            if layer_source == None:
+                continue
+
+            logger.debug(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode("ascii", "ignore"))
+            logger.debug(u"Old connectionProperties {0}".format(layer.connectionProperties).encode("ascii", "ignore"))
+            _change_data_source(layer, layer_source[0].get("connectionProperties"))
+            logger.debug(u"Layer '{0}': connectionProperties updated to: '{1}'".format(layer.name, layer_source[0]["connectionProperties"]).encode("ascii", "ignore"))
+
+            if layer.supports("dataSource"):
+                logger.debug(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
+
+        except Exception as e:
+            errors.append(e)
+
+    if not len(data_tables) == len(data_sources['tableViews']):
+        raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
+
+    for data_table, layer_source in zip_longest(data_tables, data_sources['tableViews']):
+        try:
+            if layer_source == None:
+                continue
+
+            logger.debug(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode("ascii", "ignore"))
+            logger.debug(u"Old connectionProperties {0}".format(data_table.connectionProperties).encode("ascii", "ignore"))
+            _change_data_source(data_table, layer_source[0].get("connectionProperties"))
+            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source[0]["connectionProperties"]).encode("ascii", "ignore"))
+
+        except MapLayerError as mle:
+            errors.append(mle)
+
+    if not len(errors) == 0:
+        raise ChangeDataSourcesError("A number of errors were encountered whilst change layer data sources.", errors)
+
+def validate_pro_project(project):
+    broken_layers = project.listBrokenDataSources()
+
+    if len(broken_layers) > 0:
+        logger.debug(u"Map '{0}': Broken data sources:".format(project.filePath))
+        for layer in broken_layers:
+            logger.debug(u" {0}".format(layer.name))
+            if not hasattr(layer, "supports"):
+                #probably a TableView
+                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
+                logger.debug(u"  datasource: {0}".format(layer.dataSource))
+                continue
+
+            #Some sort of layer
+            if layer.supports("workspacePath"):
+                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
+            if layer.supports("dataSource"):
+                logger.debug(u"  datasource: {0}".format(layer.dataSource))
+
+        return False
+
+    return True
+
+def _change_data_source(layer, newProps):
+    try:
+        connProps = layer.connectionProperties
+
+        # TODO: Remove when working
+        """if connProps["workspace_factory"] == "Shape File":
+            newProps = {"connection_info": {'database': workspace_path}, "dataset": dataset_name}
+
+        elif connProps["workspace_factory"] == "File Geodatabase":
+            newProps = {"connection_info": {"database": workspace_path}}
+            if dataset_name is not None:
+                newProps["dataset"] = dataset_name
+
+        elif connProps["workspace_factory"] == "":
+            pass"""
+
+        layer.updateConnectionProperties(connProps, newProps)
+
+    except Exception as e:
+        raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
+
+    if hasattr(layer, "isBroken") and layer.isBroken:
+        raise DataSourceUpdateError("Layer is now broken.", layer)
+
+
 def list_document_data_sources(project):
     """List the data sources for each layer or table view of the specified map.
 
@@ -70,10 +169,13 @@ def list_document_data_sources(project):
         layers.append([_get_layer_details(layer) for layer in map.listLayers()])
         tableViews.append([_get_table_details(table) for table in map.listTables()])"""
 
+    if type(project) == str:
+        project = arcpy.mp.ArcGISProject(project)
+
     layers = [[_get_layer_details(layer) for layer in df.listLayers()] for df in project.listMaps()]
     tableViews = [[_get_table_details(table) for table in df.listTables()] for df in project.listMaps()]
     # Enrich arcpy data with additional information that is only accessible via arcobjects
-    try:
+    """try:
 
         init_arcobjects_context()
         additional_layer_info = list_layers(project.filePath)
@@ -93,7 +195,7 @@ def list_document_data_sources(project):
 
 
     except Exception as e:
-        logger.exception("Could not read additional layer info using arcobjects")
+        logger.exception("Could not read additional layer info using arcobjects")"""
 
     return {
         "layers": layers,
@@ -130,6 +232,15 @@ def _get_layer_details(layer):
     if layer.supports("workspacePath"):
         details["workspacePath"] = layer.workspacePath
 
+    if layer.supports("visible"):
+        details["visible"] = layer.visible
+
+    if layer.supports("definitionQuery"):
+        details["definitionQuery"] = layer.definitionQuery
+
+    if layer.supports("connectionProperties"):
+        details["connectionProperties"] = layer.connectionProperties
+
     # Fields
     # @see https://desktop.arcgis.com/en/arcmap/10.4/analyze/arcpy-functions/describe.htm
     # Wrapped in a try catch, because fields can only be resolved if the layer's datasource is valid.
@@ -145,7 +256,7 @@ def _get_layer_details(layer):
                     "name": field_info.getFieldName(index),
                     "visible": field_info.getVisible(index) == "VISIBLE"
                 })
-    except Exception as e:
+    except Exception:
         logger.exception("Could not resolve layer fields ({0}). The layer datasource may be broken".format(layer.name))
 
     return details
@@ -176,7 +287,7 @@ def compare(map_a, map_b):
     #
     def compare_data_frames():
 
-        data_frame_count_changed = 301
+        map_count_changed = 301
         data_frame_cs_code_changed = 302
         data_frame_cs_name_changed = 303
         data_frame_cs_type_changed = 304
@@ -222,7 +333,7 @@ def compare(map_a, map_b):
                         "now": b.defaultCamera.getExtent().spatialReference.name,
                     })
 
-        except Exception as e:
+        except Exception:
             logger.exception("Error comparing data frames")
 
         finally:
@@ -448,7 +559,7 @@ def compare(map_a, map_b):
                     resolved_a[a_layer['name']] = True
                     removed.append(a_layer)
 
-        except Exception as e:
+        except Exception:
             logger.exception("Error comparing layers")
 
         finally:
@@ -463,3 +574,58 @@ def compare(map_a, map_b):
         'layers': compare_layers()
     }
 
+def create_replacement_data_sources_list(document_data_sources_list, data_source_templates, raise_exception_no_change = False):
+    
+    # Here we are rearranging the data_source_templates so that the match criteria can be compared as a set - in case there are more than one.
+    template_sets = []
+    for template in data_source_templates:
+        d = {}
+        d = template["dataSource"]
+        d.update({"matchCriteria": set(template["matchCriteria"].items())})
+        template_sets.append(d)
+
+    def match_new_data_source(item):
+        if item == None:
+            return None
+
+        new_conn = None
+        for template in template_sets:
+            # The item variable is a layer object which contains a fields property (type list) that can't be serialised and used in set operations
+            # It is not required for datasource matching, so exclude it from the the set logic
+            if item != []:
+                hashable_layer_fields = [f for f in item.items() if (not isinstance(f[1], list) and not isinstance(f[1], dict))]
+                if template["matchCriteria"].issubset(hashable_layer_fields):
+                    new_conn = {"connectionProperties": template["connectionProperties"]}
+                    #break
+            if new_conn == None and raise_exception_no_change:
+                raise RuntimeError("No matching data source was found for layer")
+        return new_conn
+
+    # We need to get longname and connectionProperties
+    new_data_sources = {"layers": [],
+                      "tableViews": []}
+
+    for map in document_data_sources_list["layers"]:
+        for layer in map:
+            match = match_new_data_source(layer)
+            if match is not None:
+                this_layer = [{}]
+                this_layer[0]["longName"] = layer["longName"]
+                this_layer[0].update(match)
+                new_data_sources["layers"].append(this_layer)
+
+    for map in document_data_sources_list["tableViews"]:
+        for tableView in map:
+            match = match_new_data_source(tableView)
+            if match is not None:
+                this_table = [{}]
+                this_table[0]["name"] = tableView["name"]
+                this_table[0].update(match)
+                new_data_sources["tableViews"].append(this_table)
+
+    return new_data_sources
+
+def _open_map_document(project):
+    if isinstance(project, str):
+        return arcpy.mp.ArcGISProject(project)
+    return project
