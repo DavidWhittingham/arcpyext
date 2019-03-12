@@ -28,6 +28,7 @@ htmlcov
 nosetests.xml
 **/schematransform/output
 .log
+.pytest_cache
 
 # Translations
 *.mo
