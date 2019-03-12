@@ -1,0 +1,27 @@
+<metadata xml:lang="en">
+    <Esri>
+        <CreaDate>20190220</CreaDate>
+        <CreaTime>10323600</CreaTime>
+        <ArcGISFormat>1.0</ArcGISFormat>
+        <SyncOnce>TRUE</SyncOnce>
+        <ModDate>20190220</ModDate>
+        <ModTime>103236</ModTime>
+    </Esri>
+    <toolbox alias="" name="Toolbox">
+        <arcToolboxHelpPath>c:\program files\arcgis\pro\Resources\Help\gp</arcToolboxHelpPath>
+        <toolsets />
+    </toolbox>
+    <dataIdInfo>
+        <idCitation>
+            <resTitle>Toolbox</resTitle>
+        </idCitation>
+        <idAbs>Summary</idAbs>
+    </dataIdInfo>
+    <distInfo>
+        <distributor>
+            <distorFormat>
+                <formatName>ArcToolbox Toolbox</formatName>
+            </distorFormat>
+        </distributor>
+    </distInfo>
+</metadata>
