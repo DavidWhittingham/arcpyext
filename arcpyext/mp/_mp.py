@@ -39,7 +39,8 @@ def change_data_sources(project, data_sources):
             if layer.supports("dataSource"):
                 logger.debug(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
 
-        except Exception as e:
+        #TODO: Handle KeyError and AttributeError for badly written configs
+        except MapLayerError as e:
             errors.append(e)
 
     if not len(data_tables) == len(data_sources['tableViews']):
@@ -87,18 +88,6 @@ def validate_pro_project(project):
 def _change_data_source(layer, newProps):
     try:
         connProps = layer.connectionProperties
-
-        # TODO: Remove when working
-        """if connProps["workspace_factory"] == "Shape File":
-            newProps = {"connection_info": {'database': workspace_path}, "dataset": dataset_name}
-
-        elif connProps["workspace_factory"] == "File Geodatabase":
-            newProps = {"connection_info": {"database": workspace_path}}
-            if dataset_name is not None:
-                newProps["dataset"] = dataset_name
-
-        elif connProps["workspace_factory"] == "":
-            pass"""
 
         layer.updateConnectionProperties(connProps, newProps)
 
