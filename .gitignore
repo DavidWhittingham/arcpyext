@@ -27,6 +27,7 @@ htmlcov
 .tox
 nosetests.xml
 **/schematransform/output
+**/conversion/output
 .log
 .pytest_cache
 
@@ -48,3 +49,4 @@ nosetests.xml
 /pie.bat
 /venvs/
 .vscode
+logfile.log

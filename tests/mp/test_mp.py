@@ -4,17 +4,6 @@ import arcpy
 import pytest
 import arcpyext
 
-"""MXD_PATH = os.path.abspath(
-    "{0}/../samples/test_mapping.mxd".format(os.path.dirname(__file__)))
-MXD_COMPLEX_PATH = os.path.abspath(
-    "{0}/../samples/test_mapping_complex.mxd".format(os.path.dirname(__file__)))
-MXD_COMPLEX_B_PATH = os.path.abspath(
-    "{0}/../samples/test_mapping_complex_b.mxd".format(os.path.dirname(__file__)))
-CLIP2_DATA_SOURCE = {"workspacePath": os.path.abspath(
-    "{0}/../samples/".format(os.path.dirname(__file__))), "datasetName": "statesp020_clip2"}
-TEST_DATA_SOURCE = {"workspacePath": os.path.abspath(
-    "{0}/../samples/test_data_table2.gdb".format(os.path.dirname(__file__)))}"""
-
 TEST_DATA_SOURCE = {"workspacePath": os.path.abspath(
     "{0}/../samples/test_data_table2.gdb".format(os.path.dirname(__file__)))}
 BROKEN_DATA_SOURCE = {"workspacePath": os.path.abspath(
@@ -70,14 +59,10 @@ def test_change_data_sources(project, data_sources, layer_data_sources_equal, ta
         for idx, layer in enumerate(layers):
             if layer.isGroupLayer or not layer.supports("workspacePath"):
                 continue
-            # print layer.dataSource
-            # print old_data_sources[idx]
             assert (layer.dataSource ==
                     old_data_sources[idx]) == layer_data_sources_equal[idx]
 
         for idx, table in enumerate(data_tables):
-            # print table.dataSource
-            # print old_table_sources[idx]
             assert (table.dataSource ==
                     old_table_sources[idx]) == table_data_sources_equal[idx]
 
