@@ -18,11 +18,19 @@ def table_to_csv(table, output_file_path, use_field_alias_as_column_header = Fal
     headers = [getattr(f, header_attr) for f in fields]
 
     # setup csv, write column headings
-    with open(output_file_path, "w") as csvfile:
+    with open_output_file(output_file_path) as csvfile:
         csvwriter = csv.writer(csvfile, dialect="excel")
-        csvwriter.writerow(headers)
+        csvwriter.writerow(str(headers))
 
         # write data
         with arcpy.da.SearchCursor(table, [f.name for f in fields]) as cursor:
             for row in cursor:
                 csvwriter.writerow(row)
+
+def open_output_file(output_file_path):
+    # Required for py2 -> py3
+    try:
+        if unicode:
+            return open(output_file_path, "wb")
+    except NameError:
+        return open(output_file_path, "w", encoding='utf8')
