@@ -7,8 +7,8 @@ class Toolbox(object):
         .pyt file)."""
         self.label = "Toolbox"
         self.alias = ""
-        self.description = "Some Description"
-        self.summary = "Summary"
+        self.description = "Toolbox description."
+        self.summary = "Summary of this toolbox."
 
         # List of tool classes associated with this toolbox
         self.tools = [Tool]
@@ -30,20 +30,16 @@ class Tool(object):
             datatype='GPString',
             parameterType='Optional',
             direction='Input')
-
         inParam.description='<p>Input param desc</p>'
-
         outParam=arcpy.Parameter(
             displayName='Output param',
             name='outParam',
             datatype='GPString',
             parameterType='Derived',
             direction='Output')
-
         outParam.description='<p>Output param desc</p>'
-
-        params = [inParam, outParam]
-        return params
+        
+        return [inParam,outParam]
 
     def isLicensed(self):
         """Set whether tool is licensed to execute."""
