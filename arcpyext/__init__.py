@@ -31,5 +31,6 @@ try:
 except (AttributeError, ImportError):
     # py3 arcpy pro
     from .mp import *
-    from .publishing import convert_map_to_service_draft, load_image_sddraft
+    from . import publishing
+
 
