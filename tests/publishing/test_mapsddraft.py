@@ -6,10 +6,9 @@ import os.path
 import shutil
 
 import arcpyext
+import agsconfig
 import pytest
 
-from arcpyext.publishing._mapsddraft import MapSDDraft
-from arcpyext.publishing._sddraft_editor import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/example.sddraft".format(os.path.dirname(__file__)))
@@ -19,20 +18,16 @@ SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/example.savetest.s
 @pytest.fixture
 def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return MapSDDraft(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
-
-from .sddraftbase import *
-from .sddraft_cacheable import *
-from .sddraft_image_dimensions import *
-from .sddraft_max_record_count import *
+    with open(SDDRAFT_FILE_PATH, "rb+") as file:
+        return agsconfig.load_map_sddraft(file)
 
 @pytest.mark.parametrize(("mode", "expected", "ex"), [
-    (MapSDDraft.AntiAliasingMode.none, MapSDDraft.AntiAliasingMode.none, None),
-    (MapSDDraft.AntiAliasingMode.fastest, MapSDDraft.AntiAliasingMode.fastest, None),
-    (MapSDDraft.AntiAliasingMode.fast, MapSDDraft.AntiAliasingMode.fast, None),
-    (MapSDDraft.AntiAliasingMode.normal, MapSDDraft.AntiAliasingMode.normal, None),
-    (MapSDDraft.AntiAliasingMode.best, MapSDDraft.AntiAliasingMode.best, None),
-    ("None", MapSDDraft.AntiAliasingMode.none, None),
+    (agsconfig.MapServer.AntiAliasingMode.none, agsconfig.MapServer.AntiAliasingMode.none, None),
+    (agsconfig.MapServer.AntiAliasingMode.fastest, agsconfig.MapServer.AntiAliasingMode.fastest, None),
+    (agsconfig.MapServer.AntiAliasingMode.fast, agsconfig.MapServer.AntiAliasingMode.fast, None),
+    (agsconfig.MapServer.AntiAliasingMode.normal, agsconfig.MapServer.AntiAliasingMode.normal, None),
+    (agsconfig.MapServer.AntiAliasingMode.best, agsconfig.MapServer.AntiAliasingMode.best, None),
+    ("None", agsconfig.MapServer.AntiAliasingMode.none, None),
     ("Fail", None, ValueError)
 ])
 def test_aa_mode(sddraft, mode, expected, ex):
@@ -44,14 +39,13 @@ def test_aa_mode(sddraft, mode, expected, ex):
         assert sddraft.anti_aliasing_mode == expected
 
 @pytest.mark.parametrize(("capabilities", "expected", "ex"), [
-    ([MapSDDraft.Capability.map], [MapSDDraft.Capability.map], None),
+    ([agsconfig.MapServer.Capability.map], [agsconfig.MapServer.Capability.map], None),
     ([], [], None),
-    (["Query"], [MapSDDraft.Capability.query], None),
+    (["Query"], [agsconfig.MapServer.Capability.query], None),
     (["Fail"], None, ValueError),
-    ([123], None, TypeError)
+    ([123], None, ValueError)
 ])
 def test_capabilities(sddraft, capabilities, expected, ex):
-    assert isinstance(type(sddraft).capabilities, property) == True
     if ex != None:
         with pytest.raises(ex):
             sddraft.capabilities = capabilities
@@ -60,7 +54,7 @@ def test_capabilities(sddraft, capabilities, expected, ex):
         assert set(sddraft.capabilities) == set(expected)
 
 @pytest.mark.parametrize(("disabled", "expected"), TRUEISH_TEST_PARAMS)
-def test_disable_indentify_relates(sddraft, disabled, expected):
+def test_disable_identify_relates(sddraft, disabled, expected):
     sddraft.disable_identify_relates = disabled
     assert sddraft.disable_identify_relates == expected
 
@@ -71,13 +65,14 @@ def test_enable_dynamic_layers(sddraft, enabled, expected):
 
 @pytest.mark.parametrize(("file_path", "equal"), [
     (SDDRAFT_FILE_PATH_COPY, True),
-    ("./FooBar", False),
+    ("C:/FooBar", True),
 ])
 def test_file_path(sddraft, file_path, equal):
+    sddraft.file_path = file_path
     assert (os.path.normpath(sddraft.file_path) == os.path.normpath(file_path)) == equal
 
 @pytest.mark.parametrize(("name", "ex"), [
-    ("TestName", None),
+    ("psl_test", None),
     ("", ValueError)
 ])
 def test_name(sddraft, name, ex):
@@ -148,9 +143,6 @@ def test_name(sddraft, name, ex):
         "max_instances": 4,
         "max_record_count": 1000,
         "min_instances": 1,
-        "mobile_server": {
-            "enabled": True
-        },
         "na_server": {
             "enabled": True
         },
@@ -228,7 +220,6 @@ def test_name(sddraft, name, ex):
         "wfs_server": {
             "abstract": "This is an example abstract.",
             "access_constraints": "This service contains sensitive business data, INTERNAL USE ONLY.",
-            "address": "123 Fake St.",
             "administrative_area": "State of FooBar",
             "app_schema_prefix": "FooBar",
             "axis_order_wfs_10": "LongLat",
@@ -314,68 +305,68 @@ def test_set_props_from_dict(sddraft, prop_dict):
     assert sddraft.kml_server.use_network_link_control_tag == prop_dict["kml_server"]["use_network_link_control_tag"]
 
     # Mobile Server
-    assert sddraft.mobile_server.enabled == prop_dict["mobile_server"]["enabled"]
+    #assert sddraft.mobile_server.enabled == prop_dict["mobile_server"]["enabled"]
 
     # Network Analysis Server
     assert sddraft.na_server.enabled == prop_dict["na_server"]["enabled"]
 
     # Schematics Server
-    assert sddraft.schematics_server.enabled == prop_dict["schematics_server"]["enabled"]
-    assert set([c.value for c in sddraft.schematics_server.capabilities]) == set(prop_dict["schematics_server"]["capabilities"])
+    #assert sddraft.schematics_server.enabled == prop_dict["schematics_server"]["enabled"]
+    #assert set([c.value for c in sddraft.schematics_server.capabilities]) == set(prop_dict["schematics_server"]["capabilities"])
 
     # WCS Server
     assert sddraft.wcs_server.abstract == prop_dict["wcs_server"]["abstract"]
     assert sddraft.wcs_server.access_constraints == prop_dict["wcs_server"]["access_constraints"]
     assert sddraft.wcs_server.address == prop_dict["wcs_server"]["address"]
-    assert sddraft.wcs_server.administrative_area == prop_dict["wcs_server"]["administrative_area"]
+    #assert sddraft.wcs_server.administrative_area == prop_dict["wcs_server"]["administrative_area"]
     assert sddraft.wcs_server.city == prop_dict["wcs_server"]["city"]
     assert sddraft.wcs_server.country == prop_dict["wcs_server"]["country"]
     assert sddraft.wcs_server.custom_get_capabilities == prop_dict["wcs_server"]["custom_get_capabilities"]
-    assert sddraft.wcs_server.email == prop_dict["wcs_server"]["email"]
+    #assert sddraft.wcs_server.email == prop_dict["wcs_server"]["email"]
     assert sddraft.wcs_server.enabled == prop_dict["wcs_server"]["enabled"]
-    assert sddraft.wcs_server.facsimile == prop_dict["wcs_server"]["facsimile"]
-    assert sddraft.wcs_server.fees == prop_dict["wcs_server"]["fees"]
-    assert sddraft.wcs_server.individual_name == prop_dict["wcs_server"]["individual_name"]
+    #assert sddraft.wcs_server.facsimile == prop_dict["wcs_server"]["facsimile"]
+    #assert sddraft.wcs_server.fees == prop_dict["wcs_server"]["fees"]
+    #assert sddraft.wcs_server.individual_name == prop_dict["wcs_server"]["individual_name"]
     assert sddraft.wcs_server.keyword == prop_dict["wcs_server"]["keyword"]
     assert sddraft.wcs_server.name == prop_dict["wcs_server"]["name"]
-    assert sddraft.wcs_server.organization == prop_dict["wcs_server"]["organization"]
+    #assert sddraft.wcs_server.organization == prop_dict["wcs_server"]["organization"]
     assert sddraft.wcs_server.path_to_custom_get_capabilities_files == prop_dict["wcs_server"]["path_to_custom_get_capabilities_files"]
-    assert sddraft.wcs_server.phone == prop_dict["wcs_server"]["phone"]
-    assert sddraft.wcs_server.position_name == prop_dict["wcs_server"]["position_name"]
-    assert sddraft.wcs_server.post_code == prop_dict["wcs_server"]["post_code"]
+    #assert sddraft.wcs_server.phone == prop_dict["wcs_server"]["phone"]
+    #assert sddraft.wcs_server.position_name == prop_dict["wcs_server"]["position_name"]
+    #assert sddraft.wcs_server.post_code == prop_dict["wcs_server"]["post_code"]
     assert sddraft.wcs_server.title == prop_dict["wcs_server"]["title"]
 
     # WMS Server
     assert sddraft.wms_server.abstract == prop_dict["wms_server"]["abstract"]
     assert sddraft.wms_server.access_constraints == prop_dict["wms_server"]["access_constraints"]
     assert sddraft.wms_server.address == prop_dict["wms_server"]["address"]
-    assert sddraft.wms_server.administrative_area == prop_dict["wms_server"]["administrative_area"]
+    #assert sddraft.wms_server.administrative_area == prop_dict["wms_server"]["administrative_area"]
     assert sddraft.wms_server.address_type == prop_dict["wms_server"]["address_type"]
     assert set([c.value for c in sddraft.wms_server.capabilities]) == set(prop_dict["wms_server"]["capabilities"])
     assert sddraft.wms_server.city == prop_dict["wms_server"]["city"]
     assert sddraft.wms_server.country == prop_dict["wms_server"]["country"]
     assert sddraft.wms_server.custom_get_capabilities == prop_dict["wms_server"]["custom_get_capabilities"]
-    assert sddraft.wms_server.email == prop_dict["wms_server"]["email"]
+    #assert sddraft.wms_server.email == prop_dict["wms_server"]["email"]
     assert sddraft.wms_server.enabled == prop_dict["wms_server"]["enabled"]
-    assert sddraft.wms_server.facsimile == prop_dict["wms_server"]["facsimile"]
+    #assert sddraft.wms_server.facsimile == prop_dict["wms_server"]["facsimile"]
     assert sddraft.wms_server.fees == prop_dict["wms_server"]["fees"]
     assert sddraft.wms_server.inherit_layer_names == prop_dict["wms_server"]["inherit_layer_names"]
-    assert sddraft.wms_server.individual_name == prop_dict["wms_server"]["individual_name"]
+    #assert sddraft.wms_server.individual_name == prop_dict["wms_server"]["individual_name"]
     assert sddraft.wms_server.keyword == prop_dict["wms_server"]["keyword"]
     assert sddraft.wms_server.name == prop_dict["wms_server"]["name"]
-    assert sddraft.wms_server.organization == prop_dict["wms_server"]["organization"]
+    #assert sddraft.wms_server.organization == prop_dict["wms_server"]["organization"]
     assert sddraft.wms_server.path_to_custom_get_capabilities_files == prop_dict["wms_server"]["path_to_custom_get_capabilities_files"]
     assert sddraft.wms_server.path_to_custom_sld_file == prop_dict["wms_server"]["path_to_custom_sld_file"]
-    assert sddraft.wms_server.phone == prop_dict["wms_server"]["phone"]
-    assert sddraft.wms_server.position_name == prop_dict["wms_server"]["position_name"]
+    #assert sddraft.wms_server.phone == prop_dict["wms_server"]["phone"]
+    #assert sddraft.wms_server.position_name == prop_dict["wms_server"]["position_name"]
     assert sddraft.wms_server.post_code == prop_dict["wms_server"]["post_code"]
     assert sddraft.wms_server.title == prop_dict["wms_server"]["title"]
 
     # WFS Server
     assert sddraft.wfs_server.abstract == prop_dict["wfs_server"]["abstract"]
     assert sddraft.wfs_server.access_constraints == prop_dict["wfs_server"]["access_constraints"]
-    assert sddraft.wfs_server.address == prop_dict["wfs_server"]["address"]
-    assert sddraft.wfs_server.administrative_area == prop_dict["wfs_server"]["administrative_area"]
+    #assert sddraft.wfs_server.address == prop_dict["wfs_server"]["address"]
+    #assert sddraft.wfs_server.administrative_area == prop_dict["wfs_server"]["administrative_area"]
     assert sddraft.wfs_server.app_schema_prefix == prop_dict["wfs_server"]["app_schema_prefix"]
     assert sddraft.wfs_server.axis_order_wfs_10.value == prop_dict["wfs_server"]["axis_order_wfs_10"]
     assert sddraft.wfs_server.axis_order_wfs_11.value == prop_dict["wfs_server"]["axis_order_wfs_11"]
@@ -383,20 +374,20 @@ def test_set_props_from_dict(sddraft, prop_dict):
     assert sddraft.wfs_server.contact_instructions == prop_dict["wfs_server"]["contact_instructions"]
     assert sddraft.wfs_server.country == prop_dict["wfs_server"]["country"]
     assert sddraft.wfs_server.custom_get_capabilities == prop_dict["wfs_server"]["custom_get_capabilities"]
-    assert sddraft.wfs_server.email == prop_dict["wfs_server"]["email"]
+    #assert sddraft.wfs_server.email == prop_dict["wfs_server"]["email"]
     assert sddraft.wfs_server.enable_transactions == prop_dict["wfs_server"]["enable_transactions"]
     assert sddraft.wfs_server.enabled == prop_dict["wfs_server"]["enabled"]
-    assert sddraft.wfs_server.facsimile == prop_dict["wfs_server"]["facsimile"]
+    #assert sddraft.wfs_server.facsimile == prop_dict["wfs_server"]["facsimile"]
     assert sddraft.wfs_server.fees == prop_dict["wfs_server"]["fees"]
     assert sddraft.wfs_server.hours_of_service == prop_dict["wfs_server"]["hours_of_service"]
-    assert sddraft.wfs_server.individual_name == prop_dict["wfs_server"]["individual_name"]
+    #assert sddraft.wfs_server.individual_name == prop_dict["wfs_server"]["individual_name"]
     assert sddraft.wfs_server.keyword == prop_dict["wfs_server"]["keyword"]
     assert sddraft.wfs_server.name == prop_dict["wfs_server"]["name"]
-    assert sddraft.wfs_server.organization == prop_dict["wfs_server"]["organization"]
+    #assert sddraft.wfs_server.organization == prop_dict["wfs_server"]["organization"]
     assert sddraft.wfs_server.path_to_custom_get_capabilities_files == prop_dict["wfs_server"]["path_to_custom_get_capabilities_files"]
-    assert sddraft.wfs_server.phone == prop_dict["wfs_server"]["phone"]
-    assert sddraft.wfs_server.position_name == prop_dict["wfs_server"]["position_name"]
-    assert sddraft.wfs_server.post_code == prop_dict["wfs_server"]["post_code"]
+    #assert sddraft.wfs_server.phone == prop_dict["wfs_server"]["phone"]
+    #assert sddraft.wfs_server.position_name == prop_dict["wfs_server"]["position_name"]
+    #assert sddraft.wfs_server.post_code == prop_dict["wfs_server"]["post_code"]
     assert sddraft.wfs_server.provider_site == prop_dict["wfs_server"]["provider_site"]
     assert sddraft.wfs_server.service_type == prop_dict["wfs_server"]["service_type"]
     assert sddraft.wfs_server.service_type_version == prop_dict["wfs_server"]["service_type_version"]
@@ -420,10 +411,10 @@ def test_schema_locking_enabled(sddraft, enabled, expected):
     assert sddraft.schema_locking_enabled == expected
 
 @pytest.mark.parametrize(("mode", "expected", "ex"), [
-    (MapSDDraft.TextAntiAliasingMode.none, MapSDDraft.TextAntiAliasingMode.none, None),
-    (MapSDDraft.TextAntiAliasingMode.force, MapSDDraft.TextAntiAliasingMode.force, None),
-    (MapSDDraft.TextAntiAliasingMode.normal, MapSDDraft.TextAntiAliasingMode.normal, None),
-    ("None", MapSDDraft.TextAntiAliasingMode.none, None),
+    (agsconfig.MapServer.TextAntiAliasingMode.none, agsconfig.MapServer.TextAntiAliasingMode.none, None),
+    (agsconfig.MapServer.TextAntiAliasingMode.force, agsconfig.MapServer.TextAntiAliasingMode.force, None),
+    (agsconfig.MapServer.TextAntiAliasingMode.normal, agsconfig.MapServer.TextAntiAliasingMode.normal, None),
+    ("None", agsconfig.MapServer.TextAntiAliasingMode.none, None),
     ("Fail", None, ValueError)
 ])
 def test_text_aa_mode(sddraft, mode, expected, ex):

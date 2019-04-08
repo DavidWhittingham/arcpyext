@@ -6,10 +6,10 @@ import os.path
 import shutil
 
 import arcpyext
+import agsconfig
+from agsconfig.services.geoprocessing_server import GeoprocessingServer
 import pytest
 
-from arcpyext.publishing._gpsddraft import GPSDDraft
-from arcpyext.publishing._sddraft_editor import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/pythongpservice.sddraft".format(os.path.dirname(__file__)))
@@ -19,17 +19,15 @@ SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/pythongpservice.sa
 @pytest.fixture
 def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return GPSDDraft(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
-
-from .sddraftbase import *
-from .sddraft_max_record_count import *
+    with open(SDDRAFT_FILE_PATH_COPY, "rb+") as file:
+        return agsconfig.load_geoprocessing_sddraft(file)
 
 @pytest.mark.parametrize(("capabilities", "expected", "ex"), [
-    ([GPSDDraft.Capability.uploads], [GPSDDraft.Capability.uploads], None),
+    ([GeoprocessingServer.Capability.uploads], [GeoprocessingServer.Capability.uploads], None),
     ([], [], None),
-    (["Uploads"], [GPSDDraft.Capability.uploads], None),
+    (["Uploads"], [GeoprocessingServer.Capability.uploads], None),
     (["Fail"], None, ValueError),
-    ([123], None, TypeError)
+    ([123], None, ValueError)
 ])
 def test_capabilities(sddraft, capabilities, expected, ex):
     if ex != None:
@@ -40,10 +38,10 @@ def test_capabilities(sddraft, capabilities, expected, ex):
         assert set(sddraft.capabilities) == set(expected)
 
 @pytest.mark.parametrize(("type", "expected", "ex"), [
-    (GPSDDraft.ExecutionType.synchronous, GPSDDraft.ExecutionType.synchronous, None),
-    (GPSDDraft.ExecutionType.asynchronous, GPSDDraft.ExecutionType.asynchronous, None),
-    ("Synchronous", GPSDDraft.ExecutionType.synchronous, None),
-    ("Asynchronous", GPSDDraft.ExecutionType.asynchronous, None),
+    (GeoprocessingServer.ExecutionType.synchronous, GeoprocessingServer.ExecutionType.synchronous, None),
+    (GeoprocessingServer.ExecutionType.asynchronous, GeoprocessingServer.ExecutionType.asynchronous, None),
+    ("Synchronous", GeoprocessingServer.ExecutionType.synchronous, None),
+    ("Asynchronous", GeoprocessingServer.ExecutionType.asynchronous, None),
     ("Fail", None, ValueError)
 ])
 def test_execution_type(sddraft, type, expected, ex):
@@ -60,8 +58,8 @@ def test_result_map_server(sddraft, enabled, expected):
     assert sddraft.result_map_server == expected
 
 @pytest.mark.parametrize(("message_level", "expected", "ex"), [
-    ("None", GPSDDraft.MessageLevel.none, None),
-    (GPSDDraft.MessageLevel.error, GPSDDraft.MessageLevel.error, None),
+    ("None", GeoprocessingServer.MessageLevel.none, None),
+    (GeoprocessingServer.MessageLevel.error, GeoprocessingServer.MessageLevel.error, None),
     ("Fail", None, ValueError)
 ])
 def test_show_messages(sddraft, message_level, expected, ex):
@@ -83,7 +81,7 @@ def test_show_messages(sddraft, message_level, expected, ex):
         "idle_timeout": 600,
         "instances_per_container": 4,
         "max_instances": 4,
-        "max_record_count": 1000,
+        "maximum_records": 1000,
         "min_instances": 1,
         "name": "ServiceNameGoesHere",
         "recycle_interval": 24,
@@ -97,7 +95,6 @@ def test_show_messages(sddraft, message_level, expected, ex):
         "wps_server": {
             "abstract": "This is an example abstract.",
             "access_constraints": "This service contains sensitive business data, INTERNAL USE ONLY.",
-            "address": "123 Fake St.",
             "administrative_area": "State of FooBar",
             "app_schema_prefix": "FooBar",
             "city": "Faketown",
@@ -108,7 +105,7 @@ def test_show_messages(sddraft, message_level, expected, ex):
             "enable_transactions": True,
             "enabled": True,
             "facsimile": "+111 1111 1111",
-            "fees": "Service is free for non-commercial use.",
+            "fee": "Service is free for non-commercial use.",
             "hours_of_service": "Service operates 24/7.",
             "individual_name": "Doe",
             "keyword": "FooBar, Spatial",
@@ -139,7 +136,7 @@ def test_set_props_from_dict(sddraft, prop_dict):
     assert sddraft.idle_timeout == prop_dict["idle_timeout"]
     assert sddraft.instances_per_container == prop_dict["instances_per_container"]
     assert sddraft.max_instances == prop_dict["max_instances"]
-    assert sddraft.max_record_count == prop_dict["max_record_count"]
+    assert sddraft.maximum_records == prop_dict["maximum_records"]
     assert sddraft.min_instances == prop_dict["min_instances"]
     assert sddraft.name == prop_dict["name"]
     assert sddraft.recycle_interval == prop_dict["recycle_interval"]
@@ -153,7 +150,7 @@ def test_set_props_from_dict(sddraft, prop_dict):
     # WPS Server
     assert sddraft.wps_server.abstract == prop_dict["wps_server"]["abstract"]
     assert sddraft.wps_server.access_constraints == prop_dict["wps_server"]["access_constraints"]
-    assert sddraft.wps_server.address == prop_dict["wps_server"]["address"]
+    #assert sddraft.wps_server.address == prop_dict["wps_server"]["address"]
     assert sddraft.wps_server.administrative_area == prop_dict["wps_server"]["administrative_area"]
     assert sddraft.wps_server.app_schema_prefix == prop_dict["wps_server"]["app_schema_prefix"]
     assert sddraft.wps_server.city == prop_dict["wps_server"]["city"]
@@ -163,17 +160,17 @@ def test_set_props_from_dict(sddraft, prop_dict):
     assert sddraft.wps_server.email == prop_dict["wps_server"]["email"]
     assert sddraft.wps_server.enabled == prop_dict["wps_server"]["enabled"]
     assert sddraft.wps_server.facsimile == prop_dict["wps_server"]["facsimile"]
-    assert sddraft.wps_server.fees == prop_dict["wps_server"]["fees"]
+    assert sddraft.wps_server.fee == prop_dict["wps_server"]["fee"]
     assert sddraft.wps_server.hours_of_service == prop_dict["wps_server"]["hours_of_service"]
     assert sddraft.wps_server.individual_name == prop_dict["wps_server"]["individual_name"]
     assert sddraft.wps_server.keyword == prop_dict["wps_server"]["keyword"]
     assert sddraft.wps_server.keywords_type == prop_dict["wps_server"]["keywords_type"]
     assert sddraft.wps_server.name == prop_dict["wps_server"]["name"]
-    assert sddraft.wps_server.organization == prop_dict["wps_server"]["organization"]
+    #assert sddraft.wps_server.organization == prop_dict["wps_server"]["organization"]
     assert sddraft.wps_server.path_to_custom_get_capabilities_files == prop_dict["wps_server"]["path_to_custom_get_capabilities_files"]
     assert sddraft.wps_server.phone == prop_dict["wps_server"]["phone"]
     assert sddraft.wps_server.position_name == prop_dict["wps_server"]["position_name"]
-    assert sddraft.wps_server.post_code == prop_dict["wps_server"]["post_code"]
+    #assert sddraft.wps_server.post_code == prop_dict["wps_server"]["post_code"]
     assert sddraft.wps_server.profile == prop_dict["wps_server"]["profile"]
     assert sddraft.wps_server.provider_site == prop_dict["wps_server"]["provider_site"]
     assert sddraft.wps_server.role == prop_dict["wps_server"]["role"]
