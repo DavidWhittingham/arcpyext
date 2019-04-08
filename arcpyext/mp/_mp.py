@@ -53,8 +53,8 @@ def change_data_sources(project, data_sources):
 
             logger.debug(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode("ascii", "ignore"))
             logger.debug(u"Old connectionProperties {0}".format(data_table.connectionProperties).encode("ascii", "ignore"))
-            _change_data_source(data_table, layer_source[0].get("connectionProperties"))
-            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source[0]["connectionProperties"]).encode("ascii", "ignore"))
+            _change_data_source(data_table, layer_source.get("connectionProperties"))
+            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source.get("connectionProperties")))
 
         except MapLayerError as mle:
             errors.append(mle)
@@ -264,9 +264,9 @@ def compare(map_a, map_b):
     Outputs a list describing any differences
 
     :param map_a: A map to compare
-    :type map_a: arcpy.mapping.MapDocument
+    :type map_a: arcpy.mp.ArcGISProject
     :param map_b: Another version of the same map to compare
-    :type map_b: arcpy.mapping.MapDocument
+    :type map_b: arcpy.mp.ArcGISProject
     :returns: dict
 
     """
