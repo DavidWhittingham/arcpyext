@@ -1,375 +1,375 @@
-<?xml version="1.0" encoding="utf-8"?><SVCManifest xmlns:typens="http://www.esri.com/schemas/ArcGIS/10.1" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="typens:SVCManifest">
-    <Databases xsi:type="typens:ArrayOfSVCDatabase"/>
-    <Resources xsi:type="typens:ArrayOfSVCResource">
-        <SVCResource xsi:type="typens:SVCResource">
-            <ID>{8D0239A3-98DD-4BA6-99D1-90528B825D8E}</ID>
-            <Name/>
-            <OnPremisePath>\\smb\or\other\path\to\locator</OnPremisePath>
-            <StagingPath/>
-            <ServerPath/>
-            <InPackagePath/>
-            <OnServerName/>
-            <ClientName/>
-        </SVCResource>
-    </Resources>
-    <ID>{466B517C-BAD4-4F2D-A958-B1B89B1B1B58}</ID>
-    <Name>NameOfGeocodeService</Name>
-    <OnPremisePath>C:\Users\FooBar\AppData\Local\Esri\Desktop10.4\Staging</OnPremisePath>
-    <StagingPath/>
-    <ServerPath/>
-    <InPackagePath/>
-    <ByReference>true</ByReference>
-    <Type>esriServiceDefinitionType_Replacement</Type>
-    <State>esriSDState_Draft</State>
-    <ServerType>esriSVCServerType_FullServer</ServerType>
-    <DataFolder/>
-    <StagingSettings xsi:type="typens:PropertySet">
-        <PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>PackageUnderMyContent</Key>
-                <Value xsi:type="xs:boolean">false</Value>
-            </PropertySetProperty>
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>PackageIsPublic</Key>
-                <Value xsi:type="xs:boolean">false</Value>
-            </PropertySetProperty>
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>PackageShareGroups</Key>
-                <Value xsi:type="xs:boolean">false</Value>
-            </PropertySetProperty>
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>PackageGroupIDs</Key>
-                <Value xsi:type="xs:boolean">false</Value>
-            </PropertySetProperty>
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>FederatedServerMatchesPortal</Key>
-                <Value xsi:type="xs:boolean">false</Value>
-            </PropertySetProperty>
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>FederatedUserMatchesPortal</Key>
-                <Value xsi:type="xs:boolean">false</Value>
-            </PropertySetProperty>
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>ConnectionFile</Key>
-                <Value xsi:type="xs:string">No Connection</Value>
-            </PropertySetProperty>
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>SaveToSDFile</Key>
-                <Value xsi:type="xs:string">TRUE</Value>
-            </PropertySetProperty>
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>IncludeDataInSDFile</Key>
-                <Value xsi:type="xs:string">FALSE</Value>
-            </PropertySetProperty>
-            <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                <Key>UpdateDocumentProperties</Key>
-                <Value xsi:type="xs:boolean">false</Value>
-            </PropertySetProperty>
-        </PropertyArray>
-    </StagingSettings>
-    <KeepExistingData>false</KeepExistingData>
-    <KeepExistingMapCache>false</KeepExistingMapCache>
-    <ClientHostName>NRM01995</ClientHostName>
-    <OnServerName/>
-    <Configurations xsi:type="typens:ArrayOfSVCConfiguration">
-        <SVCConfiguration xsi:type="typens:SVCConfiguration">
-            <ID>6986C082-1EFB-4F99-BC2D-23EEEB17EDE8</ID>
-            <Name>NameOfGeocodeService</Name>
-            <TypeName>GeocodeServer</TypeName>
-            <ResourceID>{8D0239A3-98DD-4BA6-99D1-90528B825D8E}</ResourceID>
-            <ServiceFolder/>
-            <DataFolder/>
-            <Definition xsi:type="typens:SVCConfigurationDefinition">
-                <Description>This is the description</Description>
-                <ConfigurationProperties xsi:type="typens:PropertySet">
-                    <PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>locatorWorkspacePath</Key>
-                            <Value xsi:type="xs:string">\\sirgis-fs\customApps1\Location\QldAddressComposite\</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>antialiasingMode</Key>
-                            <Value xsi:type="xs:string">None</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>textAntialiasingMode</Key>
-                            <Value xsi:type="xs:string">Force</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>minScale</Key>
-                            <Value xsi:type="xs:double">0</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>maxScale</Key>
-                            <Value xsi:type="xs:double">0</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>locator</Key>
-                            <Value xsi:type="xs:string">QldAddressComposite</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>suggestedBatchSize</Key>
-                            <Value xsi:type="xs:string">1002</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>maxBatchSize</Key>
-                            <Value xsi:type="xs:string">1003</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>maxResultSize</Key>
-                            <Value xsi:type="xs:string">504</Value>
-                        </PropertySetProperty>
-                    </PropertyArray>
-                </ConfigurationProperties>
-                <Info xsi:type="typens:PropertySet">
-                    <PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>webCapabilities</Key>
-                            <Value xsi:type="xs:string">Geocode,ReverseGeocode</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>supportedWebCapabilities</Key>
-                            <Value xsi:type="xs:string">Geocode,ReverseGeocode</Value>
-                        </PropertySetProperty>
-                    </PropertyArray>
-                </Info>
-                <Props xsi:type="typens:PropertySet">
-                    <PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>IsRunning</Key>
-                            <Value xsi:type="xs:string">false</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>MinInstances</Key>
-                            <Value xsi:type="xs:string">14</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>MaxInstances</Key>
-                            <Value xsi:type="xs:string">15</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>InstancesPerContainer</Key>
-                            <Value xsi:type="xs:string">23</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>WaitTimeout</Key>
-                            <Value xsi:type="xs:string">251</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>IdleTimeout</Key>
-                            <Value xsi:type="xs:string">252</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>UsageTimeout</Key>
-                            <Value xsi:type="xs:string">250</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>CleanupTimeout</Key>
-                            <Value xsi:type="xs:string">30</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>keepAliveInterval</Key>
-                            <Value xsi:type="xs:string">3540</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>StartupTimeout</Key>
-                            <Value xsi:type="xs:string">300</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>Isolation</Key>
-                            <Value xsi:type="xs:string">low</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>configuredState</Key>
-                            <Value xsi:type="xs:string">STARTED</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>recycleStartTime</Key>
-                            <Value xsi:type="xs:string">00:41</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>recycleInterval</Key>
-                            <Value xsi:type="xs:string">16</Value>
-                        </PropertySetProperty>
-                        <PropertySetProperty xsi:type="typens:PropertySetProperty">
-                            <Key>provider</Key>
-                            <Value xsi:type="xs:string">ArcObjects</Value>
-                        </PropertySetProperty>
-                    </PropertyArray>
-                </Props>
-                <RecyclingInterval/>
-                <RecyclingStart>0</RecyclingStart>
-                <Extensions xsi:type="typens:ArrayOfSVCExtension"/>
-                <Cluster>default</Cluster>
-            </Definition>
-        </SVCConfiguration>
-    </Configurations>
-    <CacheSchema xsi:type="typens:CacheInfo">
-        <TileCacheInfo xsi:type="typens:TileCacheInfo">
-            <SpatialReference xsi:type="typens:ProjectedCoordinateSystem">
-                <WKT>PROJCS[&quot;WGS_1984_Web_Mercator_Auxiliary_Sphere&quot;,GEOGCS[&quot;GCS_WGS_1984&quot;,DATUM[&quot;D_WGS_1984&quot;,SPHEROID[&quot;WGS_1984&quot;,6378137.0,298.257223563]],PRIMEM[&quot;Greenwich&quot;,0.0],UNIT[&quot;Degree&quot;,0.0174532925199433]],PROJECTION[&quot;Mercator_Auxiliary_Sphere&quot;],PARAMETER[&quot;False_Easting&quot;,0.0],PARAMETER[&quot;False_Northing&quot;,0.0],PARAMETER[&quot;Central_Meridian&quot;,0.0],PARAMETER[&quot;Standard_Parallel_1&quot;,0.0],PARAMETER[&quot;Auxiliary_Sphere_Type&quot;,0.0],UNIT[&quot;Meter&quot;,1.0],AUTHORITY[&quot;EPSG&quot;,3857]]</WKT>
-                <XOrigin>-20037700</XOrigin>
-                <YOrigin>-30241100</YOrigin>
-                <XYScale>148923141.92838538</XYScale>
-                <ZOrigin>-100000</ZOrigin>
-                <ZScale>10000</ZScale>
-                <MOrigin>-100000</MOrigin>
-                <MScale>10000</MScale>
-                <XYTolerance>0.001</XYTolerance>
-                <ZTolerance>0.001</ZTolerance>
-                <MTolerance>0.001</MTolerance>
-                <HighPrecision>true</HighPrecision>
-                <WKID>102100</WKID>
-                <LatestWKID>3857</LatestWKID>
-            </SpatialReference>
-            <TileOrigin xsi:type="typens:PointN">
-                <X>-20037508.342787001</X>
-                <Y>20037508.342787001</Y>
-            </TileOrigin>
-            <TileCols>256</TileCols>
-            <TileRows>256</TileRows>
-            <DPI>96</DPI>
-            <PreciseDPI>96</PreciseDPI>
-            <LODInfos xsi:type="typens:ArrayOfLODInfo">
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>0</LevelID>
-                    <Scale>591657527.591555</Scale>
-                    <Resolution>156543.03392799999</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>1</LevelID>
-                    <Scale>295828763.79577702</Scale>
-                    <Resolution>78271.516963999893</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>2</LevelID>
-                    <Scale>147914381.89788899</Scale>
-                    <Resolution>39135.758482000099</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>3</LevelID>
-                    <Scale>73957190.948944002</Scale>
-                    <Resolution>19567.879240999901</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>4</LevelID>
-                    <Scale>36978595.474472001</Scale>
-                    <Resolution>9783.9396204999593</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>5</LevelID>
-                    <Scale>18489297.737236001</Scale>
-                    <Resolution>4891.9698102499797</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>6</LevelID>
-                    <Scale>9244648.8686180003</Scale>
-                    <Resolution>2445.9849051249898</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>7</LevelID>
-                    <Scale>4622324.4343090001</Scale>
-                    <Resolution>1222.9924525624899</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>8</LevelID>
-                    <Scale>2311162.2171550002</Scale>
-                    <Resolution>611.49622628138002</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>9</LevelID>
-                    <Scale>1155581.108577</Scale>
-                    <Resolution>305.74811314055802</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>10</LevelID>
-                    <Scale>577790.55428899999</Scale>
-                    <Resolution>152.874056570411</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>11</LevelID>
-                    <Scale>288895.27714399999</Scale>
-                    <Resolution>76.437028285073197</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>12</LevelID>
-                    <Scale>144447.638572</Scale>
-                    <Resolution>38.218514142536598</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>13</LevelID>
-                    <Scale>72223.819285999998</Scale>
-                    <Resolution>19.109257071268299</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>14</LevelID>
-                    <Scale>36111.909642999999</Scale>
-                    <Resolution>9.5546285356341496</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>15</LevelID>
-                    <Scale>18055.954822</Scale>
-                    <Resolution>4.7773142679493699</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>16</LevelID>
-                    <Scale>9027.9774109999998</Scale>
-                    <Resolution>2.38865713397468</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>17</LevelID>
-                    <Scale>4513.9887049999998</Scale>
-                    <Resolution>1.1943285668550501</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>18</LevelID>
-                    <Scale>2256.994353</Scale>
-                    <Resolution>0.59716428355981699</Resolution>
-                </LODInfo>
-                <LODInfo xsi:type="typens:LODInfo">
-                    <LevelID>19</LevelID>
-                    <Scale>1128.4971760000001</Scale>
-                    <Resolution>0.29858214164761698</Resolution>
-                </LODInfo>
-            </LODInfos>
-        </TileCacheInfo>
-        <TileImageInfo xsi:type="typens:TileImageInfo">
-            <CacheTileFormat>PNG8</CacheTileFormat>
-            <CompressionQuality>0</CompressionQuality>
-            <Antialiasing>false</Antialiasing>
-            <BandCount>1</BandCount>
-            <LERCError>0</LERCError>
-        </TileImageInfo>
-        <CacheStorageInfo xsi:type="typens:CacheStorageInfo">
-            <StorageFormat>esriMapCacheStorageModeCompact</StorageFormat>
-            <PacketSize>128</PacketSize>
-        </CacheStorageInfo>
-    </CacheSchema>
-    <ItemInfo xsi:type="typens:ItemInfo">
-        <Name>NameOfGeocodeService</Name>
-        <GUID/>
-        <Type>Service Definition</Type>
-        <TypeKeywords xsi:nil="true"/>
-        <CatalogPath/>
-        <Title>NameOfGeocodeService</Title>
+<SVCManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:typens="http://www.esri.com/schemas/ArcGIS/10.1" xsi:type="typens:SVCManifest">
+  <Databases xsi:type="typens:ArrayOfSVCDatabase"/>
+  <Resources xsi:type="typens:ArrayOfSVCResource">
+    <SVCResource xsi:type="typens:SVCResource">
+      <ID>{8D0239A3-98DD-4BA6-99D1-90528B825D8E}</ID>
+      <Name/>
+      <OnPremisePath>\\smb\or\other\path\to\locator</OnPremisePath>
+      <StagingPath/>
+      <ServerPath/>
+      <InPackagePath/>
+      <OnServerName/>
+      <ClientName/>
+    </SVCResource>
+  </Resources>
+  <ID>{466B517C-BAD4-4F2D-A958-B1B89B1B1B58}</ID>
+  <Name>NameOfGeocodeService</Name>
+  <OnPremisePath>C:\Users\FooBar\AppData\Local\Esri\Desktop10.4\Staging</OnPremisePath>
+  <StagingPath/>
+  <ServerPath/>
+  <InPackagePath/>
+  <ByReference>true</ByReference>
+  <Type>esriServiceDefinitionType_Replacement</Type>
+  <State>esriSDState_Draft</State>
+  <ServerType>esriSVCServerType_FullServer</ServerType>
+  <DataFolder/>
+  <StagingSettings xsi:type="typens:PropertySet">
+    <PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>PackageUnderMyContent</Key>
+        <Value xsi:type="xs:boolean">false</Value>
+      </PropertySetProperty>
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>PackageIsPublic</Key>
+        <Value xsi:type="xs:boolean">false</Value>
+      </PropertySetProperty>
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>PackageShareGroups</Key>
+        <Value xsi:type="xs:boolean">false</Value>
+      </PropertySetProperty>
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>PackageGroupIDs</Key>
+        <Value xsi:type="xs:boolean">false</Value>
+      </PropertySetProperty>
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>FederatedServerMatchesPortal</Key>
+        <Value xsi:type="xs:boolean">false</Value>
+      </PropertySetProperty>
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>FederatedUserMatchesPortal</Key>
+        <Value xsi:type="xs:boolean">false</Value>
+      </PropertySetProperty>
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>ConnectionFile</Key>
+        <Value xsi:type="xs:string">No Connection</Value>
+      </PropertySetProperty>
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>SaveToSDFile</Key>
+        <Value xsi:type="xs:string">TRUE</Value>
+      </PropertySetProperty>
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>IncludeDataInSDFile</Key>
+        <Value xsi:type="xs:string">FALSE</Value>
+      </PropertySetProperty>
+      <PropertySetProperty xsi:type="typens:PropertySetProperty">
+        <Key>UpdateDocumentProperties</Key>
+        <Value xsi:type="xs:boolean">false</Value>
+      </PropertySetProperty>
+    </PropertyArray>
+  </StagingSettings>
+  <KeepExistingData>false</KeepExistingData>
+  <KeepExistingMapCache>false</KeepExistingMapCache>
+  <ClientHostName>NRM01995</ClientHostName>
+  <OnServerName/>
+  <Configurations xsi:type="typens:ArrayOfSVCConfiguration">
+    <SVCConfiguration xsi:type="typens:SVCConfiguration">
+      <ID>6986C082-1EFB-4F99-BC2D-23EEEB17EDE8</ID>
+      <Name>NameOfGeocodeService</Name>
+      <TypeName>GeocodeServer</TypeName>
+      <ResourceID>{8D0239A3-98DD-4BA6-99D1-90528B825D8E}</ResourceID>
+      <ServiceFolder/>
+      <DataFolder/>
+      <Definition xsi:type="typens:SVCConfigurationDefinition">
         <Description>This is the description</Description>
-        <Tags xsi:type="typens:ArrayOfString">
-            <String>These</String>
-            <String>Are</String>
-            <String>The</String>
-            <String>Tags</String>
-        </Tags>
-        <Snippet>This is the summary</Snippet>
-        <AccessInformation>These are the acess and use constraints</AccessInformation>
-        <MinScale>0</MinScale>
-        <MaxScale>0</MaxScale>
-        <Credits>These are the credits</Credits>
-        <spatialReference/>
-    </ItemInfo>
-    <Metadata xsi:type="typens:XmlPropertySet">
-        <XmlDoc>&lt;?xml version=&quot;1.0&quot;?&gt;
+        <ConfigurationProperties xsi:type="typens:PropertySet">
+          <PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>locatorWorkspacePath</Key>
+              <Value xsi:type="xs:string">\\sirgis-fs\customApps1\Location\QldAddressComposite\</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>antialiasingMode</Key>
+              <Value xsi:type="xs:string">None</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>textAntialiasingMode</Key>
+              <Value xsi:type="xs:string">Force</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>minScale</Key>
+              <Value xsi:type="xs:double">0</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>maxScale</Key>
+              <Value xsi:type="xs:double">0</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>locator</Key>
+              <Value xsi:type="xs:string">QldAddressComposite</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>suggestedBatchSize</Key>
+              <Value xsi:type="xs:string">1002</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>maxBatchSize</Key>
+              <Value xsi:type="xs:string">1003</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>maxResultSize</Key>
+              <Value xsi:type="xs:string">504</Value>
+            </PropertySetProperty>
+          </PropertyArray>
+        </ConfigurationProperties>
+        <Info xsi:type="typens:PropertySet">
+          <PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>webCapabilities</Key>
+              <Value xsi:type="xs:string">Geocode,ReverseGeocode</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>supportedWebCapabilities</Key>
+              <Value xsi:type="xs:string">Geocode,ReverseGeocode</Value>
+            </PropertySetProperty>
+          </PropertyArray>
+        </Info>
+        <Props xsi:type="typens:PropertySet">
+          <PropertyArray xsi:type="typens:ArrayOfPropertySetProperty">
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>IsRunning</Key>
+              <Value xsi:type="xs:string">false</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>MinInstances</Key>
+              <Value xsi:type="xs:string">14</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>MaxInstances</Key>
+              <Value xsi:type="xs:string">15</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>InstancesPerContainer</Key>
+              <Value xsi:type="xs:string">23</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>WaitTimeout</Key>
+              <Value xsi:type="xs:string">251</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>IdleTimeout</Key>
+              <Value xsi:type="xs:string">252</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>UsageTimeout</Key>
+              <Value xsi:type="xs:string">250</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>CleanupTimeout</Key>
+              <Value xsi:type="xs:string">30</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>keepAliveInterval</Key>
+              <Value xsi:type="xs:string">3540</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>StartupTimeout</Key>
+              <Value xsi:type="xs:string">300</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>Isolation</Key>
+              <Value xsi:type="xs:string">low</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>configuredState</Key>
+              <Value xsi:type="xs:string">STARTED</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>recycleStartTime</Key>
+              <Value xsi:type="xs:string">00:41</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>recycleInterval</Key>
+              <Value xsi:type="xs:string">16</Value>
+            </PropertySetProperty>
+            <PropertySetProperty xsi:type="typens:PropertySetProperty">
+              <Key>provider</Key>
+              <Value xsi:type="xs:string">ArcObjects</Value>
+            </PropertySetProperty>
+          </PropertyArray>
+        </Props>
+        <RecyclingInterval/>
+        <RecyclingStart>0</RecyclingStart>
+        <Extensions xsi:type="typens:ArrayOfSVCExtension"/>
+        <Cluster>default</Cluster>
+      </Definition>
+    </SVCConfiguration>
+  </Configurations>
+  <CacheSchema xsi:type="typens:CacheInfo">
+    <TileCacheInfo xsi:type="typens:TileCacheInfo">
+      <SpatialReference xsi:type="typens:ProjectedCoordinateSystem">
+        <WKT>PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0],AUTHORITY["EPSG",3857]]</WKT>
+        <XOrigin>-20037700</XOrigin>
+        <YOrigin>-30241100</YOrigin>
+        <XYScale>148923141.92838538</XYScale>
+        <ZOrigin>-100000</ZOrigin>
+        <ZScale>10000</ZScale>
+        <MOrigin>-100000</MOrigin>
+        <MScale>10000</MScale>
+        <XYTolerance>0.001</XYTolerance>
+        <ZTolerance>0.001</ZTolerance>
+        <MTolerance>0.001</MTolerance>
+        <HighPrecision>true</HighPrecision>
+        <WKID>102100</WKID>
+        <LatestWKID>3857</LatestWKID>
+      </SpatialReference>
+      <TileOrigin xsi:type="typens:PointN">
+        <X>-20037508.342787001</X>
+        <Y>20037508.342787001</Y>
+      </TileOrigin>
+      <TileCols>256</TileCols>
+      <TileRows>256</TileRows>
+      <DPI>96</DPI>
+      <PreciseDPI>96</PreciseDPI>
+      <LODInfos xsi:type="typens:ArrayOfLODInfo">
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>0</LevelID>
+          <Scale>591657527.591555</Scale>
+          <Resolution>156543.03392799999</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>1</LevelID>
+          <Scale>295828763.79577702</Scale>
+          <Resolution>78271.516963999893</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>2</LevelID>
+          <Scale>147914381.89788899</Scale>
+          <Resolution>39135.758482000099</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>3</LevelID>
+          <Scale>73957190.948944002</Scale>
+          <Resolution>19567.879240999901</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>4</LevelID>
+          <Scale>36978595.474472001</Scale>
+          <Resolution>9783.9396204999593</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>5</LevelID>
+          <Scale>18489297.737236001</Scale>
+          <Resolution>4891.9698102499797</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>6</LevelID>
+          <Scale>9244648.8686180003</Scale>
+          <Resolution>2445.9849051249898</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>7</LevelID>
+          <Scale>4622324.4343090001</Scale>
+          <Resolution>1222.9924525624899</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>8</LevelID>
+          <Scale>2311162.2171550002</Scale>
+          <Resolution>611.49622628138002</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>9</LevelID>
+          <Scale>1155581.108577</Scale>
+          <Resolution>305.74811314055802</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>10</LevelID>
+          <Scale>577790.55428899999</Scale>
+          <Resolution>152.874056570411</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>11</LevelID>
+          <Scale>288895.27714399999</Scale>
+          <Resolution>76.437028285073197</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>12</LevelID>
+          <Scale>144447.638572</Scale>
+          <Resolution>38.218514142536598</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>13</LevelID>
+          <Scale>72223.819285999998</Scale>
+          <Resolution>19.109257071268299</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>14</LevelID>
+          <Scale>36111.909642999999</Scale>
+          <Resolution>9.5546285356341496</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>15</LevelID>
+          <Scale>18055.954822</Scale>
+          <Resolution>4.7773142679493699</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>16</LevelID>
+          <Scale>9027.9774109999998</Scale>
+          <Resolution>2.38865713397468</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>17</LevelID>
+          <Scale>4513.9887049999998</Scale>
+          <Resolution>1.1943285668550501</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>18</LevelID>
+          <Scale>2256.994353</Scale>
+          <Resolution>0.59716428355981699</Resolution>
+        </LODInfo>
+        <LODInfo xsi:type="typens:LODInfo">
+          <LevelID>19</LevelID>
+          <Scale>1128.4971760000001</Scale>
+          <Resolution>0.29858214164761698</Resolution>
+        </LODInfo>
+      </LODInfos>
+    </TileCacheInfo>
+    <TileImageInfo xsi:type="typens:TileImageInfo">
+      <CacheTileFormat>PNG8</CacheTileFormat>
+      <CompressionQuality>0</CompressionQuality>
+      <Antialiasing>false</Antialiasing>
+      <BandCount>1</BandCount>
+      <LERCError>0</LERCError>
+    </TileImageInfo>
+    <CacheStorageInfo xsi:type="typens:CacheStorageInfo">
+      <StorageFormat>esriMapCacheStorageModeCompact</StorageFormat>
+      <PacketSize>128</PacketSize>
+    </CacheStorageInfo>
+  </CacheSchema>
+  <ItemInfo xsi:type="typens:ItemInfo">
+    <Name>NameOfGeocodeService</Name>
+    <GUID/>
+    <Type>Service Definition</Type>
+    <TypeKeywords xsi:nil="true"/>
+    <CatalogPath/>
+    <Title>NameOfGeocodeService</Title>
+    <Description>This is the description</Description>
+    <Tags xsi:type="typens:ArrayOfString">
+      <String>These</String>
+      <String>Are</String>
+      <String>The</String>
+      <String>Tags</String>
+    </Tags>
+    <Snippet>This is the summary</Snippet>
+    <AccessInformation>These are the acess and use constraints</AccessInformation>
+    <MinScale>0</MinScale>
+    <MaxScale>0</MaxScale>
+    <Credits>These are the credits</Credits>
+    <spatialReference/>
+  </ItemInfo>
+  <Metadata xsi:type="typens:XmlPropertySet">
+    <XmlDoc>&lt;?xml version="1.0"?&gt;
             &lt;metadata
-            xml:lang=&quot;en&quot;&gt;&lt;Esri&gt;&lt;CreaDate&gt;20180925&lt;/CreaDate&gt;&lt;CreaTime&gt;23233600&lt;/CreaTime&gt;&lt;ArcGISFormat&gt;1.0&lt;/ArcGISFormat&gt;&lt;SyncOnce&gt;FALSE&lt;/SyncOnce&gt;&lt;Locator&gt;&lt;Properties&gt;&lt;BuildVersion&gt;$Revision:
+            xml:lang="en"&gt;&lt;Esri&gt;&lt;CreaDate&gt;20180925&lt;/CreaDate&gt;&lt;CreaTime&gt;23233600&lt;/CreaTime&gt;&lt;ArcGISFormat&gt;1.0&lt;/ArcGISFormat&gt;&lt;SyncOnce&gt;FALSE&lt;/SyncOnce&gt;&lt;Locator&gt;&lt;Properties&gt;&lt;BuildVersion&gt;$Revision:
             15$&lt;/BuildVersion&gt;&lt;BuildVersionDate&gt;$Date: 11/18/2015 3:48:53
             PM$&lt;/BuildVersionDate&gt;&lt;CL&gt;&lt;GW_BORES_ALL&gt;&lt;Enabled&gt;TRUE&lt;/Enabled&gt;&lt;Input&gt;Street&lt;/Input&gt;&lt;Input&gt;City&lt;/Input&gt;&lt;Input&gt;State&lt;/Input&gt;&lt;Input&gt;Country&lt;/Input&gt;&lt;LocWks&gt;Type=Database;Wks=(ProgID
             = esriDataSourcesFile.ShapefileWorkspaceFactory; Path =
@@ -385,7 +385,7 @@
             = esriDataSourcesFile.ShapefileWorkspaceFactory; Path =
             .)&lt;/LocWks&gt;&lt;Name&gt;QLD_RURAL_PROP_NAME&lt;/Name&gt;&lt;/RURAL_PROPNAME&gt;&lt;SINGLEHOUSE_AD&gt;&lt;Enabled&gt;TRUE&lt;/Enabled&gt;&lt;Input&gt;Street&lt;/Input&gt;&lt;Input&gt;City&lt;/Input&gt;&lt;Input&gt;State&lt;/Input&gt;&lt;LocWks&gt;Type=Database;Wks=(ProgID
             = esriDataSourcesFile.ShapefileWorkspaceFactory; Path =
-            .)&lt;/LocWks&gt;&lt;Name&gt;QLD_SINGLEHOUSE_ADDRESS&lt;/Name&gt;&lt;/SINGLEHOUSE_AD&gt;&lt;SkipBadLocators&gt;FALSE&lt;/SkipBadLocators&gt;&lt;SR&gt;ByDescr&lt;Descr&gt;GEOGCS[&quot;GCS_GDA_1994&quot;,DATUM[&quot;D_GDA_1994&quot;,SPHEROID[&quot;GRS_1980&quot;,6378137.0,298.257222101]],PRIMEM[&quot;Greenwich&quot;,0.0],UNIT[&quot;Degree&quot;,0.0174532925199433]]&lt;/Descr&gt;&lt;Domain&gt;-400.000000,-400.000000,12509598.964918,12509598.964918&lt;/Domain&gt;&lt;/SR&gt;&lt;STREETNAME&gt;&lt;Enabled&gt;TRUE&lt;/Enabled&gt;&lt;Input&gt;Street&lt;/Input&gt;&lt;Input&gt;City&lt;/Input&gt;&lt;Input&gt;State&lt;/Input&gt;&lt;Input&gt;Country&lt;/Input&gt;&lt;LocWks&gt;Type=Database;Wks=(ProgID
+            .)&lt;/LocWks&gt;&lt;Name&gt;QLD_SINGLEHOUSE_ADDRESS&lt;/Name&gt;&lt;/SINGLEHOUSE_AD&gt;&lt;SkipBadLocators&gt;FALSE&lt;/SkipBadLocators&gt;&lt;SR&gt;ByDescr&lt;Descr&gt;GEOGCS["GCS_GDA_1994",DATUM["D_GDA_1994",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]&lt;/Descr&gt;&lt;Domain&gt;-400.000000,-400.000000,12509598.964918,12509598.964918&lt;/Domain&gt;&lt;/SR&gt;&lt;STREETNAME&gt;&lt;Enabled&gt;TRUE&lt;/Enabled&gt;&lt;Input&gt;Street&lt;/Input&gt;&lt;Input&gt;City&lt;/Input&gt;&lt;Input&gt;State&lt;/Input&gt;&lt;Input&gt;Country&lt;/Input&gt;&lt;LocWks&gt;Type=Database;Wks=(ProgID
             = esriDataSourcesFile.ShapefileWorkspaceFactory; Path =
             .)&lt;/LocWks&gt;&lt;Name&gt;QLD_STREETNAME_DCDB&lt;/Name&gt;&lt;/STREETNAME&gt;&lt;SURVEYCONTROL&gt;&lt;Enabled&gt;TRUE&lt;/Enabled&gt;&lt;Input&gt;Street&lt;/Input&gt;&lt;Input&gt;City&lt;/Input&gt;&lt;Input&gt;State&lt;/Input&gt;&lt;Input&gt;Country&lt;/Input&gt;&lt;LocWks&gt;Type=Database;Wks=(ProgID
             = esriDataSourcesFile.ShapefileWorkspaceFactory; Path =
@@ -399,27 +399,27 @@
             PM&lt;/RebuildStartTimeAscii&gt;&lt;RuntimeMemoryLimit&gt;1024000000&lt;/RuntimeMemoryLimit&gt;&lt;SafeLocatorName&gt;QldAddressComposite&lt;/SafeLocatorName&gt;&lt;SingleLineField&gt;SingleLine&lt;/SingleLineField&gt;&lt;SingleLineFieldAlias&gt;Single
             Line
             Input&lt;/SingleLineFieldAlias&gt;&lt;SingleLineFieldNames&gt;Address&lt;/SingleLineFieldNames&gt;&lt;SingleLineFieldNames&gt;SingleLine&lt;/SingleLineFieldNames&gt;&lt;SingleLineFieldNames&gt;FullAddress&lt;/SingleLineFieldNames&gt;&lt;SingleLineFieldNames&gt;Customer&lt;/SingleLineFieldNames&gt;&lt;SingleLineFieldSize&gt;100&lt;/SingleLineFieldSize&gt;&lt;UICLSID&gt;{3D486637-6BCF-4A0C-83DB-A02D437FB8FC}&lt;/UICLSID&gt;&lt;UseMultithreading&gt;True&lt;/UseMultithreading&gt;&lt;UseRelativePaths&gt;TRUE&lt;/UseRelativePaths&gt;&lt;Version&gt;10.0&lt;/Version&gt;&lt;WritePercentAlongField&gt;FALSE&lt;/WritePercentAlongField&gt;&lt;WriteReferenceIDField&gt;FALSE&lt;/WriteReferenceIDField&gt;&lt;WriteStandardizedAddressField&gt;FALSE&lt;/WriteStandardizedAddressField&gt;&lt;WriteXYCoordFields&gt;FALSE&lt;/WriteXYCoordFields&gt;&lt;DefaultPath&gt;D:\sirgis-fs\customApps2\LocatorUpdater\working\locators\&lt;/DefaultPath&gt;&lt;/Properties&gt;&lt;/Locator&gt;&lt;SyncDate&gt;20180925&lt;/SyncDate&gt;&lt;SyncTime&gt;23233600&lt;/SyncTime&gt;&lt;ModDate&gt;20180925&lt;/ModDate&gt;&lt;ModTime&gt;23233600&lt;/ModTime&gt;&lt;DataProperties&gt;&lt;coordRef&gt;&lt;type
-            Sync=&quot;TRUE&quot;&gt;Geographic&lt;/type&gt;&lt;geogcsn
-            Sync=&quot;TRUE&quot;&gt;GCS_GDA_1994&lt;/geogcsn&gt;&lt;csUnits Sync=&quot;TRUE&quot;&gt;Angular Unit:
-            Degree (0.017453)&lt;/csUnits&gt;&lt;peXml Sync=&quot;TRUE&quot;&gt;&amp;lt;GeographicCoordinateSystem
+            Sync="TRUE"&gt;Geographic&lt;/type&gt;&lt;geogcsn
+            Sync="TRUE"&gt;GCS_GDA_1994&lt;/geogcsn&gt;&lt;csUnits Sync="TRUE"&gt;Angular Unit:
+            Degree (0.017453)&lt;/csUnits&gt;&lt;peXml Sync="TRUE"&gt;&amp;lt;GeographicCoordinateSystem
             xsi:type='typens:GeographicCoordinateSystem'
             xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
             xmlns:xs='http://www.w3.org/2001/XMLSchema'
             xmlns:typens='http://www.esri.com/schemas/ArcGIS/10.4'&amp;gt;&amp;lt;WKT&amp;gt;GEOGCS[&amp;amp;quot;GCS_GDA_1994&amp;amp;quot;,DATUM[&amp;amp;quot;D_GDA_1994&amp;amp;quot;,SPHEROID[&amp;amp;quot;GRS_1980&amp;amp;quot;,6378137.0,298.257222101]],PRIMEM[&amp;amp;quot;Greenwich&amp;amp;quot;,0.0],UNIT[&amp;amp;quot;Degree&amp;amp;quot;,0.0174532925199433],AUTHORITY[&amp;amp;quot;EPSG&amp;amp;quot;,4283]]&amp;lt;/WKT&amp;gt;&amp;lt;XOrigin&amp;gt;-400&amp;lt;/XOrigin&amp;gt;&amp;lt;YOrigin&amp;gt;-400&amp;lt;/YOrigin&amp;gt;&amp;lt;XYScale&amp;gt;720000000.00000238&amp;lt;/XYScale&amp;gt;&amp;lt;ZOrigin&amp;gt;-100000&amp;lt;/ZOrigin&amp;gt;&amp;lt;ZScale&amp;gt;10000&amp;lt;/ZScale&amp;gt;&amp;lt;MOrigin&amp;gt;-100000&amp;lt;/MOrigin&amp;gt;&amp;lt;MScale&amp;gt;10000&amp;lt;/MScale&amp;gt;&amp;lt;XYTolerance&amp;gt;8.9831528411952133e-009&amp;lt;/XYTolerance&amp;gt;&amp;lt;ZTolerance&amp;gt;0.001&amp;lt;/ZTolerance&amp;gt;&amp;lt;MTolerance&amp;gt;0.001&amp;lt;/MTolerance&amp;gt;&amp;lt;HighPrecision&amp;gt;true&amp;lt;/HighPrecision&amp;gt;&amp;lt;LeftLongitude&amp;gt;-180&amp;lt;/LeftLongitude&amp;gt;&amp;lt;WKID&amp;gt;4283&amp;lt;/WKID&amp;gt;&amp;lt;LatestWKID&amp;gt;4283&amp;lt;/LatestWKID&amp;gt;&amp;lt;/GeographicCoordinateSystem&amp;gt;&lt;/peXml&gt;&lt;/coordRef&gt;&lt;/DataProperties&gt;&lt;/Esri&gt;&lt;dataIdInfo&gt;&lt;envirDesc
-            Sync=&quot;TRUE&quot;&gt; Version 6.2 (Build 9200) ; Esri ArcGIS
-            10.4.1.5686&lt;/envirDesc&gt;&lt;dataLang&gt;&lt;languageCode value=&quot;eng&quot;
-            Sync=&quot;TRUE&quot;&gt;&lt;/languageCode&gt;&lt;countryCode value=&quot;AUS&quot;
-            Sync=&quot;TRUE&quot;&gt;&lt;/countryCode&gt;&lt;/dataLang&gt;&lt;spatRpType&gt;&lt;SpatRepTypCd
-            value=&quot;001&quot;
-            Sync=&quot;TRUE&quot;&gt;&lt;/SpatRepTypCd&gt;&lt;/spatRpType&gt;&lt;/dataIdInfo&gt;&lt;mdLang&gt;&lt;languageCode
-            value=&quot;eng&quot; Sync=&quot;TRUE&quot;&gt;&lt;/languageCode&gt;&lt;countryCode value=&quot;AUS&quot;
-            Sync=&quot;TRUE&quot;&gt;&lt;/countryCode&gt;&lt;/mdLang&gt;&lt;mdChar&gt;&lt;CharSetCd
-            value=&quot;004&quot; Sync=&quot;TRUE&quot;&gt;&lt;/CharSetCd&gt;&lt;/mdChar&gt;&lt;mdDateSt
-            Sync=&quot;TRUE&quot;&gt;20180925&lt;/mdDateSt&gt;&lt;DatasetName&gt;QldAddressComposite&lt;/DatasetName&gt;&lt;DatasetType&gt;Address
+            Sync="TRUE"&gt; Version 6.2 (Build 9200) ; Esri ArcGIS
+            10.4.1.5686&lt;/envirDesc&gt;&lt;dataLang&gt;&lt;languageCode value="eng"
+            Sync="TRUE"&gt;&lt;/languageCode&gt;&lt;countryCode value="AUS"
+            Sync="TRUE"&gt;&lt;/countryCode&gt;&lt;/dataLang&gt;&lt;spatRpType&gt;&lt;SpatRepTypCd
+            value="001"
+            Sync="TRUE"&gt;&lt;/SpatRepTypCd&gt;&lt;/spatRpType&gt;&lt;/dataIdInfo&gt;&lt;mdLang&gt;&lt;languageCode
+            value="eng" Sync="TRUE"&gt;&lt;/languageCode&gt;&lt;countryCode value="AUS"
+            Sync="TRUE"&gt;&lt;/countryCode&gt;&lt;/mdLang&gt;&lt;mdChar&gt;&lt;CharSetCd
+            value="004" Sync="TRUE"&gt;&lt;/CharSetCd&gt;&lt;/mdChar&gt;&lt;mdDateSt
+            Sync="TRUE"&gt;20180925&lt;/mdDateSt&gt;&lt;DatasetName&gt;QldAddressComposite&lt;/DatasetName&gt;&lt;DatasetType&gt;Address
             Locator&lt;/DatasetType&gt;&lt;refSysInfo&gt;&lt;RefSystem&gt;&lt;refSysID&gt;&lt;identCode
-            code=&quot;4283&quot; Sync=&quot;TRUE&quot;&gt;&lt;/identCode&gt;&lt;idCodeSpace
-            Sync=&quot;TRUE&quot;&gt;EPSG&lt;/idCodeSpace&gt;&lt;idVersion
-            Sync=&quot;TRUE&quot;&gt;8.3.4(3.0.1)&lt;/idVersion&gt;&lt;/refSysID&gt;&lt;/RefSystem&gt;&lt;/refSysInfo&gt;&lt;/metadata&gt;
+            code="4283" Sync="TRUE"&gt;&lt;/identCode&gt;&lt;idCodeSpace
+            Sync="TRUE"&gt;EPSG&lt;/idCodeSpace&gt;&lt;idVersion
+            Sync="TRUE"&gt;8.3.4(3.0.1)&lt;/idVersion&gt;&lt;/refSysID&gt;&lt;/RefSystem&gt;&lt;/refSysInfo&gt;&lt;/metadata&gt;
         </XmlDoc>
-    </Metadata>
+  </Metadata>
 </SVCManifest>
