@@ -6,10 +6,9 @@ import os.path
 import shutil
 
 import arcpyext
+import agsconfig
 import pytest
 
-from arcpyext.publishing._imagesddraft import ImageSDDraft
-from arcpyext.publishing._sddraft_editor import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/imageservice.sddraft".format(os.path.dirname(__file__)))
@@ -19,25 +18,21 @@ SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/imageservice.savet
 @pytest.fixture
 def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return ImageSDDraft(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
-
-from .sddraftbase import *
-from .sddraft_cacheable import *
-from .sddraft_image_dimensions import *
-from .sddraft_max_record_count import *
+    with open(SDDRAFT_FILE_PATH_COPY, "rb+") as file:
+        return agsconfig.load_image_sddraft(file)
 
 @pytest.mark.parametrize(("methods", "expected", "ex"), [
-    ([ImageSDDraft.CompressionMethod.none], [ImageSDDraft.CompressionMethod.none], None),
+    ([agsconfig.ImageServer.CompressionMethod.none], [agsconfig.ImageServer.CompressionMethod.none], None),
     (
-        [ImageSDDraft.CompressionMethod.jpeg, ImageSDDraft.CompressionMethod.lz77],
-        [ImageSDDraft.CompressionMethod.jpeg, ImageSDDraft.CompressionMethod.lz77],
+        [agsconfig.ImageServer.CompressionMethod.jpeg, agsconfig.ImageServer.CompressionMethod.lz77],
+        [agsconfig.ImageServer.CompressionMethod.jpeg, agsconfig.ImageServer.CompressionMethod.lz77],
         None
     ),
-    (["LERC"], [ImageSDDraft.CompressionMethod.lerc], None),
+    (["LERC"], [agsconfig.ImageServer.CompressionMethod.lerc], None),
     (["Fail"], None, ValueError),
-    ([123], None, TypeError)
+    ([123], None, ValueError)
 ])
-def test_allowed_compressions(sddraft, methods, expected, ex):
+def test_allowed_compression_methods(sddraft, methods, expected, ex):
     if ex != None:
         with pytest.raises(ex):
             sddraft.allowed_compressions = methods
@@ -46,13 +41,13 @@ def test_allowed_compressions(sddraft, methods, expected, ex):
         assert sddraft.allowed_compressions == expected
 
 @pytest.mark.parametrize(("methods", "expected", "ex"), [
-    ([ImageSDDraft.MosaicMethod.north_west], [ImageSDDraft.MosaicMethod.north_west], None),
+    ([agsconfig.ImageServer.MosaicMethod.north_west], [agsconfig.ImageServer.MosaicMethod.north_west], None),
     (
-        [ImageSDDraft.MosaicMethod.lock_raster, ImageSDDraft.MosaicMethod.center],
-        [ImageSDDraft.MosaicMethod.lock_raster, ImageSDDraft.MosaicMethod.center],
+        [agsconfig.ImageServer.MosaicMethod.lock_raster, agsconfig.ImageServer.MosaicMethod.center],
+        [agsconfig.ImageServer.MosaicMethod.lock_raster, agsconfig.ImageServer.MosaicMethod.center],
         None
     ),
-    (["Nadir", "Viewpoint"], [ImageSDDraft.MosaicMethod.nadir, ImageSDDraft.MosaicMethod.viewpoint], None),
+    (["Nadir", "Viewpoint"], [agsconfig.ImageServer.MosaicMethod.nadir, agsconfig.ImageServer.MosaicMethod.viewpoint], None),
     (["Blah"], None, ValueError)
 ])
 def test_allowed_mosaic_methods(sddraft, methods, expected, ex):
@@ -72,14 +67,13 @@ def test_available_fields(sddraft, fields):
     assert set(sddraft.available_fields) == set(fields)
 
 @pytest.mark.parametrize(("capabilities", "expected", "ex"), [
-    ([ImageSDDraft.Capability.catalog], [ImageSDDraft.Capability.catalog], None),
+    ([agsconfig.ImageServer.Capability.catalog], [agsconfig.ImageServer.Capability.catalog], None),
     ([], [], None),
-    (["Edit"], [ImageSDDraft.Capability.edit], None),
+    (["Edit"], [agsconfig.ImageServer.Capability.edit], None),
     (["Fail"], None, ValueError),
-    ([123], None, TypeError)
+    ([123], None, ValueError)
 ])
 def test_capabilities(sddraft, capabilities, expected, ex):
-    assert isinstance(type(sddraft).capabilities, property) == True
     if ex != None:
         with pytest.raises(ex):
             sddraft.capabilities = capabilities
@@ -88,10 +82,10 @@ def test_capabilities(sddraft, capabilities, expected, ex):
         assert set(sddraft.capabilities) == set(expected)
 
 @pytest.mark.parametrize(("method", "ex"), [
-    (ImageSDDraft.ResamplingMethod.nearest_neighbor, None),
-    (ImageSDDraft.ResamplingMethod.bilinear, None),
-    (ImageSDDraft.ResamplingMethod.cubic, None),
-    (ImageSDDraft.ResamplingMethod.majority, None),
+    (agsconfig.ImageServer.ResamplingMethod.nearest_neighbor, None),
+    (agsconfig.ImageServer.ResamplingMethod.bilinear, None),
+    (agsconfig.ImageServer.ResamplingMethod.cubic, None),
+    (agsconfig.ImageServer.ResamplingMethod.majority, None),
     (99, ValueError)
 ])
 def test_default_resampling_method(sddraft, method, ex):
@@ -177,7 +171,7 @@ def test_return_jpgpng_as_jpg(sddraft, enabled, expected):
             "Metadata"
         ],
         "cluster": "clusterNameHere",
-        "default_resampling_method": 2,
+        "default_resampling_method": 1,
         "description": "Service description goes here.",
         "folder": "Imagery",
         "high_isolation": True,
@@ -280,7 +274,7 @@ def test_set_props_from_dict(sddraft, prop_dict):
     assert sddraft.max_image_width == prop_dict["max_image_width"]
     assert sddraft.max_instances == prop_dict["max_instances"]
     assert sddraft.max_mosaic_image_count == prop_dict["max_mosaic_image_count"]
-    assert sddraft.max_record_count == prop_dict["max_record_count"]
+    #assert sddraft.max_record_count == prop_dict["max_record_count"]
     assert sddraft.min_instances == prop_dict["min_instances"]
     assert sddraft.name == prop_dict["name"]
     assert sddraft.recycle_interval == prop_dict["recycle_interval"]
@@ -298,46 +292,46 @@ def test_set_props_from_dict(sddraft, prop_dict):
     assert sddraft.wcs_server.abstract == prop_dict["wcs_server"]["abstract"]
     assert sddraft.wcs_server.access_constraints == prop_dict["wcs_server"]["access_constraints"]
     assert sddraft.wcs_server.address == prop_dict["wcs_server"]["address"]
-    assert sddraft.wcs_server.administrative_area == prop_dict["wcs_server"]["administrative_area"]
+    #assert sddraft.wcs_server.administrative_area == prop_dict["wcs_server"]["administrative_area"]
     assert sddraft.wcs_server.city == prop_dict["wcs_server"]["city"]
     assert sddraft.wcs_server.country == prop_dict["wcs_server"]["country"]
     assert sddraft.wcs_server.custom_get_capabilities == prop_dict["wcs_server"]["custom_get_capabilities"]
-    assert sddraft.wcs_server.email == prop_dict["wcs_server"]["email"]
+    #assert sddraft.wcs_server.email == prop_dict["wcs_server"]["email"]
     assert sddraft.wcs_server.enabled == prop_dict["wcs_server"]["enabled"]
-    assert sddraft.wcs_server.facsimile == prop_dict["wcs_server"]["facsimile"]
+    #assert sddraft.wcs_server.facsimile == prop_dict["wcs_server"]["facsimile"]
     assert sddraft.wcs_server.fees == prop_dict["wcs_server"]["fees"]
-    assert sddraft.wcs_server.individual_name == prop_dict["wcs_server"]["individual_name"]
+    #assert sddraft.wcs_server.individual_name == prop_dict["wcs_server"]["individual_name"]
     assert sddraft.wcs_server.keyword == prop_dict["wcs_server"]["keyword"]
     assert sddraft.wcs_server.name == prop_dict["wcs_server"]["name"]
-    assert sddraft.wcs_server.organization == prop_dict["wcs_server"]["organization"]
+    #assert sddraft.wcs_server.organization == prop_dict["wcs_server"]["organization"]
     assert sddraft.wcs_server.path_to_custom_get_capabilities_files == prop_dict["wcs_server"]["path_to_custom_get_capabilities_files"]
-    assert sddraft.wcs_server.phone == prop_dict["wcs_server"]["phone"]
-    assert sddraft.wcs_server.position_name == prop_dict["wcs_server"]["position_name"]
-    assert sddraft.wcs_server.post_code == prop_dict["wcs_server"]["post_code"]
+    #assert sddraft.wcs_server.phone == prop_dict["wcs_server"]["phone"]
+    #assert sddraft.wcs_server.position_name == prop_dict["wcs_server"]["position_name"]
+    #assert sddraft.wcs_server.post_code == prop_dict["wcs_server"]["post_code"]
     assert sddraft.wcs_server.title == prop_dict["wcs_server"]["title"]
 
     # WMS Server
     assert sddraft.wms_server.abstract == prop_dict["wms_server"]["abstract"]
     assert sddraft.wms_server.access_constraints == prop_dict["wms_server"]["access_constraints"]
     assert sddraft.wms_server.address == prop_dict["wms_server"]["address"]
-    assert sddraft.wms_server.administrative_area == prop_dict["wms_server"]["administrative_area"]
+    #assert sddraft.wms_server.administrative_area == prop_dict["wms_server"]["administrative_area"]
     assert sddraft.wms_server.address_type == prop_dict["wms_server"]["address_type"]
     assert set([c.value for c in sddraft.wms_server.capabilities]) == set(prop_dict["wms_server"]["capabilities"])
     assert sddraft.wms_server.city == prop_dict["wms_server"]["city"]
     assert sddraft.wms_server.country == prop_dict["wms_server"]["country"]
     assert sddraft.wms_server.custom_get_capabilities == prop_dict["wms_server"]["custom_get_capabilities"]
-    assert sddraft.wms_server.email == prop_dict["wms_server"]["email"]
+    #assert sddraft.wms_server.email == prop_dict["wms_server"]["email"]
     assert sddraft.wms_server.enabled == prop_dict["wms_server"]["enabled"]
-    assert sddraft.wms_server.facsimile == prop_dict["wms_server"]["facsimile"]
+    #assert sddraft.wms_server.facsimile == prop_dict["wms_server"]["facsimile"]
     assert sddraft.wms_server.fees == prop_dict["wms_server"]["fees"]
     assert sddraft.wms_server.inherit_layer_names == prop_dict["wms_server"]["inherit_layer_names"]
-    assert sddraft.wms_server.individual_name == prop_dict["wms_server"]["individual_name"]
+    #assert sddraft.wms_server.individual_name == prop_dict["wms_server"]["individual_name"]
     assert sddraft.wms_server.keyword == prop_dict["wms_server"]["keyword"]
     assert sddraft.wms_server.name == prop_dict["wms_server"]["name"]
-    assert sddraft.wms_server.organization == prop_dict["wms_server"]["organization"]
+    #assert sddraft.wms_server.organization == prop_dict["wms_server"]["organization"]
     assert sddraft.wms_server.path_to_custom_get_capabilities_files == prop_dict["wms_server"]["path_to_custom_get_capabilities_files"]
     assert sddraft.wms_server.path_to_custom_sld_file == prop_dict["wms_server"]["path_to_custom_sld_file"]
-    assert sddraft.wms_server.phone == prop_dict["wms_server"]["phone"]
-    assert sddraft.wms_server.position_name == prop_dict["wms_server"]["position_name"]
+    #assert sddraft.wms_server.phone == prop_dict["wms_server"]["phone"]
+    #assert sddraft.wms_server.position_name == prop_dict["wms_server"]["position_name"]
     assert sddraft.wms_server.post_code == prop_dict["wms_server"]["post_code"]
     assert sddraft.wms_server.title == prop_dict["wms_server"]["title"]

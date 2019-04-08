@@ -6,10 +6,15 @@ import arcpyext
 
 TEST_DATA_SOURCE = {"workspacePath": os.path.abspath(
     "{0}/../samples/test_data_table2.gdb".format(os.path.dirname(__file__)))}
+TEST_DATA_SOURCE2 = {'connectionProperties': {'dataset': 'DataTableTest', 'workspace_factory': 'File Geodatabase', 
+                    'connection_info': {'database': '{0}/../samples/test_data_table1.gdb'.format(os.path.dirname(__file__))}}}
 BROKEN_DATA_SOURCE = {"workspacePath": os.path.abspath(
     "{0}/../samples/test_data_table99.gdb".format(os.path.dirname(__file__)))}
 CLIP2_DATA_SOURCE = {"workspacePath": os.path.abspath(
     "{0}/../samples/".format(os.path.dirname(__file__))), "datasetName": "statesp020_clip2"}
+CLIP3_DATA_SOURCE = {'connectionProperties': {'dataset': 'statesp020_clip1.shp', 
+                    'workspace_factory': 'Shape File', 
+                    'connection_info': {'database': "{0}/../samples/".format(os.path.dirname(__file__))}}}
 PROJECT_PATH = os.path.abspath("{0}/../samples/test_mapping.aprx".format(os.path.dirname(__file__)))
 PROJECT_COMPLEX_PATH = os.path.abspath("{0}/samples/test_mapping_complex.aprx".format(os.path.dirname(__file__)))
 PROJECT_COMPLEX_B_PATH = os.path.abspath("{0}/samples/test_mapping_complex_b.aprx".format(os.path.dirname(__file__)))
@@ -19,9 +24,8 @@ def project():
     return arcpy.mp.ArcGISProject(PROJECT_PATH)
             
 @pytest.mark.parametrize(("data_sources", "layer_data_sources_equal", "table_data_sources_equal", "raises_ex", "ex_type"), [
-    ({'layers': [[CLIP2_DATA_SOURCE]], 'tableViews': [
-     TEST_DATA_SOURCE]}, [False], [False], False, None),
-    ({'layers': [[None]], 'tableViews': [None]}, [True], [True], False, None),
+    ({'layers': [[CLIP3_DATA_SOURCE]], 'tableViews': [
+     TEST_DATA_SOURCE2]}, [False], [True], False, None),
     ({'layers': [], 'tableViews': []}, [True], [True],
      True, arcpyext.exceptions.ChangeDataSourcesError),
      ({'tableViews': [None]}, [True], [True],
@@ -131,7 +135,7 @@ def test_list_document_data_sources(mxd, raises_ex, ex_type):
     assert len(result['tableViews']) == 1
 
 @pytest.mark.parametrize(("mxd_a", "mxd_b", "data_frame_updates", "layers_added", "layers_updated", "layers_removed", "raises_ex", "ex_type"), [
-    (PROJECT_COMPLEX_PATH, PROJECT_COMPLEX_B_PATH, 2, 1, 2, 1, False, None)
+    (PROJECT_COMPLEX_PATH, PROJECT_COMPLEX_B_PATH, 2, 2, 2, 2, False, None)
 ])
 def test_compare_map_documents(mxd_a, mxd_b, data_frame_updates, layers_added, layers_updated, layers_removed, raises_ex, ex_type):
     a = arcpy.mp.ArcGISProject(mxd_a)
@@ -141,7 +145,7 @@ def test_compare_map_documents(mxd_a, mxd_b, data_frame_updates, layers_added, l
     data_frame_changes = result['dataFrames']
     layer_changes = result['layers']
 
-    #assert len(data_frame_changes) == data_frame_updates, "Expected {0} data frame updates".format(data_frame_updates)
+    assert len(data_frame_changes) == data_frame_updates, "Expected {0} data frame updates".format(data_frame_updates)
     assert len(layer_changes['added']) == layers_added, "Expected {0} a".format(layers_added)
-    #assert len(layer_changes['updated']) == layers_updated, "Expected {0} u".format(layers_updated)
+    assert len(layer_changes['updated']) == layers_updated, "Expected {0} u".format(layers_updated)
     assert len(layer_changes['removed']) == layers_removed, "Expected {0} d".format(layers_removed)

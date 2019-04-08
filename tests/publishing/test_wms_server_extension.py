@@ -1,11 +1,19 @@
+# Python 2/3 compatibility
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from future.builtins import *
+from future.builtins.disabled import *
+from future.standard_library import install_aliases
+install_aliases()
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+
 import os.path
 import shutil
 
 import arcpyext
+import agsconfig
 import pytest
 
-from arcpyext.publishing._wms_server_extension import WmsServerExtension
-from arcpyext.publishing._sddraft_editor import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/example.sddraft".format(os.path.dirname(__file__)))
@@ -15,20 +23,19 @@ SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/example.savetest.s
 @pytest.fixture
 def server_ext():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return WmsServerExtension(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
-
-from arcpyext.publishing._ogc_metadata_extension_mixin import *
-from arcpyext.publishing._custom_get_capabilities_extension_mixin import *
+    with open(SDDRAFT_FILE_PATH_COPY, "rb+") as file:
+        return agsconfig.load_map_sddraft(file).wms_server
 
 @pytest.mark.parametrize(("srs", "expected"), [
     (["EPSG:102100","EPSG:102113","EPSG:3857"], ["EPSG:102100","EPSG:102113","EPSG:3857"]),
     ("EPSG:102100,EPSG:102113,EPSG:3857", ["EPSG:102100","EPSG:102113","EPSG:3857"]),
-    (None, []),
     ("", [])
 ])
 def test_additional_spatial_ref_sys(server_ext, srs, expected):
     server_ext.additional_spatial_ref_sys = srs
     assert set(server_ext.additional_spatial_ref_sys) == set(expected)
+
+
 
 @pytest.mark.parametrize(("address_type"), [
     ("postal")
@@ -38,12 +45,12 @@ def test_address_type(server_ext, address_type):
     assert server_ext.address_type == address_type
 
 @pytest.mark.parametrize(("capabilities", "expected", "ex"), [
-    (["GetCapabilities"], [WmsServerExtension.Capability.get_capabilities], None),
-    (["GetFeatureInfo", "GetMap"], [WmsServerExtension.Capability.get_feature_info, WmsServerExtension.Capability.get_map], None),
+    (["GetCapabilities"], [agsconfig.WMSServerExtension.Capability.get_capabilities], None),
+    (["GetFeatureInfo", "GetMap"], [agsconfig.WMSServerExtension.Capability.get_feature_info, agsconfig.WMSServerExtension.Capability.get_map], None),
     (["getfeatureinfo"], None, ValueError),
-    ([WmsServerExtension.Capability.get_styles], [WmsServerExtension.Capability.get_styles], None),
+    ([agsconfig.WMSServerExtension.Capability.get_styles], [agsconfig.WMSServerExtension.Capability.get_styles], None),
     (["FooBar"], None, ValueError),
-    ([1], None, TypeError)
+    ([1], None, ValueError)
 ])
 def test_capabilities(server_ext, capabilities, expected, ex):
     if (ex != None):
