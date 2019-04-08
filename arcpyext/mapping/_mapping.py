@@ -497,7 +497,8 @@ def validate_map(map):
     :returns: Boolean, True if valid, False if there are one or more broken layers
 
     """
-    if isinstance(map, (str, unicode)):
+
+    if isinstance(map, (basestring)):
         map = arcpy.mapping.MapDocument(map)
 
     broken_layers = arcpy.mapping.ListBrokenDataSources(map)
