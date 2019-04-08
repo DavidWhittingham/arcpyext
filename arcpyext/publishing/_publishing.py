@@ -12,13 +12,7 @@ import arcpy
 from ..exceptions import MapDataSourcesBrokenError, ServDefDraftCreateError
 from ..mapping import validate_map
 
-from ._mapsddraft import MapSDDraft
-from ._imagesddraft import ImageSDDraft
-from ._geodata_sddraft import GeodataSDDraft
-from ._gpsddraft import GPSDDraft
-from ._geocode_sddraft import GeocodeSDDraft
-from ._sddraft_editor import SDDraftEditor
-
+import agsconfig
 
 def check_analysis(analysis):
     if not analysis["errors"] == {}:
@@ -120,16 +114,20 @@ def convert_toolbox_to_service_draft(toolbox_path, sd_draft_path, get_result_fn,
     return load_gp_sddraft(sd_draft_path)
 
 def load_geocode_sddraft(path):
-    return GeocodeSDDraft(SDDraftEditor(path))
+    with open(path, "rb+") as file:
+        return agsconfig.load_geocode_sddraft(file)
 
 def load_geodata_sddraft(path):
-    return GeodataSDDraft(SDDraftEditor(path))
+    raise NotImplementedError
 
 def load_gp_sddraft(path):
-    return GPSDDraft(SDDraftEditor(path))
+    with open(path, "rb+") as file:
+        return agsconfig.load_geoprocessing_sddraft(file)
 
 def load_image_sddraft(path):
-    return ImageSDDraft(SDDraftEditor(path))
+    with open(path, "rb+") as file:
+        return agsconfig.load_image_sddraft(file)
 
 def load_map_sddraft(path):
-    return MapSDDraft(SDDraftEditor(path))
+    with open(path, "rb+") as file:
+        return agsconfig.load_map_sddraft(file)
