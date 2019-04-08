@@ -490,7 +490,7 @@
                                 </PropertySetProperty>
                                 <PropertySetProperty xsi:type='typens:PropertySetProperty'>
                                     <Key>WebCapabilities</Key>
-                                    <Value xsi:nil='true'/>
+                                    <Value xsi:type='xs:string'>GetCapabilities,GetMap,GetFeatureInfo,GetStyles,GetLegendGraphic,GetSchemaExtension</Value>
                                 </PropertySetProperty>
                             </PropertyArray>
                         </Info>
