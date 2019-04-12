@@ -1,9 +1,14 @@
+# coding=utf-8
+"""This module contains helper functions related to publishing."""
+
 # Python 2/3 compatibility
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from future.builtins import *
 from future.builtins.disabled import *
 from future.standard_library import install_aliases
 install_aliases()
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 import os
 
@@ -11,8 +16,6 @@ import arcpy
 
 from ..exceptions import MapDataSourcesBrokenError, ServDefDraftCreateError
 from ..mapping import validate_map
-
-import agsconfig
 
 def check_analysis(analysis):
     if not analysis["errors"] == {}:
@@ -56,7 +59,7 @@ def convert_pro_project_to_service_draft(project, sd_draft_path, service_name, f
     draft.portalFolder = portal_folder
     draft.exportToSDDraft(sd_draft_path)
 
-    return load_map_sddraft(sd_draft_path)
+    return sd_draft_path
 
 def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False, server = None, portal_folder = None):
     # server and portal_folder parameters are required for pro services. Ignore in this function.
@@ -83,7 +86,7 @@ def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name =
     analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)
     check_analysis(analysis)
 
-    return load_map_sddraft(sd_draft_path)
+    return sd_draft_path
 
 def convert_service_draft_to_staged_service(sd_draft, sd_path):
     if os.path.exists(sd_path):
@@ -111,23 +114,4 @@ def convert_toolbox_to_service_draft(toolbox_path, sd_draft_path, get_result_fn,
     analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)
     check_analysis(analysis)
 
-    return load_gp_sddraft(sd_draft_path)
-
-def load_geocode_sddraft(path):
-    with open(path, "rb+") as file:
-        return agsconfig.load_geocode_sddraft(file)
-
-def load_geodata_sddraft(path):
-    raise NotImplementedError
-
-def load_gp_sddraft(path):
-    with open(path, "rb+") as file:
-        return agsconfig.load_geoprocessing_sddraft(file)
-
-def load_image_sddraft(path):
-    with open(path, "rb+") as file:
-        return agsconfig.load_image_sddraft(file)
-
-def load_map_sddraft(path):
-    with open(path, "rb+") as file:
-        return agsconfig.load_map_sddraft(file)
+    return sd_draft_path
