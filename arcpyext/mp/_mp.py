@@ -1,26 +1,43 @@
+# coding=utf-8
+"""This module contains extended functionality for related to the arcpy.mp module."""
+
+# Python 2/3 compatibility
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from future.builtins.disabled import *
+from future.builtins import *
+from future.standard_library import install_aliases
+install_aliases()
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+
+# Standard lib imports
 import logging
 import re
+
 from itertools import zip_longest
 
+# Third-party imports
 import arcpy
 
+# Local imports
 from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
 from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, list_layers
 
 # Configure module logging
 logger = logging.getLogger("arcpyext.mp")
 
+
 def change_data_sources(project, data_sources):
     """ """
-    if type(project) == str:
-        project = arcpy.mp.ArcGISProject(project)
+    # make sure the project is a project, not a path
+    project = _open_arcgis_project(project)
 
     errors = []
     data_tables = []
     for map in project.listMaps():
         for table in map.listTables():
             data_tables.append(table)
-    
+
     layers_by_map = [df.listLayers() for df in project.listMaps()]
 
     if not 'layers' in data_sources or not 'tableViews' in data_sources:
@@ -31,13 +48,16 @@ def change_data_sources(project, data_sources):
             if layer_source == None:
                 continue
 
-            logger.debug(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode("ascii", "ignore"))
+            logger.debug(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode(
+                "ascii", "ignore"))
             logger.debug(u"Old connectionProperties {0}".format(layer.connectionProperties).encode("ascii", "ignore"))
             _change_data_source(layer, layer_source[0].get("connectionProperties"))
-            logger.debug(u"Layer '{0}': connectionProperties updated to: '{1}'".format(layer.name, layer_source[0]["connectionProperties"]).encode("ascii", "ignore"))
+            logger.debug(u"Layer '{0}': connectionProperties updated to: '{1}'".format(
+                layer.name, layer_source[0]["connectionProperties"]).encode("ascii", "ignore"))
 
             if layer.supports("dataSource"):
-                logger.debug(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
+                logger.debug(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode(
+                    "ascii", "ignore"))
 
         #TODO: Handle KeyError and AttributeError for badly written configs
         except MapLayerError as e:
@@ -51,10 +71,13 @@ def change_data_sources(project, data_sources):
             if layer_source == None:
                 continue
 
-            logger.debug(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode("ascii", "ignore"))
-            logger.debug(u"Old connectionProperties {0}".format(data_table.connectionProperties).encode("ascii", "ignore"))
+            logger.debug(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode(
+                "ascii", "ignore"))
+            logger.debug(u"Old connectionProperties {0}".format(data_table.connectionProperties).encode(
+                "ascii", "ignore"))
             _change_data_source(data_table, layer_source.get("connectionProperties"))
-            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source.get("connectionProperties")))
+            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(
+                data_table.name, layer_source.get("connectionProperties")))
 
         except MapLayerError as mle:
             errors.append(mle)
@@ -62,201 +85,6 @@ def change_data_sources(project, data_sources):
     if not len(errors) == 0:
         raise ChangeDataSourcesError("A number of errors were encountered whilst change layer data sources.", errors)
 
-def validate_pro_project(project):
-    broken_layers = project.listBrokenDataSources()
-
-    if len(broken_layers) > 0:
-        logger.debug(u"Map '{0}': Broken data sources:".format(project.filePath))
-        for layer in broken_layers:
-            logger.debug(u" {0}".format(layer.name))
-            if not hasattr(layer, "supports"):
-                #probably a TableView
-                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
-                logger.debug(u"  datasource: {0}".format(layer.dataSource))
-                continue
-
-            #Some sort of layer
-            if layer.supports("workspacePath"):
-                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
-            if layer.supports("dataSource"):
-                logger.debug(u"  datasource: {0}".format(layer.dataSource))
-
-        return False
-
-    return True
-
-def _change_data_source(layer, newProps):
-    try:
-        connProps = layer.connectionProperties
-
-        layer.updateConnectionProperties(connProps, newProps)
-
-    except Exception as e:
-        raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
-
-    if hasattr(layer, "isBroken") and layer.isBroken:
-        raise DataSourceUpdateError("Layer is now broken.", layer)
-
-
-def list_document_data_sources(project):
-    """List the data sources for each layer or table view of the specified map.
-
-    Outputs a dictionary containing two keys, "layers" and "tableViews".
-
-    "layers" contains an array, with each element representing a data frame (as another array) that contains a
-    dictionary of layer details relevant to that layer's connection to its data source.
-
-    "tableViews" is also an array, where each element is a dictionary of table view details relevant to that table
-    view's connection to its data source.
-
-    The order of array elements is as displayed in the ArcMap table of contents.
-
-    An example of the output format is the following::
-
-        {
-            "layers": [
-                [
-                    # Data frame number one
-                    {
-                        # Layer number one
-                        "id":               "Layer ID",
-                        "name":             "Layer Name",
-                        "longName":         "Layer Group/Layer Name",
-                        "datasetName":      "(Optional) dataset name",
-                        "dataSource":       "(Optional) data source name",
-                        "serviceType":      "(Optional) service type, e.g. SDE, MapServer, IMS",
-                        "userName":         "(Optional) user name",
-                        "server":           "(Optional) server address/hostname",
-                        "service":          "(Optional) name or number of the ArcSDE Service",
-                        "database":         "(Optional) name of the database",
-                        "workspacePath":    "(Optional) workspace path"
-                        "visible":          "(Optional) visibility"
-                        "definitionQuery":  "definition query on the layer"
-                    },
-                    # ...more layers
-                ],
-                # ...more data frames
-            ],
-            "tableViews": [
-                {
-                    "datasetName":          "dataset name",
-                    "dataSource":           "data source",
-                    "definitionQuery":      "definition query on the table",
-                    "workspacePath":        "workspace path"
-                }
-            ]
-        }
-
-    :param map: The map to gather data source connection details about
-    :type map: arcpy.mapping.MapDocument
-    :returns: dict
-
-    
-    layers = []
-    tableViews = []
-    for map in project.listMaps():
-        layers.append([_get_layer_details(layer) for layer in map.listLayers()])
-        tableViews.append([_get_table_details(table) for table in map.listTables()])"""
-
-    if type(project) == str:
-        project = arcpy.mp.ArcGISProject(project)
-
-    layers = [[_get_layer_details(layer) for layer in df.listLayers()] for df in project.listMaps()]
-    tableViews = [[_get_table_details(table) for table in df.listTables()] for df in project.listMaps()]
-    # Enrich arcpy data with additional information that is only accessible via arcobjects
-    """try:
-
-        init_arcobjects_context()
-        additional_layer_info = list_layers(project.filePath)
-        destroy_arcobjects_context()
-
-        for layerGroup in layers:
-            for l in layerGroup:
-                if l is not None:
-                    layerName = l['name']
-                    layer_info = additional_layer_info[layerName]
-                    if layer_info is not None:
-                        l["id"] = layer_info['id']
-                        l["hasFixedId"] = layer_info['hasFixedId']
-                        l["visible"] = layer_info['visible']
-                        l["definitionQuery"] = layer_info['definitionQuery']
-
-
-
-    except Exception as e:
-        logger.exception("Could not read additional layer info using arcobjects")"""
-
-    return {
-        "layers": layers,
-        "tableViews": tableViews
-    }
-
-def _get_layer_details(layer):
-    if layer.isGroupLayer and not layer.isNetworkAnalystLayer:
-        return None
-
-    details = {
-        "name": layer.name,
-        "longName": layer.longName
-    }
-
-    if layer.supports("datasetName"):
-        details["datasetName"] = layer.datasetName
-
-    if layer.supports("dataSource"):
-        details["dataSource"] = layer.dataSource
-
-    if layer.supports("serviceProperties"):
-        details["serviceType"] = layer.serviceProperties["ServiceType"]
-
-        if "UserName" in layer.serviceProperties:
-            # File GDB doesn't support username and throws an exception
-            details["userName"] = layer.serviceProperties["UserName"]
-
-        if layer.serviceProperties["ServiceType"].upper() == "SDE":
-            details["server"] = layer.serviceProperties["Server"]
-            details["service"] = layer.serviceProperties["Service"]
-            details["database"] = layer.serviceProperties["Database"]
-
-    if layer.supports("workspacePath"):
-        details["workspacePath"] = layer.workspacePath
-
-    if layer.supports("visible"):
-        details["visible"] = layer.visible
-
-    if layer.supports("definitionQuery"):
-        details["definitionQuery"] = layer.definitionQuery
-
-    if layer.supports("connectionProperties"):
-        details["connectionProperties"] = layer.connectionProperties
-
-    # Fields
-    # @see https://desktop.arcgis.com/en/arcmap/10.4/analyze/arcpy-functions/describe.htm
-    # Wrapped in a try catch, because fields can only be resolved if the layer's datasource is valid.
-    try:
-        desc = arcpy.Describe(layer)
-        logger.debug(desc)
-        if desc.dataType == "FeatureLayer":
-            field_info = desc.fieldInfo
-            details["fields"] = []
-            for index in range(0, field_info.count):
-                details["fields"].append({
-                    "index": index,
-                    "name": field_info.getFieldName(index),
-                    "visible": field_info.getVisible(index) == "VISIBLE"
-                })
-    except Exception:
-        logger.exception("Could not resolve layer fields ({0}). The layer datasource may be broken".format(layer.name))
-
-    return details
-
-def _get_table_details(table):
-    return {
-        "connectionProperties": table.connectionProperties,
-        "dataSource": table.dataSource,
-        "definitionQuery": table.definitionQuery,
-        "name": table.name
-    }
 
 def compare(map_a, map_b):
     """Compares two map documents.
@@ -291,31 +119,30 @@ def compare(map_a, map_b):
             map_b_maps_len = len(map_b_maps)
 
             if map_b_maps_len == 0 or map_a_maps_len != map_b_maps_len:
-                diff.append({
-                    "type": map_count_changed,
-                    "was": map_a_maps_len,
-                    "now": map_b_maps_len
-                })
+                diff.append({"type": map_count_changed, "was": map_a_maps_len, "now": map_b_maps_len})
 
             for index, a in enumerate(map_a_maps):
 
                 b = map_b_maps[index]
 
-                if a.defaultCamera.getExtent().spatialReference.factoryCode != b.defaultCamera.getExtent().spatialReference.factoryCode:
+                if a.defaultCamera.getExtent().spatialReference.factoryCode != b.defaultCamera.getExtent(
+                ).spatialReference.factoryCode:
                     diff.append({
                         "type": data_frame_cs_code_changed,
                         "was": a.defaultCamera.getExtent().spatialReference.factoryCode,
                         "now": b.defaultCamera.getExtent().spatialReference.factoryCode,
                     })
 
-                if a.defaultCamera.getExtent().spatialReference.type != b.defaultCamera.getExtent().spatialReference.type:
+                if a.defaultCamera.getExtent().spatialReference.type != b.defaultCamera.getExtent(
+                ).spatialReference.type:
                     diff.append({
                         "type": data_frame_cs_type_changed,
                         "was": a.defaultCamera.getExtent().spatialReference.type,
                         "now": b.defaultCamera.getExtent().spatialReference.type,
                     })
 
-                if a.defaultCamera.getExtent().spatialReference.name != b.defaultCamera.getExtent().spatialReference.name:
+                if a.defaultCamera.getExtent().spatialReference.name != b.defaultCamera.getExtent(
+                ).spatialReference.name:
                     diff.append({
                         "type": data_frame_cs_name_changed,
                         "was": a.defaultCamera.getExtent().spatialReference.name,
@@ -354,12 +181,7 @@ def compare(map_a, map_b):
 
             # Who are you? Who am I?
             def _express_diff(a, b, k, type):
-                return {
-                    "type": type,
-                    "was": a[k] if k in a else None,
-                    "now": b[k] if k in b else None
-                }
-
+                return {"type": type, "was": a[k] if k in a else None, "now": b[k] if k in b else None}
 
             def _layer_diff(a, b):
 
@@ -424,8 +246,8 @@ def compare(map_a, map_b):
                 # Test each property for changes
                 for test in tests:
 
-                    k =  test["layer_prop_name"]
-                    v =  test["change_id"]
+                    k = test["layer_prop_name"]
+                    v = test["change_id"]
                     is_array = test["array"] == True if "array" in test else False
 
                     if k in a and k in b:
@@ -450,11 +272,7 @@ def compare(map_a, map_b):
                                 was = [inflate(a[k], x) for x in [unhash(x) for x in was]]
                                 now = [inflate(b[k], x) for x in [unhash(x) for x in now]]
 
-                                diff.append({
-                                    "type": v,
-                                    "was": was,
-                                    "now": now
-                                })
+                                diff.append({"type": v, "was": was, "now": now})
 
                         else:
                             if not eq(a, b, k):
@@ -492,12 +310,16 @@ def compare(map_a, map_b):
                     'ignore': True
                 },
                 {
-                    'fn': lambda a, b: b if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
-                    'desc': "same name and id, datasource changed"
+                    'fn':
+                    lambda a, b: b if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    'desc':
+                    "same name and id, datasource changed"
                 },
                 {
-                    'fn': lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
-                    'desc': "same id and datasource, name changed"
+                    'fn':
+                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    'desc':
+                    "same id and datasource, name changed"
                 },
                 {
                     # TODO this should be skipped if we can verify that fixed layer IDs are not used
@@ -505,8 +327,10 @@ def compare(map_a, map_b):
                     'desc': "same id. Assumed valid if fixed data sources enabled"
                 },
                 {
-                    'fn': lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
-                    'desc': "same name and datasource, id changed"
+                    'fn':
+                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    'desc':
+                    "same name and datasource, id changed"
                 },
                 {
                     'fn': lambda a, b: b if same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
@@ -552,19 +376,15 @@ def compare(map_a, map_b):
             logger.exception("Error comparing layers")
 
         finally:
-            return {
-                'added': added,
-                'updated': updated,
-                'removed': removed
-            }
+            return {'added': added, 'updated': updated, 'removed': removed}
 
-    return {
-        'dataFrames': compare_data_frames(),
-        'layers': compare_layers()
-    }
+    return {'dataFrames': compare_data_frames(), 'layers': compare_layers()}
 
-def create_replacement_data_sources_list(document_data_sources_list, data_source_templates, raise_exception_no_change = False):
-    
+
+def create_replacement_data_sources_list(document_data_sources_list,
+                                         data_source_templates,
+                                         raise_exception_no_change=False):
+
     # Here we are rearranging the data_source_templates so that the match criteria can be compared as a set - in case there are more than one.
     template_sets = []
     for template in data_source_templates:
@@ -582,7 +402,9 @@ def create_replacement_data_sources_list(document_data_sources_list, data_source
             # The item variable is a layer object which contains a fields property (type list) that can't be serialised and used in set operations
             # It is not required for datasource matching, so exclude it from the the set logic
             if item != []:
-                hashable_layer_fields = [f for f in item.items() if (not isinstance(f[1], list) and not isinstance(f[1], dict))]
+                hashable_layer_fields = [
+                    f for f in item.items() if (not isinstance(f[1], list) and not isinstance(f[1], dict))
+                ]
                 if template["matchCriteria"].issubset(hashable_layer_fields):
                     new_conn = {"connectionProperties": template["connectionProperties"]}
                     #break
@@ -591,8 +413,7 @@ def create_replacement_data_sources_list(document_data_sources_list, data_source
         return new_conn
 
     # We need to get longname and connectionProperties
-    new_data_sources = {"layers": [],
-                      "tableViews": []}
+    new_data_sources = {"layers": [], "tableViews": []}
 
     for map in document_data_sources_list["layers"]:
         for layer in map:
@@ -614,7 +435,205 @@ def create_replacement_data_sources_list(document_data_sources_list, data_source
 
     return new_data_sources
 
-def _open_map_document(project):
+
+def list_document_data_sources(project):
+    """List the data sources for each layer or table view of the specified map.
+
+    Outputs a dictionary containing two keys, "layers" and "tableViews".
+
+    "layers" contains an array, with each element representing a data frame (as another array) that contains a
+    dictionary of layer details relevant to that layer's connection to its data source.
+
+    "tableViews" is also an array, where each element is a dictionary of table view details relevant to that table
+    view's connection to its data source.
+
+    The order of array elements is as displayed in the ArcMap table of contents.
+
+    An example of the output format is the following::
+
+        {
+            "layers": [
+                [
+                    # Data frame number one
+                    {
+                        # Layer number one
+                        "id":               "Layer ID",
+                        "name":             "Layer Name",
+                        "longName":         "Layer Group/Layer Name",
+                        "datasetName":      "(Optional) dataset name",
+                        "dataSource":       "(Optional) data source name",
+                        "serviceType":      "(Optional) service type, e.g. SDE, MapServer, IMS",
+                        "userName":         "(Optional) user name",
+                        "server":           "(Optional) server address/hostname",
+                        "service":          "(Optional) name or number of the ArcSDE Service",
+                        "database":         "(Optional) name of the database",
+                        "workspacePath":    "(Optional) workspace path"
+                        "visible":          "(Optional) visibility"
+                        "definitionQuery":  "definition query on the layer"
+                    },
+                    # ...more layers
+                ],
+                # ...more data frames
+            ],
+            "tableViews": [
+                {
+                    "datasetName":          "dataset name",
+                    "dataSource":           "data source",
+                    "definitionQuery":      "definition query on the table",
+                    "workspacePath":        "workspace path"
+                }
+            ]
+        }
+
+    :param map: The map to gather data source connection details about
+    :type map: arcpy.mapping.MapDocument
+    :returns: dict
+
+    
+    layers = []
+    tableViews = []
+    for map in project.listMaps():
+        layers.append([_get_layer_details(layer) for layer in map.listLayers()])
+        tableViews.append([_get_table_details(table) for table in map.listTables()])"""
+
+    # make sure the project is a project, not a path
+    project = _open_arcgis_project(project)
+
+    layers = [[_get_layer_details(layer) for layer in df.listLayers()] for df in project.listMaps()]
+    tableViews = [[_get_table_details(table) for table in df.listTables()] for df in project.listMaps()]
+    # Enrich arcpy data with additional information that is only accessible via arcobjects
+    """try:
+
+        init_arcobjects_context()
+        additional_layer_info = list_layers(project.filePath)
+        destroy_arcobjects_context()
+
+        for layerGroup in layers:
+            for l in layerGroup:
+                if l is not None:
+                    layerName = l['name']
+                    layer_info = additional_layer_info[layerName]
+                    if layer_info is not None:
+                        l["id"] = layer_info['id']
+                        l["hasFixedId"] = layer_info['hasFixedId']
+                        l["visible"] = layer_info['visible']
+                        l["definitionQuery"] = layer_info['definitionQuery']
+
+
+
+    except Exception as e:
+        logger.exception("Could not read additional layer info using arcobjects")"""
+
+    return {"layers": layers, "tableViews": tableViews}
+
+
+def validate_pro_project(project):
+    # make sure the project is a project, not a path
+    project = _open_arcgis_project(project)
+
+    broken_layers = project.listBrokenDataSources()
+
+    if len(broken_layers) > 0:
+        logger.debug(u"Map '{0}': Broken data sources:".format(project.filePath))
+        for layer in broken_layers:
+            logger.debug(u" {0}".format(layer.name))
+            if not hasattr(layer, "supports"):
+                #probably a TableView
+                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
+                logger.debug(u"  datasource: {0}".format(layer.dataSource))
+                continue
+
+            #Some sort of layer
+            if layer.supports("workspacePath"):
+                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
+            if layer.supports("dataSource"):
+                logger.debug(u"  datasource: {0}".format(layer.dataSource))
+
+        return False
+
+    return True
+
+
+def _change_data_source(layer, newProps):
+    try:
+        connProps = layer.connectionProperties
+
+        layer.updateConnectionProperties(connProps, newProps)
+
+    except Exception as e:
+        raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
+
+    if hasattr(layer, "isBroken") and layer.isBroken:
+        raise DataSourceUpdateError("Layer is now broken.", layer)
+
+
+def _get_layer_details(layer):
+    if layer.isGroupLayer and not layer.isNetworkAnalystLayer:
+        return None
+
+    details = {"name": layer.name, "longName": layer.longName}
+
+    if layer.supports("datasetName"):
+        details["datasetName"] = layer.datasetName
+
+    if layer.supports("dataSource"):
+        details["dataSource"] = layer.dataSource
+
+    if layer.supports("serviceProperties"):
+        details["serviceType"] = layer.serviceProperties["ServiceType"]
+
+        if "UserName" in layer.serviceProperties:
+            # File GDB doesn't support username and throws an exception
+            details["userName"] = layer.serviceProperties["UserName"]
+
+        if layer.serviceProperties["ServiceType"].upper() == "SDE":
+            details["server"] = layer.serviceProperties["Server"]
+            details["service"] = layer.serviceProperties["Service"]
+            details["database"] = layer.serviceProperties["Database"]
+
+    if layer.supports("workspacePath"):
+        details["workspacePath"] = layer.workspacePath
+
+    if layer.supports("visible"):
+        details["visible"] = layer.visible
+
+    if layer.supports("definitionQuery"):
+        details["definitionQuery"] = layer.definitionQuery
+
+    if layer.supports("connectionProperties"):
+        details["connectionProperties"] = layer.connectionProperties
+
+    # Fields
+    # @see https://desktop.arcgis.com/en/arcmap/10.4/analyze/arcpy-functions/describe.htm
+    # Wrapped in a try catch, because fields can only be resolved if the layer's datasource is valid.
+    try:
+        desc = arcpy.Describe(layer)
+        logger.debug(desc)
+        if desc.dataType == "FeatureLayer":
+            field_info = desc.fieldInfo
+            details["fields"] = []
+            for index in range(0, field_info.count):
+                details["fields"].append({
+                    "index": index,
+                    "name": field_info.getFieldName(index),
+                    "visible": field_info.getVisible(index) == "VISIBLE"
+                })
+    except Exception:
+        logger.exception("Could not resolve layer fields ({0}). The layer datasource may be broken".format(layer.name))
+
+    return details
+
+
+def _get_table_details(table):
+    return {
+        "connectionProperties": table.connectionProperties,
+        "dataSource": table.dataSource,
+        "definitionQuery": table.definitionQuery,
+        "name": table.name
+    }
+
+
+def _open_arcgis_project(project):
     if isinstance(project, str):
         return arcpy.mp.ArcGISProject(project)
     return project
