@@ -169,10 +169,10 @@ def create_replacement_data_sources_list(document_data_sources_list,
                             new_conn['workspacePath'] = "%s\\%s.gdb" % (new_conn['workspacePath'], tokens['dataSet'])
                         else:
                             logger.debug(1.13)
-                            new_conn['workspacePath'] = "%s\\%s.gdb" % (new_conn['workspacePath'], tokens['table'])                    
+                            new_conn['workspacePath'] = "%s\\%s.gdb" % (new_conn['workspacePath'], tokens['table'])
 
                 break
-                
+
         if new_conn == None and raise_exception_no_change:
             raise RuntimeError("No matching data source was found for layer")
 
