@@ -2,16 +2,16 @@ import os.path
 import shutil
 
 import arcpyext
+import agsconfig
 import pytest
 
-from arcpyext.publishing._schematics_server_extension import SchematicsServerExtension
-from arcpyext.publishing._sddraft_editor import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/example.sddraft".format(os.path.dirname(__file__)))
 SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/example.savetest.sddraft".format(os.path.dirname(__file__)))
 SDDRAFT_FILE_PATH_COPY = os.path.abspath("{0}/../samples/example.copy.sddraft".format(os.path.dirname(__file__)))
 
+"""Not implemented in agsconfig
 @pytest.fixture
 def server_ext():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
@@ -37,3 +37,4 @@ def test_capabilities(server_ext, capabilities, expected, ex):
 def test_enabled(server_ext, enabled, expected):
     server_ext.enabled = enabled
     assert server_ext.enabled == expected
+"""

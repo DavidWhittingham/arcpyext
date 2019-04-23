@@ -7,6 +7,7 @@ from ._version import *
 
 # setup module logging with null handler
 import logging
+logging.basicConfig(filename="./logfile.log")
 logging.getLogger("arcpyext").addHandler(logging.NullHandler())
 
 import arcpy
@@ -15,14 +16,21 @@ _patches.apply()
 
 from . import conversion
 from . import data
-from . import publishing
 from . import toolbox
 from . import schematransform
-from . import arcobjects
 
 # import arcpy version-specific mapping modules
 try:
+    # py2 arcpy desktop
     import arcpy.mapping
-    from . import mapping
+    from .mapping import *
+    from .mapping import _open_map_document as open_map_document
+    from . import publishing
+    from . import arcobjects
+
 except (AttributeError, ImportError):
-    pass
+    # py3 arcpy pro
+    from .mp import *
+    from . import publishing
+
+

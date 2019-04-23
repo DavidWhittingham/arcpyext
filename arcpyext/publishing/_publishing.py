@@ -1,9 +1,14 @@
+# coding=utf-8
+"""This module contains helper functions related to publishing."""
+
 # Python 2/3 compatibility
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from future.builtins import *
 from future.builtins.disabled import *
 from future.standard_library import install_aliases
 install_aliases()
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 import os
 
@@ -11,14 +16,6 @@ import arcpy
 
 from ..exceptions import MapDataSourcesBrokenError, ServDefDraftCreateError
 from ..mapping import validate_map
-
-from ._mapsddraft import MapSDDraft
-from ._imagesddraft import ImageSDDraft
-from ._geodata_sddraft import GeodataSDDraft
-from ._gpsddraft import GPSDDraft
-from ._geocode_sddraft import GeocodeSDDraft
-from ._sddraft_editor import SDDraftEditor
-
 
 def check_analysis(analysis):
     if not analysis["errors"] == {}:
@@ -31,7 +28,44 @@ def check_analysis(analysis):
                                             message = message, code = code, layers = ", ".join([layer.name for layer in layerlist])))
         raise ServDefDraftCreateError("Analysis Errors: \n{errs}".format(errs = "\n".join(err_message_list)))
 
-def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False):
+def convert_pro_project_to_service_draft(project, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False, server = None, portal_folder = None):
+    from ..mp import validate_pro_project
+
+    # Pro requires a ags url without /arcgis at the end
+    server = server.replace('/arcgis', '')
+
+    if type(project) == str:
+        project = arcpy.mp.ArcGISProject(project)
+
+    if not validate_pro_project(project):
+        raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
+
+    if os.path.exists(sd_draft_path):
+        os.remove(sd_draft_path)
+
+    draft = arcpy.sharing.CreateSharingDraft('STANDALONE_SERVER', # This is a fixed value and doesn't do anything
+                                                'MAP_SERVICE',
+                                                service_name,
+                                                project.listMaps()[0]) #TODO: Do something about using only the first map in the project
+
+    if copy_data_to_server == 'false':
+        draft.copyDataToServer = False
+    elif copy_data_to_server == 'true':
+        draft.copyDataToServer = True
+        
+    #draft.targetServer = server
+    draft.offline = True
+    draft.serverFolder = folder_name
+    draft.portalFolder = portal_folder
+    draft.exportToSDDraft(sd_draft_path)
+
+    return sd_draft_path
+
+def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False, server = None, portal_folder = None):
+    # server and portal_folder parameters are required for pro services. Ignore in this function.
+    if type(map) == str:
+        map = arcpy.mapping.MapDocument(map)
+    
     if not validate_map(map):
         raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 
@@ -52,13 +86,13 @@ def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name =
     analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)
     check_analysis(analysis)
 
-    return load_map_sddraft(sd_draft_path)
+    return sd_draft_path
 
 def convert_service_draft_to_staged_service(sd_draft, sd_path):
     if os.path.exists(sd_path):
         os.remove(sd_path)
 
-    if isinstance(sd_draft, basestring):
+    if isinstance(sd_draft, str):
         arcpy.StageService_server(sd_draft, sd_path)
     else:
         arcpy.StageService_server(sd_draft.file_path, sd_path)
@@ -80,19 +114,4 @@ def convert_toolbox_to_service_draft(toolbox_path, sd_draft_path, get_result_fn,
     analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)
     check_analysis(analysis)
 
-    return load_gp_sddraft(sd_draft_path)
-
-def load_geocode_sddraft(path):
-    return GeocodeSDDraft(SDDraftEditor(path))
-
-def load_geodata_sddraft(path):
-    return GeodataSDDraft(SDDraftEditor(path))
-
-def load_gp_sddraft(path):
-    return GPSDDraft(SDDraftEditor(path))
-
-def load_image_sddraft(path):
-    return ImageSDDraft(SDDraftEditor(path))
-
-def load_map_sddraft(path):
-    return MapSDDraft(SDDraftEditor(path))
+    return sd_draft_path

@@ -6,9 +6,9 @@ import os.path
 import shutil
 
 import arcpyext
+import agsconfig
 import pytest
 
-from arcpyext.publishing._geocode_sddraft import GeocodeSDDraft
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/geocodeservice.sddraft".format(os.path.dirname(__file__)))
@@ -18,19 +18,20 @@ SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/geocodeservice.sav
 @pytest.fixture
 def sddraft():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return arcpyext.publishing.load_geocode_sddraft(SDDRAFT_FILE_PATH_COPY)
+    with open(SDDRAFT_FILE_PATH_COPY, "rb+") as file:
+        return agsconfig.load_geocode_sddraft(file)
 
-from .sddraftbase import *
 
 @pytest.mark.parametrize(("capabilities", "expected", "ex"), [
-    ([GeocodeSDDraft.Capability.geocode], [GeocodeSDDraft.Capability.geocode], None),
+    ([agsconfig.services.geocode_server.GeocodeServer.Capability.geocode], 
+      [agsconfig.services.geocode_server.GeocodeServer.Capability.geocode], None),
     ([], [], None),
-    (["Geocode"], [GeocodeSDDraft.Capability.geocode], None),
+    (["Geocode"], [agsconfig.services.geocode_server.GeocodeServer.Capability.geocode], None),
     (["Fail"], None, ValueError),
-    ([123], None, TypeError)
+    ([123], None, ValueError)
 ])
 def test_capabilities(sddraft, capabilities, expected, ex):
-    assert isinstance(type(sddraft).capabilities, property) == True
+    #assert isinstance(type(sddraft).capabilities, property) == True
     if ex != None:
         with pytest.raises(ex):
             sddraft.capabilities = capabilities

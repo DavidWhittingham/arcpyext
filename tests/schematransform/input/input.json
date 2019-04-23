@@ -1,0 +1,2505 @@
+{
+    "schema": [
+        {
+            "name": "LR_SRM_TRAVEL_TYPE",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Short",
+            "description": "Travel Type",
+            "values": [
+                {
+                    "k": 0,
+                    "v": "Normal Travel"
+                },
+                {
+                    "k": 1,
+                    "v": "Slow Travel"
+                },
+                {
+                    "k": 2,
+                    "v": "Unfit Stock Travel"
+                },
+                {
+                    "k": 3,
+                    "v": "Unfit Stock Grazing"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_STOCK_TYPE",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Text",
+            "description": "Stock Type",
+            "values": [
+                {
+                    "k": "L",
+                    "v": "Large"
+                },
+                {
+                    "k": "S",
+                    "v": "Small"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_WA_TYPE",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Short",
+            "description": "",
+            "values": [
+                {
+                    "k": 0,
+                    "v": "Stock Route Facility"
+                },
+                {
+                    "k": 1,
+                    "v": "Supply"
+                },
+                {
+                    "k": 2,
+                    "v": "Access"
+                },
+                {
+                    "k": 3,
+                    "v": "Special"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_STOCK_NAME",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Text",
+            "description": "Stock Name",
+            "values": [
+                {
+                    "k": "Cattle",
+                    "v": "Cattle"
+                },
+                {
+                    "k": "Horses",
+                    "v": "Horses"
+                },
+                {
+                    "k": "Buffalo",
+                    "v": "Buffalo"
+                },
+                {
+                    "k": "Donkeys",
+                    "v": "Donkeys"
+                },
+                {
+                    "k": "Mules",
+                    "v": "Mules"
+                },
+                {
+                    "k": "Asses",
+                    "v": "Asses"
+                },
+                {
+                    "k": "Alpacas",
+                    "v": "Alpacas"
+                },
+                {
+                    "k": "Camels",
+                    "v": "Camels"
+                },
+                {
+                    "k": "Llamas",
+                    "v": "Llamas"
+                },
+                {
+                    "k": "Vicunas",
+                    "v": "Vicunas"
+                },
+                {
+                    "k": "Sheep",
+                    "v": "Sheep"
+                },
+                {
+                    "k": "Goats",
+                    "v": "Goats"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_PERMIT_LICENSE_STATUS",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Text",
+            "description": "License Status",
+            "values": [
+                {
+                    "k": "D",
+                    "v": "Draft"
+                },
+                {
+                    "k": "PA",
+                    "v": "Pending Approval"
+                },
+                {
+                    "k": "A",
+                    "v": "Approved"
+                },
+                {
+                    "k": "R",
+                    "v": "Refused"
+                },
+                {
+                    "k": "CA",
+                    "v": "Cancelled"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_TIME_OF_DAY",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Text",
+            "description": "Time of Day",
+            "values": [
+                {
+                    "k": "AM",
+                    "v": "AM"
+                },
+                {
+                    "k": "PM",
+                    "v": "PM"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_ENTITY_SYS_STATUS",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Long",
+            "description": "",
+            "values": [
+                {
+                    "k": 0,
+                    "v": "Active"
+                },
+                {
+                    "k": 1,
+                    "v": "Archived"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_PERMIT_TYPE",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Short",
+            "description": "Permit Type",
+            "values": [
+                {
+                    "k": 0,
+                    "v": "Travel Permit"
+                },
+                {
+                    "k": 1,
+                    "v": "Grazing Permit"
+                },
+                {
+                    "k": 2,
+                    "v": "Harvesting Permit"
+                },
+                {
+                    "k": 3,
+                    "v": "Grazing Authority"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_WA_SYS_STATUS",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Long",
+            "description": "",
+            "values": [
+                {
+                    "k": 0,
+                    "v": "Active"
+                },
+                {
+                    "k": 1,
+                    "v": "Archived"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_STOCK_CLASS",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Long",
+            "description": "Stock Class",
+            "values": [
+                {
+                    "k": 0,
+                    "v": "Heifers"
+                },
+                {
+                    "k": 1,
+                    "v": "Steers"
+                },
+                {
+                    "k": 2,
+                    "v": "Mixed Young Stock"
+                },
+                {
+                    "k": 3,
+                    "v": "Bullocks"
+                },
+                {
+                    "k": 4,
+                    "v": "Cows"
+                },
+                {
+                    "k": 5,
+                    "v": "Mixed Older Stock"
+                },
+                {
+                    "k": 6,
+                    "v": "Cows And Calves"
+                },
+                {
+                    "k": 7,
+                    "v": "Ewes"
+                },
+                {
+                    "k": 8,
+                    "v": "Hoggets"
+                },
+                {
+                    "k": 9,
+                    "v": "Mixed"
+                },
+                {
+                    "k": 10,
+                    "v": "Wethers"
+                },
+                {
+                    "k": 11,
+                    "v": "None"
+                },
+                {
+                    "k": 12,
+                    "v": "Bulls"
+                },
+                {
+                    "k": 13,
+                    "v": "Rams"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_TRAVEL_SEGMENT_TYPE",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Short",
+            "description": "Travel Rule",
+            "values": [
+                {
+                    "k": 0,
+                    "v": "Single Shire Travel"
+                },
+                {
+                    "k": 1,
+                    "v": "Multiple Shire Travel (Originating Shire)"
+                },
+                {
+                    "k": 2,
+                    "v": "Multiple Shire Travel (Non-Originating Shire)"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_WA_STOCK_TYPE",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Short",
+            "description": "",
+            "values": [
+                {
+                    "k": 0,
+                    "v": "Large Stock"
+                },
+                {
+                    "k": 1,
+                    "v": "Small Stock"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_WA_STATUS",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Text",
+            "description": "License Status",
+            "values": [
+                {
+                    "k": "D",
+                    "v": "Draft"
+                },
+                {
+                    "k": "PA",
+                    "v": "Pending Approval (LGA)"
+                },
+                {
+                    "k": "A",
+                    "v": "Finalised"
+                },
+                {
+                    "k": "R",
+                    "v": "Refused"
+                },
+                {
+                    "k": "T",
+                    "v": "Terminated"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_PERMIT_FEE_RULE",
+            "type": "Domain",
+            "subType": "CodedValue",
+            "fieldType": "Long",
+            "description": "",
+            "values": [
+                {
+                    "k": 0,
+                    "v": "Apply Fee"
+                },
+                {
+                    "k": 1,
+                    "v": "Waive Fee"
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_WA",
+            "type": "FeatureClass",
+            "fields": [
+                {
+                    "name": "OBJECTID",
+                    "aliasName": "OBJECTID",
+                    "type": "OID",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": false,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "ID",
+                    "aliasName": "ID",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "REF_ID",
+                    "aliasName": "Reference Id",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 50,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "APPLICATION_ID",
+                    "aliasName": "Application Id",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "ANCESTOR_ID",
+                    "aliasName": "Ancestor Id",
+                    "type": "Integer",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "CONFIG_ID",
+                    "aliasName": "Configuration Id",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "SYSTEM_STATE",
+                    "aliasName": "System State",
+                    "type": "Integer",
+                    "defaultValue": 0.0,
+                    "domain": "LR_SRM_WA_SYS_STATUS",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "AGREEMENT_TYPE",
+                    "aliasName": "AGREEMENT_TYPE",
+                    "type": "SmallInteger",
+                    "defaultValue": 0,
+                    "domain": "LR_SRM_WA_TYPE",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "APPROVAL_STATUS",
+                    "aliasName": "Approval Status (Actual)",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_WA_STATUS",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "APPROVAL_STATUS_REQ",
+                    "aliasName": "Approval Status (Requested)",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_WA_STATUS",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "APPROVAL_STATUS_PREV",
+                    "aliasName": "Approval Status (Previous)",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_WA_STATUS",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "APPROVAL_STATUS_DATE",
+                    "aliasName": "Approval Status Change Date",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "APPROVAL_COMMENT",
+                    "aliasName": "Approval Comment",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 1024,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "IS_FROM_SRWA",
+                    "aliasName": "Is the agreement migrated from the SRWA system?",
+                    "type": "SmallInteger",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "START_DT",
+                    "aliasName": "Start Date",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "SR_SEGPAR",
+                    "aliasName": "Stock Route Parcel Segpar",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "SR_ID",
+                    "aliasName": "Stock Route Parcel Id",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 30,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "SR_NAME",
+                    "aliasName": "Stock Route Parcel Name",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 40,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STOCK_TYPE",
+                    "aliasName": "Predominant Stock Type",
+                    "type": "SmallInteger",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_WA_STOCK_TYPE",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 2,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "VALUE_PER_HECTARE",
+                    "aliasName": "Value per Hectare",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "BENEFITED_AREA",
+                    "aliasName": "Benefited Area",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "IS_LO_ADDR_SAME",
+                    "aliasName": "IS_LO_ADDR_SAME",
+                    "type": "SmallInteger",
+                    "defaultValue": 1,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 2,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LO_NAME_SEARCH_INDEX",
+                    "aliasName": "LO_NAME_SEARCH_INDEX",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 200,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LO_MAINTENANCE_PC",
+                    "aliasName": "Percent of Maintenance Performed by Landowner",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "TOTAL_AREA_HA",
+                    "aliasName": "Total Parcel Area (Ha)",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "TOTAL_VALUATION",
+                    "aliasName": "Total Parcel Valuation",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_INDEX_RATE",
+                    "aliasName": "Initial Fee Index Rate",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_ANNUAL_NONSTOCK",
+                    "aliasName": "Annual Fee (non-stock component)",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_ANNUAL_STOCK",
+                    "aliasName": "Annual Fee (stock component)",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_ANNUAL_EX",
+                    "aliasName": "Annual Fee (no deductions)",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_ANNUAL",
+                    "aliasName": "Annual Fee (after maintenance deduction)",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_ANNUAL_OVERRIDE",
+                    "aliasName": "Annual Fee (overrides calculated fee)",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_COMMENT",
+                    "aliasName": "Fee Comment",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 255,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LGA",
+                    "aliasName": "LGA",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 128,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LGA_CODE",
+                    "aliasName": "LGA Code",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 10,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_CONTACT",
+                    "aliasName": "Local Government Contact Name",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_CONTACT_POSITION",
+                    "aliasName": "Local Government Contact Position",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_ADDRESS_1",
+                    "aliasName": "Local Government Contact Address line 1",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 255,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_ADDRESS_2",
+                    "aliasName": "Local Government Contact Address line 2",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 255,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_TOWN",
+                    "aliasName": "Local Government Contact Town",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 40,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_STATE",
+                    "aliasName": "Local Government Contact State",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 3,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_POSTCODE",
+                    "aliasName": "Local Government Contact Postcode",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_PHONE",
+                    "aliasName": "Local Government Contact Phone Number",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 14,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_FAX",
+                    "aliasName": "Local Government Contact Fax Number",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 14,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_EMAIL",
+                    "aliasName": "Local Government Contact Email Address",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_MAYOR_NAME",
+                    "aliasName": "Local Government Mayor Name",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LG_CEO_NAME",
+                    "aliasName": "Local Government CEO Name",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "IS_COUNCIL_DELEGATED",
+                    "aliasName": "Council delegated powers to CEO?",
+                    "type": "SmallInteger",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_DELEGATE",
+                    "aliasName": "State Government Delegate Name",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_DELEGATE_POSITION",
+                    "aliasName": "State Government Delegate Position",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_CONTACT",
+                    "aliasName": "State Government Contact Name",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_CONTACT_POSITION",
+                    "aliasName": "State Government Contact Position",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_ADDRESS_1",
+                    "aliasName": "State Government Contact Address line 1",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 255,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_ADDRESS_2",
+                    "aliasName": "State Government Contact Address line 2",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 255,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_TOWN",
+                    "aliasName": "State Government Contact Town",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 40,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_STATE",
+                    "aliasName": "State Government Contact State",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 3,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_POSTCODE",
+                    "aliasName": "State Government Contact Postcode",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_PHONE",
+                    "aliasName": "State Government Contact Phone Number",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 14,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_FAX",
+                    "aliasName": "State Government Contact Fax Number",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 14,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STATE_GOV_EMAIL",
+                    "aliasName": "State Government Contact Email Address",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 100,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_CREATE_USER",
+                    "aliasName": "AUDIT_CREATE_USER",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 255,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_CREATE_DATE",
+                    "aliasName": "AUDIT_CREATE_DATE",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_EDIT_USER",
+                    "aliasName": "AUDIT_EDIT_USER",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 255,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_EDIT_DATE",
+                    "aliasName": "AUDIT_EDIT_DATE",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_APPROVAL_USER",
+                    "aliasName": "Approved By",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 255,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_APPROVAL_DATE",
+                    "aliasName": "Approved Date",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "SHAPE",
+                    "aliasName": "SHAPE",
+                    "type": "Geometry",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 0,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "SHAPE_Length",
+                    "aliasName": "SHAPE_Length",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": false,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "SHAPE_Area",
+                    "aliasName": "SHAPE_Area",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": false,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "FDO_OBJECTID",
+                    "fields": [
+                        {
+                            "name": "OBJECTID",
+                            "aliasName": "OBJECTID",
+                            "type": "OID",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": false,
+                            "nullable": false,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": true
+                },
+                {
+                    "name": "FDO_SHAPE",
+                    "fields": [
+                        {
+                            "name": "SHAPE",
+                            "aliasName": "SHAPE",
+                            "type": "Geometry",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": true,
+                            "length": 0,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                },
+                {
+                    "name": "G7APPLICATION_ID",
+                    "fields": [
+                        {
+                            "name": "APPLICATION_ID",
+                            "aliasName": "Application Id",
+                            "type": "Integer",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": false,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                },
+                {
+                    "name": "I7ID",
+                    "fields": [
+                        {
+                            "name": "ID",
+                            "aliasName": "ID",
+                            "type": "Integer",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": true,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                }
+            ],
+            "geometryField": "SHAPE",
+            "geometryType": "Polygon",
+            "sr": "GEOGCS['GCS_GDA_1994',DATUM['D_GDA_1994',SPHEROID['GRS_1980',6378137.0,298.257222101]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]];-400 -400 1000000000;-100000 10000;-100000 10000;8.98315284119522E-09;0.001;0.001;IsHighPrecision"
+        },
+        {
+            "name": "LR_SRM_TRAVEL_PERMIT",
+            "type": "FeatureClass",
+            "fields": [
+                {
+                    "name": "OBJECTID",
+                    "aliasName": "OBJECTID",
+                    "type": "OID",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": false,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "ID",
+                    "aliasName": "ID",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "PERMIT_ID",
+                    "aliasName": "Permit ID",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "TRAVEL_TYPE",
+                    "aliasName": "Travel Type",
+                    "type": "SmallInteger",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_TRAVEL_TYPE",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "TRAVEL_SPEED",
+                    "aliasName": "Travel Speed (km\\h)",
+                    "type": "SmallInteger",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "TRAVEL_DISTANCE",
+                    "aliasName": "Travel Distance (km)",
+                    "type": "Double",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "TRAVEL_SEGMENT_TYPE",
+                    "aliasName": "Travel Segment Type",
+                    "type": "SmallInteger",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_TRAVEL_SEGMENT_TYPE",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "START_DT",
+                    "aliasName": "Start Date",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "START_TIME",
+                    "aliasName": "Start Time",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_TIME_OF_DAY",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "END_DT",
+                    "aliasName": "End Date",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "END_TIME",
+                    "aliasName": "End Time",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_TIME_OF_DAY",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "CHARGEABLE_DAYS",
+                    "aliasName": "No. of Chargeable Days",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FINAL_START_DT",
+                    "aliasName": "Final (Actual) Start Date",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FINAL_START_TIME",
+                    "aliasName": "Final (Actual) Start Time",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_TIME_OF_DAY",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FINAL_END_DT",
+                    "aliasName": "Final (Actual) End Date",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FINAL_END_TIME",
+                    "aliasName": "Final (Actual) End Time",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_TIME_OF_DAY",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FINAL_CHARGEABLE_DAYS",
+                    "aliasName": "Final No. of Chargeable Days",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "DROVER_ID",
+                    "aliasName": "Drover Id",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "DROVER_COUNT",
+                    "aliasName": "No Of Drovers",
+                    "type": "SmallInteger",
+                    "defaultValue": 0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "HEALTH_CERT_NO",
+                    "aliasName": "Health Certificate Number",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 10,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "PIC",
+                    "aliasName": "PIC of Originating Property",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 200,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "WAYBILL_NO",
+                    "aliasName": "NVD/Waybill Number",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 200,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STOCK_BRAND",
+                    "aliasName": "Stock Brand",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 256,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "ORIGIN_NAME",
+                    "aliasName": "Origin",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 200,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "DESTINATION_NAME",
+                    "aliasName": "Destination",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 200,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "SHAPE",
+                    "aliasName": "SHAPE",
+                    "type": "Geometry",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 0,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "SHAPE_Length",
+                    "aliasName": "SHAPE_Length",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": false,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "FDO_OBJECTID",
+                    "fields": [
+                        {
+                            "name": "OBJECTID",
+                            "aliasName": "OBJECTID",
+                            "type": "OID",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": false,
+                            "nullable": false,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": true
+                },
+                {
+                    "name": "FDO_SHAPE",
+                    "fields": [
+                        {
+                            "name": "SHAPE",
+                            "aliasName": "SHAPE",
+                            "type": "Geometry",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": true,
+                            "length": 0,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                },
+                {
+                    "name": "G19PERMIT_ID",
+                    "fields": [
+                        {
+                            "name": "PERMIT_ID",
+                            "aliasName": "Permit ID",
+                            "type": "Integer",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": true,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                },
+                {
+                    "name": "I19ID",
+                    "fields": [
+                        {
+                            "name": "ID",
+                            "aliasName": "ID",
+                            "type": "Integer",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": true,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                }
+            ],
+            "geometryField": "SHAPE",
+            "geometryType": "Polyline",
+            "sr": "GEOGCS['GCS_GDA_1994',DATUM['D_GDA_1994',SPHEROID['GRS_1980',6378137.0,298.257222101]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]];-400 -400 1000000000;-100000 10000;-100000 10000;8.98315284119522E-09;0.001;0.001;IsHighPrecision"
+        },
+        {
+            "name": "LR_SRM_PERMIT",
+            "type": "Table",
+            "fields": [
+                {
+                    "name": "OBJECTID",
+                    "aliasName": "OBJECTID",
+                    "type": "OID",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": false,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "ID",
+                    "aliasName": "Permit ID",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "REF_ID",
+                    "aliasName": "Reference Permit ID",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 50,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "APPLICATION_ID",
+                    "aliasName": "Permit Application ID",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "PARENT_ID",
+                    "aliasName": "Parent Id",
+                    "type": "Integer",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "ANCESTOR_ID",
+                    "aliasName": "Ancestor Id",
+                    "type": "Integer",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "CONFIG_ID",
+                    "aliasName": "Configuration Id",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "SYSTEM_STATE",
+                    "aliasName": "System State",
+                    "type": "Integer",
+                    "defaultValue": 0.0,
+                    "domain": "LR_SRM_ENTITY_SYS_STATUS",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "PERMIT_TYPE",
+                    "aliasName": "Permit Type",
+                    "type": "SmallInteger",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_PERMIT_TYPE",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LGA",
+                    "aliasName": "LGA",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 255,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LGA_CODE",
+                    "aliasName": "LGA Code",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 10,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "LICENSE_STATUS",
+                    "aliasName": "License Status (Actual)",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_PERMIT_LICENSE_STATUS",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LICENSE_STATUS_REQ",
+                    "aliasName": "License Status (Requested)",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_PERMIT_LICENSE_STATUS",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LICENSE_STATUS_PREV",
+                    "aliasName": "License Status (Previous)",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_PERMIT_LICENSE_STATUS",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "LICENSE_STATUS_DATE",
+                    "aliasName": "License Status Change Date",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_APPLICATION_RULE",
+                    "aliasName": "Application Fee Rule",
+                    "type": "Integer",
+                    "defaultValue": 0.0,
+                    "domain": "LR_SRM_PERMIT_FEE_RULE",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_APPLICATION",
+                    "aliasName": "Application Fee",
+                    "type": "Double",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_PERMIT_RULE",
+                    "aliasName": "Permit Fee Rule",
+                    "type": "Integer",
+                    "defaultValue": 0.0,
+                    "domain": "LR_SRM_PERMIT_FEE_RULE",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_PERMIT",
+                    "aliasName": "Permit Fee",
+                    "type": "Double",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_TOTAL",
+                    "aliasName": "Total Fee",
+                    "type": "Double",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_STATE_GOV",
+                    "aliasName": "Fee Due to State Government",
+                    "type": "Double",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "FINAL_FEE_TOTAL",
+                    "aliasName": "Total Fee (Actual)",
+                    "type": "Double",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "FINAL_FEE_STATE_GOV",
+                    "aliasName": "Fee Due to State Government (Actual)",
+                    "type": "Double",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "COMMENT_APP_DECISION",
+                    "aliasName": "Approval Decision",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2000,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "COMMENT_ADDITIONAL_COND",
+                    "aliasName": "Additional Conditions Comment",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 2000,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "SRN_SEGMENTS",
+                    "aliasName": "SRN Segments",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 300,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_CREATE_USER",
+                    "aliasName": "AUDIT_CREATE_USER",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 255,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_CREATE_DATE",
+                    "aliasName": "AUDIT_CREATE_DATE",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": false,
+                    "length": 8,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_EDIT_USER",
+                    "aliasName": "AUDIT_EDIT_USER",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 255,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "AUDIT_EDIT_DATE",
+                    "aliasName": "AUDIT_EDIT_DATE",
+                    "type": "Date",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "FDO_OBJECTID",
+                    "fields": [
+                        {
+                            "name": "OBJECTID",
+                            "aliasName": "OBJECTID",
+                            "type": "OID",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": false,
+                            "nullable": false,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": true
+                },
+                {
+                    "name": "I18APPLICATION_I",
+                    "fields": [
+                        {
+                            "name": "APPLICATION_ID",
+                            "aliasName": "Permit Application ID",
+                            "type": "Integer",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": false,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                },
+                {
+                    "name": "I18ID",
+                    "fields": [
+                        {
+                            "name": "ID",
+                            "aliasName": "Permit ID",
+                            "type": "Integer",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": false,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_STOCK_SCHEDULE",
+            "type": "Table",
+            "fields": [
+                {
+                    "name": "OBJECTID",
+                    "aliasName": "OBJECTID",
+                    "type": "OID",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": false,
+                    "nullable": false,
+                    "length": 4,
+                    "precision": 0,
+                    "required": true,
+                    "scale": 0
+                },
+                {
+                    "name": "ID",
+                    "aliasName": "ID",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "PERMIT_ID",
+                    "aliasName": "Permit ID",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STOCK_NAME",
+                    "aliasName": "Stock Name",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_STOCK_NAME",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 20,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STOCK_CLASS",
+                    "aliasName": "Stock Class",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_STOCK_CLASS",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "STOCK_TYPE",
+                    "aliasName": "Stock Type",
+                    "type": "String",
+                    "defaultValue": null,
+                    "domain": "LR_SRM_STOCK_TYPE",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 1,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "HEAD_COUNT",
+                    "aliasName": "Head Count",
+                    "type": "Integer",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 4,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE_PER_HEAD_PER_WEEK",
+                    "aliasName": "Fee per Head/Week (Grazing Permits only)",
+                    "type": "Double",
+                    "defaultValue": null,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                },
+                {
+                    "name": "FEE",
+                    "aliasName": "Total Fee ",
+                    "type": "Double",
+                    "defaultValue": 0.0,
+                    "domain": "",
+                    "editable": true,
+                    "nullable": true,
+                    "length": 8,
+                    "precision": 0,
+                    "required": false,
+                    "scale": 0
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "FDO_OBJECTID",
+                    "fields": [
+                        {
+                            "name": "OBJECTID",
+                            "aliasName": "OBJECTID",
+                            "type": "OID",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": false,
+                            "nullable": false,
+                            "length": 4,
+                            "precision": 0,
+                            "required": true,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": true
+                },
+                {
+                    "name": "G20PERMIT_ID",
+                    "fields": [
+                        {
+                            "name": "PERMIT_ID",
+                            "aliasName": "Permit ID",
+                            "type": "Integer",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": true,
+                            "length": 4,
+                            "precision": 0,
+                            "required": false,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                },
+                {
+                    "name": "I20ID",
+                    "fields": [
+                        {
+                            "name": "ID",
+                            "aliasName": "ID",
+                            "type": "Integer",
+                            "defaultValue": null,
+                            "domain": "",
+                            "editable": true,
+                            "nullable": true,
+                            "length": 4,
+                            "precision": 0,
+                            "required": false,
+                            "scale": 0
+                        }
+                    ],
+                    "ascending": true,
+                    "unique": false
+                }
+            ]
+        },
+        {
+            "name": "LR_SRM_R_PERMIT_TRAVEL",
+            "type": "RelationshipClass",
+            "originClassNames": [
+                "LR_SRM_PERMIT"
+            ],
+            "destinationClassNames": [
+                "LR_SRM_TRAVEL_PERMIT"
+            ],
+            "originClassKeys": [
+                [
+                    "ID",
+                    "OriginPrimary",
+                    ""
+                ],
+                [
+                    "PERMIT_ID",
+                    "OriginForeign",
+                    ""
+                ]
+            ],
+            "destinationClassKeys": [],
+            "cardinality": "OneToOne",
+            "isComposite": true
+        },
+        {
+            "name": "LR_SRM_R_PERMIT_STOCKSCHEDULE",
+            "type": "RelationshipClass",
+            "originClassNames": [
+                "LR_SRM_PERMIT"
+            ],
+            "destinationClassNames": [
+                "LR_SRM_STOCK_SCHEDULE"
+            ],
+            "originClassKeys": [
+                [
+                    "ID",
+                    "OriginPrimary",
+                    ""
+                ],
+                [
+                    "PERMIT_ID",
+                    "OriginForeign",
+                    ""
+                ]
+            ],
+            "destinationClassKeys": [],
+            "cardinality": "OneToMany",
+            "isComposite": true
+        }
+    ]
+}

@@ -563,6 +563,9 @@ def validate_map(map):
 
     """
 
+    if isinstance(map, (basestring)):
+        map = arcpy.mapping.MapDocument(map)
+
     broken_layers = arcpy.mapping.ListBrokenDataSources(map)
 
     if len(broken_layers) > 0:
@@ -714,3 +717,9 @@ def _parse_data_source(data_source):
     r = r.groupdict()
 
     return (r.get("ds_user"), r.get("ds_name"), r.get("fc_user"), r.get("fc_name"))
+
+def _open_map_document(mxd):
+    import arcpy
+    if isinstance(mxd, str):
+        return arcpy.mapping.MapDocument(mxd)
+    return mxd

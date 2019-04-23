@@ -1,11 +1,19 @@
+# Python 2/3 compatibility
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from future.builtins import *
+from future.builtins.disabled import *
+from future.standard_library import install_aliases
+install_aliases()
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+
 import os.path
 import shutil
 
 import arcpyext
+import agsconfig
 import pytest
 
-from arcpyext.publishing._kml_server_extension import KmlServerExtension
-from arcpyext.publishing._sddraft_editor import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/example.sddraft".format(os.path.dirname(__file__)))
@@ -15,17 +23,17 @@ SDDRAFT_FILE_PATH_COPY = os.path.abspath("{0}/../samples/example.copy.sddraft".f
 @pytest.fixture
 def server_ext():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return KmlServerExtension(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
+    with open(SDDRAFT_FILE_PATH_COPY, "rb+") as file:
+        return agsconfig.load_map_sddraft(file).kml_server
 
 @pytest.mark.parametrize(("capabilities", "expected", "ex"), [
-    (["SingleImage"], [KmlServerExtension.Capability.single_image], None),
+    (["SingleImage"], [agsconfig.KmlServerExtension.Capability.single_image], None),
     (["sEpaRateImageS"], None, ValueError),
-    ([KmlServerExtension.Capability.separate_images, KmlServerExtension.Capability.vectors], [KmlServerExtension.Capability.separate_images, KmlServerExtension.Capability.vectors], None),
+    ([agsconfig.KmlServerExtension.Capability.separate_images, agsconfig.KmlServerExtension.Capability.vectors], [agsconfig.KmlServerExtension.Capability.separate_images, agsconfig.KmlServerExtension.Capability.vectors], None),
     (["Foo", "Bar"], None, ValueError),
-    (["SingleImage", 1], None, TypeError)
+    (["SingleImage", 1], None, ValueError)
 ])
 def test_capabilities(server_ext, capabilities, expected, ex):
-    assert isinstance(type(server_ext).capabilities, property) == True
     if (ex != None):
         with pytest.raises(ex):
             server_ext.capabilities = capabilities
@@ -34,15 +42,14 @@ def test_capabilities(server_ext, capabilities, expected, ex):
         assert set(server_ext.capabilities) == set(expected)
 
 @pytest.mark.parametrize(("compatibility_mode", "expected", "ex"), [
-    ("GoogleEarth", KmlServerExtension.CompatibilityMode.google_earth, None),
+    ("GoogleEarth", agsconfig.KmlServerExtension.CompatibilityMode.google_earth, None),
     ("gooGleEarTh", None, ValueError),
-    (KmlServerExtension.CompatibilityMode.google_mobile, KmlServerExtension.CompatibilityMode.google_mobile, None),
-    (KmlServerExtension.CompatibilityMode.google_maps, KmlServerExtension.CompatibilityMode.google_maps, None),
+    (agsconfig.KmlServerExtension.CompatibilityMode.google_mobile, agsconfig.KmlServerExtension.CompatibilityMode.google_mobile, None),
+    (agsconfig.KmlServerExtension.CompatibilityMode.google_maps, agsconfig.KmlServerExtension.CompatibilityMode.google_maps, None),
     ("Foo", None, ValueError),
-    (1, None, TypeError)
+    (1, None, ValueError)
 ])
 def test_compatibility_mode(server_ext, compatibility_mode, expected, ex):
-    assert isinstance(type(server_ext).compatibility_mode, property) == True
     if (ex != None):
         with pytest.raises(ex):
             server_ext.compatibility_mode = compatibility_mode
@@ -58,9 +65,7 @@ def test_compatibility_mode(server_ext, compatibility_mode, expected, ex):
     ("FooBar", None, ValueError)
 ])
 def test_dpi(server_ext, dpi, expected, ex):
-    assert isinstance(type(server_ext).dpi, property) == True
-
-    if ex != None:
+    if ex is not None:
         with pytest.raises(ex):
             server_ext.dpi = dpi
     else:
@@ -74,9 +79,7 @@ def test_dpi(server_ext, dpi, expected, ex):
     ("FooBar", None, ValueError)
 ])
 def test_feature_limit(server_ext, feature_limit, expected, ex):
-    assert isinstance(type(server_ext).feature_limit, property) == True
-
-    if ex != None:
+    if ex is not None:
         with pytest.raises(ex):
             server_ext.feature_limit = feature_limit
     else:
@@ -91,9 +94,7 @@ def test_feature_limit(server_ext, feature_limit, expected, ex):
     ("FooBar", None, ValueError)
 ])
 def test_image_size(server_ext, image_size, expected, ex):
-    assert isinstance(type(server_ext).image_size, property) == True
-
-    if ex != None:
+    if ex is not None:
         with pytest.raises(ex):
             server_ext.image_size = image_size
     else:
@@ -104,7 +105,6 @@ def test_image_size(server_ext, image_size, expected, ex):
     ("test link name")
 ])
 def test_link_name(server_ext, link_name):
-    assert isinstance(type(server_ext).link_name, property) == True
     server_ext.link_name = link_name
     assert server_ext.link_name == link_name
 
@@ -112,7 +112,6 @@ def test_link_name(server_ext, link_name):
     ("test link description")
 ])
 def test_link_description(server_ext, link_description):
-    assert isinstance(type(server_ext).link_description, property) == True
     server_ext.link_description = link_description
     assert server_ext.link_description == link_description
 
@@ -120,7 +119,6 @@ def test_link_description(server_ext, link_description):
     ("test one time message")
 ])
 def test_message(server_ext, message):
-    assert isinstance(type(server_ext).message, property) == True
     server_ext.message = message
     assert server_ext.message == message
 
@@ -132,9 +130,7 @@ def test_message(server_ext, message):
     ("FooBar", None, ValueError)
 ])
 def test_min_refresh_period(server_ext, min_refresh_period, expected, ex):
-    assert isinstance(type(server_ext).min_refresh_period, property) == True
-
-    if ex != None:
+    if ex is not None:
         with pytest.raises(ex):
             server_ext.min_refresh_period = min_refresh_period
     else:
@@ -143,12 +139,10 @@ def test_min_refresh_period(server_ext, min_refresh_period, expected, ex):
 
 @pytest.mark.parametrize(("enabled", "expected"), TRUEISH_TEST_PARAMS)
 def test_use_default_snippets(server_ext, enabled, expected):
-    assert isinstance(type(server_ext).use_default_snippets, property) == True
     server_ext.use_default_snippets = enabled
     assert server_ext.use_default_snippets == expected
 
 @pytest.mark.parametrize(("enabled", "expected"), TRUEISH_TEST_PARAMS)
 def test_use_network_link_control_tag(server_ext, enabled, expected):
-    assert isinstance(type(server_ext).use_network_link_control_tag, property) == True
     server_ext.use_network_link_control_tag = enabled
     assert server_ext.use_network_link_control_tag == expected

@@ -26,6 +26,10 @@ pip-log.txt
 htmlcov
 .tox
 nosetests.xml
+**/schematransform/output
+**/conversion/output
+.log
+.pytest_cache
 
 # Translations
 *.mo
@@ -44,3 +48,5 @@ nosetests.xml
 /.cache/
 /pie.bat
 /venvs/
+.vscode
+logfile.log

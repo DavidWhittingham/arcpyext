@@ -233,7 +233,10 @@ def to_xml(in_file, out_file):
 # To XML methods
 #----------------
 def _xml_to_file(f, o):
-    f.write(unicode(o))
+    try: 
+        f.write(unicode(o))
+    except:
+        f.write(str(o))
 
 #----------------
 # To JSON methods

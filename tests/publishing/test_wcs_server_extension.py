@@ -1,11 +1,19 @@
+# Python 2/3 compatibility
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+from future.builtins import *
+from future.builtins.disabled import *
+from future.standard_library import install_aliases
+install_aliases()
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+
 import os.path
 import shutil
 
 import arcpyext
+import agsconfig
 import pytest
 
-from arcpyext.publishing._wcs_server_extension import WcsServerExtension
-from arcpyext.publishing._sddraft_editor import SDDraftEditor
 from .. helpers import *
 
 SDDRAFT_FILE_PATH = os.path.abspath("{0}/../samples/example.sddraft".format(os.path.dirname(__file__)))
@@ -15,13 +23,10 @@ SDDRAFT_SAVE_TEST_FILE_PATH = os.path.abspath("{0}/../samples/example.savetest.s
 @pytest.fixture
 def server_ext():
     shutil.copyfile(SDDRAFT_FILE_PATH, SDDRAFT_FILE_PATH_COPY)
-    return WcsServerExtension(SDDraftEditor(SDDRAFT_FILE_PATH_COPY))
-
-from ogc_metadata_extension_mixin import *
-from custom_get_capabilities_extension_mixin import *
+    with open(SDDRAFT_FILE_PATH_COPY, "rb+") as file:
+        return agsconfig.load_map_sddraft(file).wcs_server
 
 def test_capabilities(server_ext):
-    assert isinstance(type(server_ext).capabilities, property) == True
-    assert server_ext.capabilities == None
-    with pytest.raises(NotImplementedError):
+    assert server_ext.capabilities == []
+    with pytest.raises(ValueError):
         server_ext.capabilities = "Blah"

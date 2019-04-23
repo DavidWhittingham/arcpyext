@@ -54,8 +54,9 @@ class PythonToolbox(object):
             t.load_xml()
 
     def save_definitions(self):
-        with open(self.xml_path,'w') as fout:
-            self.xml_tree.write(fout,encoding = 'utf-8')
+        #with open(self.xml_path,'w') as fout:
+        #    self.xml_tree.write(fout,encoding = 'utf-8')
+        self.xml_tree.write(self.xml_path, encoding = 'utf-8')
         # and save tools too
         for t in self.tools:
             t.save_definitions()
@@ -95,7 +96,7 @@ class PythonTool(object):
         self.xml_tree = etree.parse(self.xml_path)
 
     def save_definitions(self):
-        with open(self.xml_path,'w') as fout:
+        with open(self.xml_path,'wb') as fout:
             self.xml_tree.write(fout, encoding = 'utf-8')
 
     def set_description_in_xml(self, description):
