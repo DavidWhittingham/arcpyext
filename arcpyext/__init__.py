@@ -18,19 +18,13 @@ from . import conversion
 from . import data
 from . import toolbox
 from . import schematransform
+from . import mapping
+from . import publishing
 
-# import arcpy version-specific mapping modules
 try:
-    # py2 arcpy desktop
+    # Python 2 imports
     import arcpy.mapping
-    from .mapping import *
-    from .mapping import _open_map_document as open_map_document
-    from . import publishing
     from . import arcobjects
-
 except (AttributeError, ImportError):
-    # py3 arcpy pro
-    from .mp import *
-    from . import publishing
-
-
+    # Python 3 imports
+    pass

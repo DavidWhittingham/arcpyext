@@ -15,7 +15,6 @@ import os
 import arcpy
 
 from ..exceptions import MapDataSourcesBrokenError, ServDefDraftCreateError
-from ..mapping import validate_map
 
 def check_analysis(analysis):
     if not analysis["errors"] == {}:
@@ -29,7 +28,7 @@ def check_analysis(analysis):
         raise ServDefDraftCreateError("Analysis Errors: \n{errs}".format(errs = "\n".join(err_message_list)))
 
 def convert_pro_project_to_service_draft(project, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False, server = None, portal_folder = None):
-    from ..mp import validate_pro_project
+    from ..mapping import validate_pro_project
 
     # Pro requires a ags url without /arcgis at the end
     server = server.replace('/arcgis', '')
@@ -62,6 +61,8 @@ def convert_pro_project_to_service_draft(project, sd_draft_path, service_name, f
     return sd_draft_path
 
 def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False, server = None, portal_folder = None):
+    from ..mapping import validate_map
+
     # server and portal_folder parameters are required for pro services. Ignore in this function.
     if type(map) == str:
         map = arcpy.mapping.MapDocument(map)

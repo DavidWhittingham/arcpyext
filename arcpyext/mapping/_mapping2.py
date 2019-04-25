@@ -428,13 +428,15 @@ def compare(map_a, map_b):
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b
+                    if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
                     'desc':
                     "same name and id, datasource changed"
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
+                    not is_resolved_b(b) else None,
                     'desc':
                     "same id and datasource, name changed"
                 },
@@ -445,7 +447,8 @@ def compare(map_a, map_b):
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
+                    not is_resolved_b(b) else None,
                     'desc':
                     "same name and datasource, id changed"
                 },
@@ -496,6 +499,15 @@ def compare(map_a, map_b):
             return {'added': added, 'updated': updated, 'removed': removed}
 
     return {'dataFrames': compare_data_frames(), 'layers': compare_layers()}
+
+
+def open_document(mxd):
+    """Open a Map Document if provided a path, otherwise return the object."""
+
+    import arcpy
+    if isinstance(mxd, str):
+        return arcpy.mapping.MapDocument(mxd)
+    return mxd
 
 
 def validate_map(map):
@@ -656,10 +668,3 @@ def _parse_data_source(data_source):
     r = r.groupdict()
 
     return (r.get("ds_user"), r.get("ds_name"), r.get("fc_user"), r.get("fc_name"))
-
-
-def _open_map_document(mxd):
-    import arcpy
-    if isinstance(mxd, str):
-        return arcpy.mapping.MapDocument(mxd)
-    return mxd

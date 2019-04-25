@@ -30,38 +30,44 @@ logger = logging.getLogger("arcpyext.mp")
 def change_data_sources(project, data_sources):
     """ """
     # make sure the project is a project, not a path
-    project = _open_arcgis_project(project)
+    project = open_document(project)
 
     errors = []
+
+    layers_by_map = [proj_map.listLayers() for proj_map in project.listMaps()]
+
+    if not 'layers' in data_sources or not 'tableViews' in data_sources:
+        raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
+    
+    for layers, layer_sources in zip_longest(layers_by_map, data_sources["layers"]):
+
+        if layer_sources == None or len(layers) != len(layer_sources):
+            raise ChangeDataSourcesError("Number of layers does not match number of data sources.")
+        
+        for layer, layer_source in zip_longest(layers, layer_sources):
+            try:
+                if layer_source == None:
+                    continue
+
+                logger.debug("Layer '{0}': Attempting to change workspace path".format(layer.longName).encode(
+                    "ascii", "ignore"))
+                logger.debug("Old connectionProperties {0}".format(layer.connectionProperties).encode("ascii", "ignore"))
+                _change_data_source(layer, layer_source)
+                logger.debug("Layer '{0}': connectionProperties updated to: '{1}'".format(
+                    layer.name, layer_source).encode("ascii", "ignore"))
+
+                if layer.supports("dataSource"):
+                    logger.debug("Layer '{0}': New datasource: '{1}'".format(layer.longName,
+                                                                            layer.dataSource).encode("ascii", "ignore"))
+
+            #TODO: Handle KeyError and AttributeError for badly written configs
+            except MapLayerError as e:
+                errors.append(e)
+
     data_tables = []
     for map in project.listMaps():
         for table in map.listTables():
             data_tables.append(table)
-
-    layers_by_map = [df.listLayers() for df in project.listMaps()]
-
-    if not 'layers' in data_sources or not 'tableViews' in data_sources:
-        raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
-
-    for layer, layer_source in zip(layers_by_map[0], data_sources["layers"]):
-        try:
-            if layer_source == None:
-                continue
-
-            logger.debug(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode(
-                "ascii", "ignore"))
-            logger.debug(u"Old connectionProperties {0}".format(layer.connectionProperties).encode("ascii", "ignore"))
-            _change_data_source(layer, layer_source[0].get("connectionProperties"))
-            logger.debug(u"Layer '{0}': connectionProperties updated to: '{1}'".format(
-                layer.name, layer_source[0]["connectionProperties"]).encode("ascii", "ignore"))
-
-            if layer.supports("dataSource"):
-                logger.debug(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode(
-                    "ascii", "ignore"))
-
-        #TODO: Handle KeyError and AttributeError for badly written configs
-        except MapLayerError as e:
-            errors.append(e)
 
     if not len(data_tables) == len(data_sources['tableViews']):
         raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
@@ -71,12 +77,12 @@ def change_data_sources(project, data_sources):
             if layer_source == None:
                 continue
 
-            logger.debug(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode(
+            logger.debug("Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode(
                 "ascii", "ignore"))
-            logger.debug(u"Old connectionProperties {0}".format(data_table.connectionProperties).encode(
+            logger.debug("Old connectionProperties {0}".format(data_table.connectionProperties).encode(
                 "ascii", "ignore"))
             _change_data_source(data_table, layer_source.get("connectionProperties"))
-            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(
+            logger.debug("Data Table '{0}': Workspace path updated to: '{1}'".format(
                 data_table.name, layer_source.get("connectionProperties")))
 
         except MapLayerError as mle:
@@ -311,13 +317,15 @@ def compare(map_a, map_b):
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b
+                    if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
                     'desc':
                     "same name and id, datasource changed"
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
+                    not is_resolved_b(b) else None,
                     'desc':
                     "same id and datasource, name changed"
                 },
@@ -328,7 +336,8 @@ def compare(map_a, map_b):
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
+                    not is_resolved_b(b) else None,
                     'desc':
                     "same name and datasource, id changed"
                 },
@@ -386,12 +395,19 @@ def create_replacement_data_sources_list(document_data_sources_list,
                                          raise_exception_no_change=False):
 
     # Here we are rearranging the data_source_templates so that the match criteria can be compared as a set - in case there are more than one.
-    template_sets = []
-    for template in data_source_templates:
-        d = {}
-        d = template["dataSource"]
-        d.update({"matchCriteria": set(template["matchCriteria"].items())})
-        template_sets.append(d)
+    template_sets = [
+        dict(list(template.items()) + [("matchCriteria", set(template["matchCriteria"].items()))])
+        for template in data_source_templates
+    ]
+
+    # freeze values in dict for set comparison
+    def freeze(d):
+        """Freezes dicts and lists for set comparison."""
+        if isinstance(d, dict):
+            return frozenset((key, freeze(value)) for key, value in d.items())
+        elif isinstance(d, list):
+            return tuple(freeze(value) for value in d)
+        return d
 
     def match_new_data_source(item):
         if item == None:
@@ -401,39 +417,17 @@ def create_replacement_data_sources_list(document_data_sources_list,
         for template in template_sets:
             # The item variable is a layer object which contains a fields property (type list) that can't be serialised and used in set operations
             # It is not required for datasource matching, so exclude it from the the set logic
-            if item != []:
-                hashable_layer_fields = [
-                    f for f in item.items() if (not isinstance(f[1], list) and not isinstance(f[1], dict))
-                ]
-                if template["matchCriteria"].issubset(hashable_layer_fields):
-                    new_conn = {"connectionProperties": template["connectionProperties"]}
-                    #break
-            if new_conn == None and raise_exception_no_change:
-                raise RuntimeError("No matching data source was found for layer")
+            if template["matchCriteria"].issubset(set(freeze(item))):
+                new_conn = template["dataSource"]
+                break
+        if new_conn == None and raise_exception_no_change:
+            raise RuntimeError("No matching data source was found for layer")
         return new_conn
 
-    # We need to get longname and connectionProperties
-    new_data_sources = {"layers": [], "tableViews": []}
-
-    for map in document_data_sources_list["layers"]:
-        for layer in map:
-            match = match_new_data_source(layer)
-            if match is not None:
-                this_layer = [{}]
-                this_layer[0]["longName"] = layer["longName"]
-                this_layer[0].update(match)
-                new_data_sources["layers"].append(this_layer)
-
-    for map in document_data_sources_list["tableViews"]:
-        for tableView in map:
-            match = match_new_data_source(tableView)
-            if match is not None:
-                this_table = [{}]
-                this_table[0]["name"] = tableView["name"]
-                this_table[0].update(match)
-                new_data_sources["tableViews"].append(this_table)
-
-    return new_data_sources
+    return {
+        "layers": [[match_new_data_source(layer) for layer in df] for df in document_data_sources_list["layers"]],
+        "tableViews": [match_new_data_source(table) for table in document_data_sources_list["tableViews"]]
+    }
 
 
 def list_document_data_sources(project):
@@ -497,7 +491,7 @@ def list_document_data_sources(project):
         tableViews.append([_get_table_details(table) for table in map.listTables()])"""
 
     # make sure the project is a project, not a path
-    project = _open_arcgis_project(project)
+    project = open_document(project)
 
     layers = [[_get_layer_details(layer) for layer in df.listLayers()] for df in project.listMaps()]
     tableViews = [[_get_table_details(table) for table in df.listTables()] for df in project.listMaps()]
@@ -527,38 +521,46 @@ def list_document_data_sources(project):
     return {"layers": layers, "tableViews": tableViews}
 
 
+def open_document(project):
+    """Open an ArcGIS Pro Project if provided a path, otherwise return the object."""
+
+    if isinstance(project, str):
+        return arcpy.mp.ArcGISProject(project)
+    return project
+
+
 def validate_pro_project(project):
     # make sure the project is a project, not a path
-    project = _open_arcgis_project(project)
+    project = open_document(project)
 
     broken_layers = project.listBrokenDataSources()
 
     if len(broken_layers) > 0:
-        logger.debug(u"Map '{0}': Broken data sources:".format(project.filePath))
+        logger.debug("Map '{0}': Broken data sources:".format(project.filePath))
         for layer in broken_layers:
-            logger.debug(u" {0}".format(layer.name))
+            logger.debug(" {0}".format(layer.name))
             if not hasattr(layer, "supports"):
                 #probably a TableView
-                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
-                logger.debug(u"  datasource: {0}".format(layer.dataSource))
+                logger.debug("  workspace: {0}".format(layer.workspacePath))
+                logger.debug("  datasource: {0}".format(layer.dataSource))
                 continue
 
             #Some sort of layer
             if layer.supports("workspacePath"):
-                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
+                logger.debug("  workspace: {0}".format(layer.workspacePath))
             if layer.supports("dataSource"):
-                logger.debug(u"  datasource: {0}".format(layer.dataSource))
+                logger.debug("  datasource: {0}".format(layer.dataSource))
 
         return False
 
     return True
 
 
-def _change_data_source(layer, newProps):
+def _change_data_source(layer, new_props):
     try:
-        connProps = layer.connectionProperties
+        existing_conn_props = layer.connectionProperties
 
-        layer.updateConnectionProperties(connProps, newProps)
+        layer.updateConnectionProperties(existing_conn_props, new_props)
 
     except Exception as e:
         raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
@@ -631,9 +633,3 @@ def _get_table_details(table):
         "definitionQuery": table.definitionQuery,
         "name": table.name
     }
-
-
-def _open_arcgis_project(project):
-    if isinstance(project, str):
-        return arcpy.mp.ArcGISProject(project)
-    return project
