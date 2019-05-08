@@ -34,16 +34,18 @@ def change_data_sources(project, data_sources):
 
     errors = []
 
-    layers_by_map = [proj_map.listLayers() for proj_map in project.listMaps()]
+    # match map with data sources
+    for proj_map, map_data_sources in zip_longest(project.listMaps(), data_sources):
 
-    if not 'layers' in data_sources or not 'tableViews' in data_sources:
-        raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
-    
-    for layers, layer_sources in zip_longest(layers_by_map, data_sources["layers"]):
+        if not 'layers' in map_data_sources or not 'tableViews' in map_data_sources:
+            raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
+
+        layers = proj_map.listLayers()
+        layer_sources = map_data_sources["layers"]
 
         if layer_sources == None or len(layers) != len(layer_sources):
             raise ChangeDataSourcesError("Number of layers does not match number of data sources.")
-        
+
         for layer, layer_source in zip_longest(layers, layer_sources):
             try:
                 if layer_source == None:
@@ -51,42 +53,42 @@ def change_data_sources(project, data_sources):
 
                 logger.debug("Layer '{0}': Attempting to change workspace path".format(layer.longName).encode(
                     "ascii", "ignore"))
-                logger.debug("Old connectionProperties {0}".format(layer.connectionProperties).encode("ascii", "ignore"))
+                logger.debug("Old connectionProperties {0}".format(layer.connectionProperties).encode(
+                    "ascii", "ignore"))
                 _change_data_source(layer, layer_source)
-                logger.debug("Layer '{0}': connectionProperties updated to: '{1}'".format(
-                    layer.name, layer_source).encode("ascii", "ignore"))
+                logger.debug("Layer '{0}': connectionProperties updated to: '{1}'".format(layer.name,
+                                                                                          layer_source).encode(
+                                                                                              "ascii", "ignore"))
 
                 if layer.supports("dataSource"):
-                    logger.debug("Layer '{0}': New datasource: '{1}'".format(layer.longName,
-                                                                            layer.dataSource).encode("ascii", "ignore"))
+                    logger.debug("Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode(
+                        "ascii", "ignore"))
 
             #TODO: Handle KeyError and AttributeError for badly written configs
             except MapLayerError as e:
                 errors.append(e)
 
-    data_tables = []
-    for map in project.listMaps():
-        for table in map.listTables():
-            data_tables.append(table)
+        data_tables = proj_map.listTables()
+        data_table_sources = map_data_sources["tableViews"]
 
-    if not len(data_tables) == len(data_sources['tableViews']):
-        raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
+        if not len(data_tables) == len(data_table_sources):
+            raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
 
-    for data_table, layer_source in zip_longest(data_tables, data_sources['tableViews']):
-        try:
-            if layer_source == None:
-                continue
+        for data_table, layer_source in zip_longest(data_tables, data_table_sources):
+            try:
+                if layer_source == None:
+                    continue
 
-            logger.debug("Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode(
-                "ascii", "ignore"))
-            logger.debug("Old connectionProperties {0}".format(data_table.connectionProperties).encode(
-                "ascii", "ignore"))
-            _change_data_source(data_table, layer_source.get("connectionProperties"))
-            logger.debug("Data Table '{0}': Workspace path updated to: '{1}'".format(
-                data_table.name, layer_source.get("connectionProperties")))
+                logger.debug("Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode(
+                    "ascii", "ignore"))
+                logger.debug("Old connectionProperties {0}".format(data_table.connectionProperties).encode(
+                    "ascii", "ignore"))
+                _change_data_source(data_table, layer_source.get("connectionProperties"))
+                logger.debug("Data Table '{0}': Workspace path updated to: '{1}'".format(
+                    data_table.name, layer_source.get("connectionProperties")))
 
-        except MapLayerError as mle:
-            errors.append(mle)
+            except MapLayerError as mle:
+                errors.append(mle)
 
     if not len(errors) == 0:
         raise ChangeDataSourcesError("A number of errors were encountered whilst change layer data sources.", errors)
@@ -291,9 +293,9 @@ def compare(map_a, map_b):
             a = list_document_data_sources(map_a)
             b = list_document_data_sources(map_b)
 
-            # Flatten layer structure
-            a_layers = [item for sublist in a['layers'] for item in sublist if item is not None]
-            b_layers = [item for sublist in b['layers'] for item in sublist if item is not None]
+            # Flatten layer structure, only compare layers on first map
+            a_layers = [item for sublist in a[0]['layers'] for item in sublist if item is not None]
+            b_layers = [item for sublist in b[0]['layers'] for item in sublist if item is not None]
 
             # To correlate a layer in map a and map b, we run a series of specificity tests. Tests are ordered from
             # most specific, to least specific. These tests apply a process of elimination methodology to correlate layers
@@ -317,15 +319,13 @@ def compare(map_a, map_b):
                 },
                 {
                     'fn':
-                    lambda a, b: b
-                    if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
                     'desc':
                     "same name and id, datasource changed"
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
-                    not is_resolved_b(b) else None,
+                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
                     'desc':
                     "same id and datasource, name changed"
                 },
@@ -336,8 +336,7 @@ def compare(map_a, map_b):
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
-                    not is_resolved_b(b) else None,
+                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
                     'desc':
                     "same name and datasource, id changed"
                 },
@@ -424,19 +423,20 @@ def create_replacement_data_sources_list(document_data_sources_list,
             raise RuntimeError("No matching data source was found for layer")
         return new_conn
 
-    return {
-        "layers": [[match_new_data_source(layer) for layer in df] for df in document_data_sources_list["layers"]],
-        "tableViews": [match_new_data_source(table) for table in document_data_sources_list["tableViews"]]
-    }
+    return [{
+        "layers": [match_new_data_source(layer) for layer in df["layers"]],
+        "tableViews": [match_new_data_source(table) for table in df["tableViews"]]
+    } for df in document_data_sources_list]
 
 
 def list_document_data_sources(project):
     """List the data sources for each layer or table view of the specified map.
 
-    Outputs a dictionary containing two keys, "layers" and "tableViews".
+    Outputs a list of of dictionaries (each dictionary represents a map on the project), with each dictionary
+    containing two keys, "layers" and "tableViews".
 
-    "layers" contains an array, with each element representing a data frame (as another array) that contains a
-    dictionary of layer details relevant to that layer's connection to its data source.
+    "layers" contains an array, with each element a dictionary of layer details relevant to that layer's connection to
+    its data source.
 
     "tableViews" is also an array, where each element is a dictionary of table view details relevant to that table
     view's connection to its data source.
@@ -445,10 +445,10 @@ def list_document_data_sources(project):
 
     An example of the output format is the following::
 
-        {
-            "layers": [
-                [
-                    # Data frame number one
+        [
+            {
+            # Map number one
+                "layers": [
                     {
                         # Layer number one
                         "id":               "Layer ID",
@@ -467,58 +467,30 @@ def list_document_data_sources(project):
                     },
                     # ...more layers
                 ],
-                # ...more data frames
-            ],
-            "tableViews": [
-                {
-                    "datasetName":          "dataset name",
-                    "dataSource":           "data source",
-                    "definitionQuery":      "definition query on the table",
-                    "workspacePath":        "workspace path"
-                }
-            ]
-        }
+                "tableViews": [
+                    {
+                        "datasetName":          "dataset name",
+                        "dataSource":           "data source",
+                        "definitionQuery":      "definition query on the table",
+                        "workspacePath":        "workspace path"
+                    }
+                ]
+            }
+            # ...more maps
+        ]
 
-    :param map: The map to gather data source connection details about
-    :type map: arcpy.mapping.MapDocument
-    :returns: dict
-
-    
-    layers = []
-    tableViews = []
-    for map in project.listMaps():
-        layers.append([_get_layer_details(layer) for layer in map.listLayers()])
-        tableViews.append([_get_table_details(table) for table in map.listTables()])"""
+    :param project: The map to gather data source connection details about
+    :type project: arcpy.mp.ArcGISProject
+    :returns: array
+    """
 
     # make sure the project is a project, not a path
     project = open_document(project)
 
-    layers = [[_get_layer_details(layer) for layer in df.listLayers()] for df in project.listMaps()]
-    tableViews = [[_get_table_details(table) for table in df.listTables()] for df in project.listMaps()]
-    # Enrich arcpy data with additional information that is only accessible via arcobjects
-    """try:
-
-        init_arcobjects_context()
-        additional_layer_info = list_layers(project.filePath)
-        destroy_arcobjects_context()
-
-        for layerGroup in layers:
-            for l in layerGroup:
-                if l is not None:
-                    layerName = l['name']
-                    layer_info = additional_layer_info[layerName]
-                    if layer_info is not None:
-                        l["id"] = layer_info['id']
-                        l["hasFixedId"] = layer_info['hasFixedId']
-                        l["visible"] = layer_info['visible']
-                        l["definitionQuery"] = layer_info['definitionQuery']
-
-
-
-    except Exception as e:
-        logger.exception("Could not read additional layer info using arcobjects")"""
-
-    return {"layers": layers, "tableViews": tableViews}
+    return [{
+        "layers": [_get_layer_details(layer) for layer in mp.listLayers()],
+        "tableViews": [_get_table_details(table) for table in mp.listTables()]
+    } for mp in project.listMaps()]
 
 
 def open_document(project):
