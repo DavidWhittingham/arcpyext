@@ -1,15 +1,17 @@
+# coding=utf-8
 """
 This module handles applying patches to Esri's *arcpy* module.  These patches may insert functionality or fix issues
 directly in the *arcpy* module.
 """
 
 # Python 2/3 compatibility
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from future.builtins import *
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 from future.builtins.disabled import *
+from future.builtins import *
 from future.standard_library import install_aliases
 install_aliases()
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 import arcpy
 import re

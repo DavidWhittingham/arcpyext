@@ -1,22 +1,30 @@
+# coding=utf-8
+"""This module contains extended functionality for related to the arcpy.mapping module."""
+
 # Python 2/3 compatibility
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 from __future__ import (absolute_import, division, print_function, unicode_literals)
-from future.builtins import *
 from future.builtins.disabled import *
+from future.builtins import *
 from future.standard_library import install_aliases
 install_aliases()
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
-# Module start
+# Standard lib imports
 import logging
 import re
 from itertools import zip_longest
 
+# Third-party imports
 import arcpy
 
+# Local imports
 from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
 from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, list_layers
 
 # Configure module logging
 logger = logging.getLogger("arcpyext.mapping")
+
 
 def change_data_sources(map, data_sources):
     """ """
@@ -41,16 +49,21 @@ def change_data_sources(map, data_sources):
                     #error on layers that we can't change
                     raise UnsupportedLayerError(layer = layer)
 
+                if layer.supports("dataSource"):
+                    logger.debug(u"Layer '{0}': Current datasource: '{1}'".format(layer.longName,
+                                                                                  layer.dataSource).encode(
+                                                                                      "ascii", "ignore"))
+
+                logger.debug(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode(
+                    "ascii", "ignore"))
+                _change_data_source(layer, layer_source["workspacePath"], layer_source.get("datasetName"),
+                                    layer_source.get("workspaceType"), layer_source.get("schema"))
+                logger.debug(u"Layer '{0}': Workspace path updated to: '{1}'".format(
+                    layer.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
 
                 if layer.supports("dataSource"):
-                    logger.debug(u"Layer '{0}': Current datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
-
-                logger.debug(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode("ascii", "ignore"))
-                _change_data_source(layer, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("schema"))
-                logger.debug(u"Layer '{0}': Workspace path updated to: '{1}'".format(layer.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
-
-                if layer.supports("dataSource"):
-                    logger.debug(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode("ascii", "ignore"))
+                    logger.debug(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode(
+                        "ascii", "ignore"))
 
             except MapLayerError as mle:
                 errors.append(mle)
@@ -63,9 +76,12 @@ def change_data_sources(map, data_sources):
             if layer_source == None:
                 continue
 
-            logger.debug(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode("ascii", "ignore"))
-            _change_data_source(data_table, layer_source["workspacePath"], layer_source.get("datasetName"), layer_source.get("workspaceType"), layer_source.get("schema"))
-            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(data_table.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
+            logger.debug(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode(
+                "ascii", "ignore"))
+            _change_data_source(data_table, layer_source["workspacePath"], layer_source.get("datasetName"),
+                                layer_source.get("workspaceType"), layer_source.get("schema"))
+            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(
+                data_table.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
 
         except MapLayerError as mle:
             errors.append(mle)
@@ -73,8 +89,14 @@ def change_data_sources(map, data_sources):
     if not len(errors) == 0:
         raise ChangeDataSourcesError("A number of errors were encountered whilst change layer data sources.", errors)
 
-def create_replacement_data_sources_list(document_data_sources_list, data_source_templates, raise_exception_no_change = False):
-    template_sets = [dict(template.items() + [("matchCriteria", set(template["matchCriteria"].items()))]) for template in data_source_templates]
+
+def create_replacement_data_sources_list(document_data_sources_list,
+                                         data_source_templates,
+                                         raise_exception_no_change=False):
+    template_sets = [
+        dict(template.items() + [("matchCriteria", set(template["matchCriteria"].items()))])
+        for template in data_source_templates
+    ]
 
     import json
     logger.debug(json.dumps(data_source_templates))
@@ -163,6 +185,7 @@ def create_replacement_data_sources_list(document_data_sources_list, data_source
         "tableViews": [match_new_data_source(table) for table in document_data_sources_list["tableViews"]]
     }
 
+
 def list_document_data_sources(map):
     """List the data sources for each layer or table view of the specified map.
 
@@ -217,7 +240,8 @@ def list_document_data_sources(map):
     :returns: dict
 
     """
-    layers = [[_get_layer_details(layer) for layer in arcpy.mapping.ListLayers(df)] for df in arcpy.mapping.ListDataFrames(map)]
+    layers = [[_get_layer_details(layer) for layer in arcpy.mapping.ListLayers(df)]
+              for df in arcpy.mapping.ListDataFrames(map)]
     tableViews = [_get_table_details(table) for table in arcpy.mapping.ListTableViews(map)]
     # Enrich arcpy data with additional information that is only accessible via arcobjects
     try:
@@ -237,15 +261,11 @@ def list_document_data_sources(map):
                         l["visible"] = layer_info['visible']
                         l["definitionQuery"] = layer_info['definitionQuery']
 
-
-
     except Exception as e:
         logger.exception("Could not read additional layer info using arcobjects")
 
-    return {
-        "layers": layers,
-        "tableViews": tableViews
-    }
+    return {"layers": layers, "tableViews": tableViews}
+
 
 def compare(map_a, map_b):
     """Compares two map documents.
@@ -343,12 +363,7 @@ def compare(map_a, map_b):
 
             # Who are you? Who am I?
             def _express_diff(a, b, k, type):
-                return {
-                    "type": type,
-                    "was": a[k] if k in a else None,
-                    "now": b[k] if k in b else None
-                }
-
+                return {"type": type, "was": a[k] if k in a else None, "now": b[k] if k in b else None}
 
             def _layer_diff(a, b):
 
@@ -439,11 +454,7 @@ def compare(map_a, map_b):
                                 was = [inflate(a[k], x) for x in [unhash(x) for x in was]]
                                 now = [inflate(b[k], x) for x in [unhash(x) for x in now]]
 
-                                diff.append({
-                                    "type": v,
-                                    "was": was,
-                                    "now": now
-                                })
+                                diff.append({"type": v, "was": was, "now": now})
 
                         else:
                             if not eq(a, b, k):
@@ -481,12 +492,18 @@ def compare(map_a, map_b):
                     'ignore': True
                 },
                 {
-                    'fn': lambda a, b: b if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
-                    'desc': "same name and id, datasource changed"
+                    'fn':
+                    lambda a, b: b
+                    if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    'desc':
+                    "same name and id, datasource changed"
                 },
                 {
-                    'fn': lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
-                    'desc': "same id and datasource, name changed"
+                    'fn':
+                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
+                    not is_resolved_b(b) else None,
+                    'desc':
+                    "same id and datasource, name changed"
                 },
                 {
                     # TODO this should be skipped if we can verify that fixed layer IDs are not used
@@ -494,8 +511,11 @@ def compare(map_a, map_b):
                     'desc': "same id. Assumed valid if fixed data sources enabled"
                 },
                 {
-                    'fn': lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
-                    'desc': "same name and datasource, id changed"
+                    'fn':
+                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
+                    not is_resolved_b(b) else None,
+                    'desc':
+                    "same name and datasource, id changed"
                 },
                 {
                     'fn': lambda a, b: b if same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
@@ -541,16 +561,19 @@ def compare(map_a, map_b):
             logger.exception("Error comparing layers")
 
         finally:
-            return {
-                'added': added,
-                'updated': updated,
-                'removed': removed
-            }
+            return {'added': added, 'updated': updated, 'removed': removed}
 
-    return {
-        'dataFrames': compare_data_frames(),
-        'layers': compare_layers()
-    }
+    return {'dataFrames': compare_data_frames(), 'layers': compare_layers()}
+
+
+def open_document(mxd):
+    """Open a Map Document if provided a path, otherwise return the object."""
+
+    import arcpy
+    if isinstance(mxd, str):
+        return arcpy.mapping.MapDocument(mxd)
+    return mxd
+
 
 def validate_map(map):
     """Analyse the map for broken layers and return a boolean indicating if it is in a valid state or not.
@@ -588,11 +611,11 @@ def validate_map(map):
 
     return True
 
+
 def _change_data_source(layer, workspace_path, dataset_name = None, workspace_type = None, schema = None):
     try:
-
-        if ((not hasattr(layer, "supports") or layer.supports("workspacePath")) and
-            (dataset_name == None and workspace_type == None and schema == None)):
+        if ((not hasattr(layer, "supports") or layer.supports("workspacePath"))
+                and (dataset_name == None and workspace_type == None and schema == None)):
 
             # Tests if layer is actually a layer object (i.e. has a "support" function) or table view (which doesn't,
             # but always supports "workspacePath").  Can't test on type (arcpy.mapping.TableView) as that doesn't work
@@ -638,10 +661,7 @@ def _get_layer_details(layer):
     if layer.isGroupLayer and not layer.isNetworkAnalystLayer:
         return None
 
-    details = {
-        "name": layer.name,
-        "longName": layer.longName
-    }
+    details = {"name": layer.name, "longName": layer.longName}
 
     if layer.supports("definitionQuery"):
         details["definitionQuery"] = layer.definitionQuery
@@ -687,6 +707,7 @@ def _get_layer_details(layer):
 
     return details
 
+
 def _get_table_details(table):
     return {
         "datasetName": table.datasetName,
@@ -694,6 +715,7 @@ def _get_table_details(table):
         "definitionQuery": table.definitionQuery,
         "workspacePath": table.workspacePath
     }
+
 
 def _parse_data_source(data_source):
     """Takes a string describing a data source and returns a four-part tuple describing the dataset username, dataset
@@ -706,9 +728,7 @@ def _parse_data_source(data_source):
     r = dataset_regex.search(data_source)
 
     if r == None:
-        feature_class_regex = re.compile(
-                                r"^(?:\\)?(?P<fc_user>[\w]*?(?=\.))(?:\.)(?P<fc_name>[\w]*?)$",
-                                re.IGNORECASE)
+        feature_class_regex = re.compile(r"^(?:\\)?(?P<fc_user>[\w]*?(?=\.))(?:\.)(?P<fc_name>[\w]*?)$", re.IGNORECASE)
         r = feature_class_regex.search(data_source)
 
     if r == None:
@@ -717,9 +737,3 @@ def _parse_data_source(data_source):
     r = r.groupdict()
 
     return (r.get("ds_user"), r.get("ds_name"), r.get("fc_user"), r.get("fc_name"))
-
-def _open_map_document(mxd):
-    import arcpy
-    if isinstance(mxd, str):
-        return arcpy.mapping.MapDocument(mxd)
-    return mxd
