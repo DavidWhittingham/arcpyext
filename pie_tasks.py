@@ -2,7 +2,7 @@ from pie import *
 
 @task
 def build():
-    cmd(r'python setup.py clean --all bdist_wheel')
+    cmd(r'python setup.py bdist_wheel clean --all')
 
 
 @task
