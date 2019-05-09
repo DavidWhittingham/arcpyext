@@ -100,38 +100,32 @@ def create_replacement_data_sources_list(document_data_sources_list,
         for template in data_source_templates
     ]
 
-    import json
-    logger.debug(json.dumps(data_source_templates))
+    logger.debug("Data source templates: %s", data_source_templates)
 
     # Given a feature class or feature dataset name, returns the schema (optional) and simple name
     def tokenise_table_name(x):
         if "." in x:
-             return {
-                 'schema': x[:x.index(".")],
-                 'name': x[x.index(".") + 1:]
-             }
+            return {"schema": x[:x.index(".")], "name": x[x.index(".") + 1:]}
         else:
-            return  {
-                 'schema': None,
-                 'name': x
-             }
+            return {"schema": None, "name": x}
 
     # Given a fully qualified feature class path, returns the feature class' schema, simple name and parent dataset (optional)
     def tokenise_datasource(x):
         regex = r"([\w\.]+)?(/|\\+)([\w\.]+$)"
         parts = re.search(regex, x, re.MULTILINE | re.IGNORECASE)
-       
+
         if parts and parts.groups > 3:
 
-            dataset = None if ".gdb" in parts.group(1).lower() or ".sde" in parts.group(1).lower() else tokenise_table_name(parts.group(1)) 
+            dataset = None if ".gdb" in parts.group(1).lower() or ".sde" in parts.group(
+                1).lower() else tokenise_table_name(parts.group(1))
             table = tokenise_table_name(parts.group(3))
 
             return {
-                'schema': None if table['schema'] is None else table['schema'],
-                'dataSet': None if dataset is None else dataset['name'],
-                'table': table['name']
+                "schema": None if table["schema"] is None else table["schema"],
+                "dataSet": None if dataset is None else dataset["name"],
+                "table": table["name"]
             }
-            
+
         else:
             return None
 
@@ -151,34 +145,35 @@ def create_replacement_data_sources_list(document_data_sources_list,
             if template["matchCriteria"].issubset(set(hashable_layer_fields)):
 
                 new_conn = template["dataSource"].copy()
-                logger.info(json.dumps(new_conn))
 
                 # Test #2: If the target workspace is a collection of workspaces, infer the target child workspace by using a
-                # deterministic naming convention that maps the layer's dataset name to a workspace. 
-                if 'matchOptions' in template and 'isWorkspaceContainer' in template['matchOptions'] and template['matchOptions']['isWorkspaceContainer'] == True:
+                # deterministic naming convention that maps the layer's dataset name to a workspace.
+                if template.get("matchOptions", {}).get("isWorkspaceContainer") == True:
 
-                    tokens = tokenise_datasource(item['dataSource'])
+                    logger.debug("Data source template is workspace container.")
+
+                    tokens = tokenise_datasource(item["dataSource"])
 
                     if tokens is not None:
-                                                
-                        logger.debug(json.dumps(tokens))
 
-                        if tokens['dataSet'] is not None and tokens['schema'] is not None:
+                        logger.debug("Tokens are: %s", tokens)
+
+                        if tokens["dataSet"] is not None and tokens["schema"] is not None:
                             logger.debug(1.11)
-                            new_conn['workspacePath'] = "%s\\%s.%s.gdb" % (new_conn['workspacePath'], tokens['schema'], tokens['dataSet'])
-                        elif tokens['dataSet'] is not None:
+                            new_conn["workspacePath"] = "{}\\{}.{}.gdb".format(new_conn["workspacePath"], tokens["schema"], tokens["dataSet"])
+                        elif tokens["dataSet"] is not None:
                             logger.debug(1.12)
-                            new_conn['workspacePath'] = "%s\\%s.gdb" % (new_conn['workspacePath'], tokens['dataSet'])
+                            new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"], tokens["dataSet"])
                         else:
                             logger.debug(1.13)
-                            new_conn['workspacePath'] = "%s\\%s.gdb" % (new_conn['workspacePath'], tokens['table'])
+                            new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"], tokens["table"])
 
                 break
 
         if new_conn == None and raise_exception_no_change:
             raise RuntimeError("No matching data source was found for layer")
 
-        logger.debug(new_conn)                    
+        logger.debug("New connection: %s", new_conn)
         return new_conn
 
     return {
