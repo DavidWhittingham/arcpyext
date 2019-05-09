@@ -566,12 +566,17 @@ def compare(map_a, map_b):
 
 
 def open_document(mxd):
-    """Open a Map Document if provided a path, otherwise return the object."""
+    """Open a arcpy.mapping.MapDocument from a given path.
+    
+    If the path is already a MapDocument, this is a no-op.
+    """
 
     import arcpy
-    if isinstance(mxd, str):
-        return arcpy.mapping.MapDocument(mxd)
-    return mxd
+
+    if isinstance(mxd, arcpy.mapping.MapDocument):
+        return mxd
+
+    return arcpy.mapping.MapDocument(mxd)
 
 
 def validate_map(map):

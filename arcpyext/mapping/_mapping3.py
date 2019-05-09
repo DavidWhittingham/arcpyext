@@ -494,11 +494,15 @@ def list_document_data_sources(project):
 
 
 def open_document(project):
-    """Open an ArcGIS Pro Project if provided a path, otherwise return the object."""
+    """Open an ArcGIS Pro Project from a given path.
+    
+    If the path is already a Project, this is a no-op.
+    """
 
-    if isinstance(project, str):
-        return arcpy.mp.ArcGISProject(project)
-    return project
+    if isinstance(project, arcpy.mp.ArcGISProject):
+        return project
+    
+    return arcpy.mp.ArcGISProject(project)
 
 
 def validate_pro_project(project):
