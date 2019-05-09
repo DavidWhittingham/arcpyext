@@ -28,6 +28,8 @@ logger = logging.getLogger("arcpyext.mapping")
 
 def change_data_sources(map, data_sources):
     """ """
+    logger.debug("Data sources: %s", data_sources)
+
     errors = []
     data_tables = arcpy.mapping.ListTableViews(map)
     layers_by_df = [arcpy.mapping.ListLayers(df) for df in arcpy.mapping.ListDataFrames(map)]
