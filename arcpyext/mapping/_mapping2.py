@@ -17,6 +17,7 @@ from itertools import zip_longest
 
 # Third-party imports
 import arcpy
+import olefile
 
 # Local imports
 from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
@@ -160,10 +161,12 @@ def create_replacement_data_sources_list(document_data_sources_list,
 
                         if tokens["dataSet"] is not None and tokens["schema"] is not None:
                             logger.debug(1.11)
-                            new_conn["workspacePath"] = "{}\\{}.{}.gdb".format(new_conn["workspacePath"], tokens["schema"], tokens["dataSet"])
+                            new_conn["workspacePath"] = "{}\\{}.{}.gdb".format(new_conn["workspacePath"],
+                                                                               tokens["schema"], tokens["dataSet"])
                         elif tokens["dataSet"] is not None:
                             logger.debug(1.12)
-                            new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"], tokens["dataSet"])
+                            new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"],
+                                                                            tokens["dataSet"])
                         else:
                             logger.debug(1.13)
                             new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"], tokens["table"])
@@ -180,6 +183,18 @@ def create_replacement_data_sources_list(document_data_sources_list,
         "layers": [[match_new_data_source(layer) for layer in df] for df in document_data_sources_list["layers"]],
         "tableViews": [match_new_data_source(table) for table in document_data_sources_list["tableViews"]]
     }
+
+
+def get_version(map_document):
+    """Gets the version of a given map document (or path to a map document)."""
+
+    if isinstance(map_document, arcpy.mapping.MapDocument):
+        fp = map_document.filePath
+    else:
+        fp = map_document
+
+    with olefile.OleFileIO(fp) as o, o.openstream("Version") as s:
+        return s.read().decode("utf-16").split("\x00")[1]
 
 
 def list_document_data_sources(map):
