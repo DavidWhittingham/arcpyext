@@ -38,7 +38,7 @@ def change_data_sources(project, data_sources):
     for proj_map, map_data_sources in zip_longest(project.listMaps(), data_sources):
 
         if not 'layers' in map_data_sources or not 'tableViews' in map_data_sources:
-            raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
+            raise ChangeDataSourcesError("Data sources dictionary does not contain both layers and tableViews keys")
 
         layers = proj_map.listLayers()
         layer_sources = map_data_sources["layers"]
@@ -51,18 +51,14 @@ def change_data_sources(project, data_sources):
                 if layer_source == None:
                     continue
 
-                logger.debug("Layer '{0}': Attempting to change workspace path".format(layer.longName).encode(
-                    "ascii", "ignore"))
-                logger.debug("Old connectionProperties {0}".format(layer.connectionProperties).encode(
-                    "ascii", "ignore"))
+                logger.debug("Layer {0}: Attempting to change workspace path".format(layer.longName))
+                logger.debug("Old connectionProperties {0}".format(layer.connectionProperties))
                 _change_data_source(layer, layer_source)
-                logger.debug("Layer '{0}': connectionProperties updated to: '{1}'".format(layer.name,
-                                                                                          layer_source).encode(
-                                                                                              "ascii", "ignore"))
+                logger.debug("Layer {0}: connectionProperties updated to: {1}".format(layer.name,
+                                                                                          layer_source))
 
                 if layer.supports("dataSource"):
-                    logger.debug("Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode(
-                        "ascii", "ignore"))
+                    logger.debug("Layer {0}: New datasource: {1}".format(layer.longName, layer.dataSource))
 
             #TODO: Handle KeyError and AttributeError for badly written configs
             except MapLayerError as e:
@@ -79,12 +75,12 @@ def change_data_sources(project, data_sources):
                 if layer_source == None:
                     continue
 
-                logger.debug("Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode(
+                logger.debug("Data Table {0}: Attempting to change workspace path".format(data_table.name).encode(
                     "ascii", "ignore"))
                 logger.debug("Old connectionProperties {0}".format(data_table.connectionProperties).encode(
                     "ascii", "ignore"))
                 _change_data_source(data_table, layer_source.get("connectionProperties"))
-                logger.debug("Data Table '{0}': Workspace path updated to: '{1}'".format(
+                logger.debug("Data Table {0}: Workspace path updated to: {1}".format(
                     data_table.name, layer_source.get("connectionProperties")))
 
             except MapLayerError as mle:
