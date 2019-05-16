@@ -8,4 +8,4 @@ try:
 except (AttributeError, ImportError):
     # py3 arcpy pro
     from ._mapping3 import (list_document_data_sources, change_data_sources, compare, validate_pro_project,
-                            create_replacement_data_sources_list, open_document)
+                            validate_map, create_replacement_data_sources_list, open_document)

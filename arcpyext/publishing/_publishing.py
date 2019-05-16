@@ -16,43 +16,40 @@ import arcpy
 
 from ..exceptions import MapDataSourcesBrokenError, ServDefDraftCreateError
 
+
 def check_analysis(analysis):
     if not analysis["errors"] == {}:
         err_message_list = []
         for ((message, code), layerlist) in analysis["errors"].iteritems():
             if layerlist == None:
-                err_message_list.append("{message} (CODE {code})".format(message = message, code = code))
+                err_message_list.append("{message} (CODE {code})".format(message=message, code=code))
             else:
                 err_message_list.append("{message} (CODE {code}) applies to: {layers}".format(
-                                            message = message, code = code, layers = ", ".join([layer.name for layer in layerlist])))
-        raise ServDefDraftCreateError("Analysis Errors: \n{errs}".format(errs = "\n".join(err_message_list)))
+                    message=message, code=code, layers=", ".join([layer.name for layer in layerlist])))
+        raise ServDefDraftCreateError("Analysis Errors: \n{errs}".format(errs="\n".join(err_message_list)))
 
-def convert_pro_project_to_service_draft(project, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False, server = None, portal_folder = None):
-    from ..mapping import validate_pro_project
 
-    # Pro requires a ags url without /arcgis at the end
-    server = server.replace('/arcgis', '')
+def convert_pro_map_to_service_draft(map_obj,
+                                     sd_draft_path,
+                                     service_name,
+                                     folder_name=None,
+                                     summary=None,
+                                     copy_data_to_server=False,
+                                     portal_folder=None):
+    from ..mapping import validate_map
 
-    if type(project) == str:
-        project = arcpy.mp.ArcGISProject(project)
-
-    if not validate_pro_project(project):
+    if not validate_map(map_obj):
         raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 
     if os.path.exists(sd_draft_path):
         os.remove(sd_draft_path)
 
-    draft = arcpy.sharing.CreateSharingDraft('STANDALONE_SERVER', # This is a fixed value and doesn't do anything
-                                                'MAP_SERVICE',
-                                                service_name,
-                                                project.listMaps()[0]) #TODO: Do something about using only the first map in the project
+    draft = arcpy.sharing.CreateSharingDraft(
+        'STANDALONE_SERVER',  # This is a fixed value and doesn't do anything
+        'MAP_SERVICE',
+        service_name,
+        map_obj)
 
-    if copy_data_to_server == 'false':
-        draft.copyDataToServer = False
-    elif copy_data_to_server == 'true':
-        draft.copyDataToServer = True
-        
-    #draft.targetServer = server
     draft.offline = True
     draft.serverFolder = folder_name
     draft.portalFolder = portal_folder
@@ -60,27 +57,32 @@ def convert_pro_project_to_service_draft(project, sd_draft_path, service_name, f
 
     return sd_draft_path
 
-def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name = None, summary = None, copy_data_to_server = False, server = None, portal_folder = None):
+
+def convert_desktop_map_to_service_draft(map_doc,
+                                         sd_draft_path,
+                                         service_name,
+                                         folder_name=None,
+                                         summary=None,
+                                         copy_data_to_server=False):
     from ..mapping import validate_map
 
     # server and portal_folder parameters are required for pro services. Ignore in this function.
-    if type(map) == str:
-        map = arcpy.mapping.MapDocument(map)
-    
-    if not validate_map(map):
+    if not isinstance(map_doc, arcpy.mapping.MapDocument):
+        map_doc = arcpy.mapping.MapDocument(map_doc)
+
+    if not validate_map(map_doc):
         raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 
     if os.path.exists(sd_draft_path):
         os.remove(sd_draft_path)
 
-    analysis = arcpy.mapping.CreateMapSDDraft(
-        map,
-        sd_draft_path,
-        service_name,
-        server_type = "ARCGIS_SERVER",
-        copy_data_to_server = copy_data_to_server,
-        folder_name = folder_name,
-        summary = summary)
+    analysis = arcpy.mapping.CreateMapSDDraft(map_doc,
+                                              sd_draft_path,
+                                              service_name,
+                                              server_type="ARCGIS_SERVER",
+                                              copy_data_to_server=copy_data_to_server,
+                                              folder_name=folder_name,
+                                              summary=summary)
 
     check_analysis(analysis)
 
@@ -88,6 +90,7 @@ def convert_map_to_service_draft(map, sd_draft_path, service_name, folder_name =
     check_analysis(analysis)
 
     return sd_draft_path
+
 
 def convert_service_draft_to_staged_service(sd_draft, sd_path):
     if os.path.exists(sd_path):
@@ -98,7 +101,13 @@ def convert_service_draft_to_staged_service(sd_draft, sd_path):
     else:
         arcpy.StageService_server(sd_draft.file_path, sd_path)
 
-def convert_toolbox_to_service_draft(toolbox_path, sd_draft_path, get_result_fn, service_name, folder_name = None, summary = None):
+
+def convert_toolbox_to_service_draft(toolbox_path,
+                                     sd_draft_path,
+                                     get_result_fn,
+                                     service_name,
+                                     folder_name=None,
+                                     summary=None):
     # import and run the package
     arcpy.ImportToolbox(toolbox_path)
     # optionally allow a list of results
@@ -108,8 +117,13 @@ def convert_toolbox_to_service_draft(toolbox_path, sd_draft_path, get_result_fn,
         result = get_result_fn()
 
     # create the sddraft
-    analysis = arcpy.CreateGPSDDraft(result, sd_draft_path, service_name, server_type="ARCGIS_SERVER",
-                            copy_data_to_server=False, folder_name=folder_name, summary=summary)
+    analysis = arcpy.CreateGPSDDraft(result,
+                                     sd_draft_path,
+                                     service_name,
+                                     server_type="ARCGIS_SERVER",
+                                     copy_data_to_server=False,
+                                     folder_name=folder_name,
+                                     summary=summary)
     check_analysis(analysis)
     # and analyse it
     analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)

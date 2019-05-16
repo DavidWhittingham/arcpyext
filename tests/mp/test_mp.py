@@ -56,9 +56,9 @@ def test_change_data_sources(project, data_sources, layer_data_sources_equal, ta
 
     if (raises_ex):
         with pytest.raises(ex_type):
-            arcpyext.mp.change_data_sources(project, data_sources)
+            arcpyext.mapping.change_data_sources(project, data_sources)
     else:
-        arcpyext.mp.change_data_sources(project, data_sources)
+        arcpyext.mapping.change_data_sources(project, data_sources)
 
         for idx, layer in enumerate(layers):
             if layer.isGroupLayer or not layer.supports("workspacePath"):
@@ -74,7 +74,7 @@ def test_change_data_sources(project, data_sources, layer_data_sources_equal, ta
     (PROJECT_COMPLEX_PATH, False, None)])
 def test_list_document_data_sources(mxd, raises_ex, ex_type):
     map = arcpy.mp.ArcGISProject(mxd)
-    result = arcpyext.mp.list_document_data_sources(map)
+    result = arcpyext.mapping.list_document_data_sources(map)
     """# print(json.dumps(result))
 
     # Expecting:
@@ -140,7 +140,7 @@ def test_list_document_data_sources(mxd, raises_ex, ex_type):
 def test_compare_map_documents(mxd_a, mxd_b, data_frame_updates, layers_added, layers_updated, layers_removed, raises_ex, ex_type):
     a = arcpy.mp.ArcGISProject(mxd_a)
     b = arcpy.mp.ArcGISProject(mxd_b)
-    result = arcpyext.mp.compare(a, b)
+    result = arcpyext.mapping.compare(a, b)
 
     data_frame_changes = result['dataFrames']
     layer_changes = result['layers']

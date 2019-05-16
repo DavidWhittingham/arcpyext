@@ -54,8 +54,7 @@ def change_data_sources(project, data_sources):
                 logger.debug("Layer {0}: Attempting to change workspace path".format(layer.longName))
                 logger.debug("Old connectionProperties {0}".format(layer.connectionProperties))
                 _change_data_source(layer, layer_source)
-                logger.debug("Layer {0}: connectionProperties updated to: {1}".format(layer.name,
-                                                                                          layer_source))
+                logger.debug("Layer {0}: connectionProperties updated to: {1}".format(layer.name, layer_source))
 
                 if layer.supports("dataSource"):
                     logger.debug("Layer {0}: New datasource: {1}".format(layer.longName, layer.dataSource))
@@ -315,13 +314,15 @@ def compare(map_a, map_b):
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b
+                    if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
                     'desc':
                     "same name and id, datasource changed"
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
+                    not is_resolved_b(b) else None,
                     'desc':
                     "same id and datasource, name changed"
                 },
@@ -332,7 +333,8 @@ def compare(map_a, map_b):
                 },
                 {
                     'fn':
-                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
+                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
+                    not is_resolved_b(b) else None,
                     'desc':
                     "same name and datasource, id changed"
                 },
@@ -497,8 +499,32 @@ def open_document(project):
 
     if isinstance(project, arcpy.mp.ArcGISProject):
         return project
-    
+
     return arcpy.mp.ArcGISProject(project)
+
+
+def validate_map(map_obj):
+    broken_layers = map_obj.listBrokenDataSources()
+
+    if len(broken_layers) > 0:
+        logger.debug("Map '{0}': Broken data sources:".format(map_obj.name))
+        for layer in broken_layers:
+            logger.debug(" {0}".format(layer.name))
+            if not hasattr(layer, "supports"):
+                #probably a TableView
+                logger.debug("  workspace: {0}".format(layer.workspacePath))
+                logger.debug("  datasource: {0}".format(layer.dataSource))
+                continue
+
+            #Some sort of layer
+            if layer.supports("workspacePath"):
+                logger.debug("  workspace: {0}".format(layer.workspacePath))
+            if layer.supports("dataSource"):
+                logger.debug("  datasource: {0}".format(layer.dataSource))
+
+        return False
+
+    return True
 
 
 def validate_pro_project(project):
