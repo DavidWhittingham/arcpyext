@@ -56,14 +56,10 @@ def updatePackages():
 @task
 def test():
     with venv(".venvs\\test-py2"):
-        cmd("echo 'Running Py2 Tests'")
-        cmd(r'python -m pytest -s tests')
-        cmd("echo 'Py2 Tests complete'")
+        cmd("python .\\tests\main.py")
 
     with venv(".venvs\\test-py3"):
-        cmd("echo 'Running Py3 Tests'")
-        cmd(r'python -m pytest -s tests')
-        cmd("echo 'Py3 Tests complete'")
+        cmd("python .\\tests\main.py")
 
 
 @task([OptionsParameter('version')])
