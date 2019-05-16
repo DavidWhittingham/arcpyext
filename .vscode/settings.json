@@ -1,0 +1,10 @@
+{
+    "python.testing.pyTestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pyTestEnabled": true,
+    "python.venvPath": "${workspaceFolder}/.venvs",
+    "python.pythonPath": ".venvs\\test-py2\\Scripts\\python.exe"
+}
