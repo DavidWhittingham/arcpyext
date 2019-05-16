@@ -4,7 +4,7 @@ pie - Python Interactive Executor
 Enables a user to execute predefined tasks that may accept parameters and options from the command line without any other required packages.
 Great for bootstrapping a development environment, and then interacting with it.
 """
-__VERSION__='0.2.4'
+__VERSION__='0.2.6'
 
 
 import inspect
@@ -26,7 +26,7 @@ PY3=(sys.version_info>=(3,0))
 
 # function for input (also so that we can mock it tests)
 INPUT_FN=input if PY3 else raw_input
-# function to execute a command - must emulate the subprocess call method
+# function to execute a command - must emulate the subprocess call method and return an error code on failure
 CMD_FN=subprocess.call
 
 
@@ -72,7 +72,7 @@ class TaskWrapper(object):
         # get arg names and defaults from the function
         (arg_names,varargs,keywords,defaults)=inspect.getargspec(self.fn)
         # map defaults to an arg name
-        defaults=dict(zip(arg_names[len(defaults)-1:],defaults)) if defaults is not None else {}
+        defaults=dict(zip(arg_names[len(arg_names)-len(defaults):],defaults)) if defaults is not None else {}
         # map provided values to an arg name
         provided=dict(zip(arg_names[:len(args)],args))
         provided.update(kwargs)
@@ -213,6 +213,13 @@ class CmdContextManager(object):
     """
     context=[]
 
+
+    class CmdError(Exception):
+        def __init__(self,errorcode,cmd):
+            self.errorcode=errorcode
+            self.cmd=cmd
+
+
     @classmethod
     def enter(cls,ctx):
         cls.context.append(ctx)
@@ -222,7 +229,9 @@ class CmdContextManager(object):
     def cmd(cls,c,i=None):
         if i is None: i=len(cls.context)
         if i>0: return cls.context[i-1].cmd(c)
-        return CMD_FN(c,shell=True)
+        errorcode=CMD_FN(c,shell=True)
+        if errorcode!=0:
+            raise cls.CmdError(errorcode,c)
 
     @classmethod
     def exit(cls):
@@ -306,7 +315,7 @@ class CreatePieVenv(Argument):
 class UpdatePieVenv(Argument):
     def execute(self):
         pv=PieVenv()
-        print('Updating {} with '.format(pv.PIE_VENV,pv.PIE_REQUIREMENTS))
+        print('Updating {} with {}'.format(pv.PIE_VENV,pv.PIE_REQUIREMENTS))
         pv.update()
 
 
@@ -520,9 +529,9 @@ def main(args):
                     # pick up the specific case of not being able to find a pie_tasks module/package
                     # handle different attributes and messages in py2 vs py3
                     if isinstance(e,ImportError) and (getattr(e,'message','')=='No module named pie_tasks' or getattr(e,'msg','')=="No module named 'pie_tasks'"):
-                        print('pie_tasks could not be found.')
+                        print('pie_tasks could not be found.',file=sys.stderr)
                     else:
-                        print('An error occurred when importing pie_tasks:\n'+traceback.format_exc())
+                        print('An error occurred when importing pie_tasks:\n'+traceback.format_exc(),file=sys.stderr)
                     return 1
 
             else:
@@ -530,20 +539,24 @@ def main(args):
                 if pv.exists():
                     return pv.run_pie(args)
                 else:
-                    print('{} not found. You can create it with the -R argument.'.format(pv.PIE_VENV))
+                    print('{} not found. You can create it with the -R argument.'.format(pv.PIE_VENV),file=sys.stderr)
                     return 1
 
         # try to execute each arg
         for a in parsed_args:
             try:
                 a.execute()
+            except CmdContextManager.CmdError as e:
+                print('Error when executing command "{}". Errorcode = {}'.format(e.cmd,e.errorcode),file=sys.stderr)
+                return e.errorcode
             except TaskCall.TaskNotFound as e:
-                print('Task {} could not be found.'.format(e.name))
-                break
+                print('Task {} could not be found.'.format(e.name),file=sys.stderr)
+                return 1
+        return 0
 
     else:
         Help().execute()
-
+        return 1
 
 
 if __name__=='__main__':
