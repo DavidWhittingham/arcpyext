@@ -15,7 +15,6 @@ def test_convert_map_to_sddraft():
             'Test',
             'Test',
             copy_data_to_server=False,
-            server='https://uat-spatial.information.qld.gov.au',
             portal_folder=None)
     else:
         mapservice = arcpyext.publishing.convert_map_to_service_draft(MXD_PATH,
