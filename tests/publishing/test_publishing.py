@@ -1,5 +1,4 @@
 import arcpyext
-import agsconfig
 import os
 import sys
 
