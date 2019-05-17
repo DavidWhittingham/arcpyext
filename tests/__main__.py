@@ -31,7 +31,6 @@ def runtests():
         cmd.append("--cov-report=html")
 
     cmd.append(thisDir)
-    #cmd.append("C:/git/arcpyext/tests/publishing/test_wps_server_extension.py")
     
     pytest.main(cmd)
     
