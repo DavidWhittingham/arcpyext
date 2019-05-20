@@ -59,7 +59,7 @@ def test():
         cmd("python -m pytest tests --ignore=tests\\mp\\ --cov=arcpyext --cov-report=")
 
     with venv(".venvs\\test-py3"):
-        cmd("python -m pytest tests --ignore=tests\\mapping\\ --cov=arcpyext --cov-append --cov-report=term --cov-report=html")
+        cmd("python -m pytest tests --ignore=tests\\mapping\\ --ignore=tests\\arcobjects\\ --cov=arcpyext --cov-append --cov-report=term --cov-report=html")
 
 
 @task([OptionsParameter('version')])
