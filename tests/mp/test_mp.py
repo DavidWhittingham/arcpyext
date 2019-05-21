@@ -1,37 +1,66 @@
+# Standard lib imports
 import os.path
 import json
+
+# Third-parth imports
 import arcpy
 import pytest
+
+# Local imports
 import arcpyext
 
-TEST_DATA_SOURCE = {"workspacePath": os.path.abspath(
-    "{0}/../samples/test_data_table2.gdb".format(os.path.dirname(__file__)))}
-TEST_DATA_SOURCE2 = {'connectionProperties': {'dataset': 'DataTableTest', 'workspace_factory': 'File Geodatabase', 
+TEST_DATA_SOURCE = {'connectionProperties': {'dataset': 'DataTableTest', 'workspace_factory': 'File Geodatabase', 
                     'connection_info': {'database': '{0}/../samples/test_data_table1.gdb'.format(os.path.dirname(__file__))}}}
-BROKEN_DATA_SOURCE = {"workspacePath": os.path.abspath(
-    "{0}/../samples/test_data_table99.gdb".format(os.path.dirname(__file__)))}
-CLIP2_DATA_SOURCE = {"workspacePath": os.path.abspath(
-    "{0}/../samples/".format(os.path.dirname(__file__))), "datasetName": "statesp020_clip2"}
-CLIP3_DATA_SOURCE = {'connectionProperties': {'dataset': 'statesp020_clip1.shp', 
+CLIP_DATA_SOURCE = {'connectionProperties': {'dataset': 'statesp020_clip1.shp', 
                     'workspace_factory': 'Shape File', 
-                    'connection_info': {'database': "{0}/../samples/".format(os.path.dirname(__file__))}}}
+                    'connection_info': {'database': os.path.abspath("{0}/../samples/".format(os.path.dirname(__file__)))}}}
 PROJECT_PATH = os.path.abspath("{0}/../samples/test_mapping.aprx".format(os.path.dirname(__file__)))
-PROJECT_COMPLEX_PATH = os.path.abspath("{0}/samples/test_mapping_complex.aprx".format(os.path.dirname(__file__)))
-PROJECT_COMPLEX_B_PATH = os.path.abspath("{0}/samples/test_mapping_complex_b.aprx".format(os.path.dirname(__file__)))
+PROJECT_COMPLEX_PATH = os.path.abspath("{0}/../samples/test_mapping_complex.aprx".format(os.path.dirname(__file__)))
+PROJECT_COMPLEX_B_PATH = os.path.abspath("{0}/../samples/test_mapping_complex_b.aprx".format(os.path.dirname(__file__)))
 
 @pytest.fixture(scope="module")
 def project():
     return arcpy.mp.ArcGISProject(PROJECT_PATH)
             
 @pytest.mark.parametrize(("data_sources", "layer_data_sources_equal", "table_data_sources_equal", "raises_ex", "ex_type"), [
-    ({'layers': [[CLIP3_DATA_SOURCE]], 'tableViews': [
-     TEST_DATA_SOURCE2]}, [False], [True], False, None),
-    ({'layers': [], 'tableViews': []}, [True], [True],
-     True, arcpyext.exceptions.ChangeDataSourcesError),
-     ({'tableViews': [None]}, [True], [True],
-     True, arcpyext.exceptions.ChangeDataSourcesError),
-     ({'tableViews': [None, None, None]}, [True], [True],
-     True, arcpyext.exceptions.ChangeDataSourcesError)
+    (
+        [
+            {
+                'layers': [CLIP_DATA_SOURCE],
+                'tableViews': [TEST_DATA_SOURCE]
+            }
+        ],
+        [False],
+        [True],
+        False,
+        None
+    ),
+    (
+        [
+            {
+                'layers': [],
+                'tableViews': []
+            }
+        ], 
+        [True],
+        [True],
+        True,
+        arcpyext.exceptions.ChangeDataSourcesError
+    ),
+    (
+        {'tableViews': [None]},
+        [True],
+        [True],
+        True,
+        arcpyext.exceptions.ChangeDataSourcesError
+    ),
+    (
+        {'tableViews': [None, None, None]},
+        [True],
+        [True],
+        True,
+        arcpyext.exceptions.ChangeDataSourcesError
+    )
 ])
 def test_change_data_sources(project, data_sources, layer_data_sources_equal, table_data_sources_equal, raises_ex, ex_type):
     layers = []
@@ -70,69 +99,36 @@ def test_change_data_sources(project, data_sources, layer_data_sources_equal, ta
             assert (table.dataSource ==
                     old_table_sources[idx]) == table_data_sources_equal[idx]
 
-@pytest.mark.parametrize(("mxd", "raises_ex", "ex_type"), [
+@pytest.mark.parametrize(("proj_path", "raises_ex", "ex_type"), [
     (PROJECT_COMPLEX_PATH, False, None)])
-def test_list_document_data_sources(mxd, raises_ex, ex_type):
-    map = arcpy.mp.ArcGISProject(mxd)
-    result = arcpyext.mapping.list_document_data_sources(map)
-    """# print(json.dumps(result))
-
-    # Expecting:
-    # {
-    #     "layers": [
-    #         [
-    #           {
-    #             "datasetName": "statesp020_clip1",
-    #             "workspacePath": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples",
-    #             "name": "Layer 1",
-    #             "dataSource": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020_clip1.shp",
-    #             "longName": "Layer 1"
-    #           },
-    #           {
-    #             "datasetName": "statesp020_clip1",
-    #             "workspacePath": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples",
-    #             "name": "Layer 2 (Duplicated)",
-    #             "dataSource": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020_clip1.shp",
-    #             "longName": "Layer 2 (Duplicated)"
-    #           },
-    #           "None",             // This is a group layer
-    #           {
-    #             "datasetName": "statesp020_clip1",
-    #             "workspacePath": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples",
-    #             "name": "Layer 3 (Nested)",
-    #             "dataSource": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020_clip1.shp",
-    #             "longName": "New Group Layer\\Layer 3 (Nested)"
-    #           }
-#           ]
-    #     ],
-    #     "tableViews: [{'definitionQuery': u'', 'datasetName': u'statesp020.txt', 'dataSource': u'G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020.txt', 'workspacePath': u'G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples'}]}]
-    # }"""
+def test_list_document_data_sources(proj_path, raises_ex, ex_type):
+    result = arcpyext.mapping.list_document_data_sources(arcpy.mp.ArcGISProject(proj_path))
 
     # Number of maps in the project
-    assert len(result['layers']) == 1
+    assert len(result) == 1
 
     # Dataframe 1
-    assert len(result['layers'][0]) == 5, "Layer count"
+    assert len(result[0]["layers"]) == 5, "Layer count"
 
-    # 'id' and 'datasetName' comes from from _arcobjects. Assertions removed for now
+    # "id" and "datasetName" comes from from _arcobjects. Assertions removed for now
 
     # Layer 1
-    #assert result['layers'][0][0]['id'] == 1
-    assert result['layers'][0][0]['name'] == "Layer 1"
-    #assert result['layers'][0][0]['datasetName'] == "statesp020_clip1"
+    #assert result["layers"][0][0]["id"] == 1
+    assert result[0]["layers"][0]["name"] == "Layer 1"
+    assert result[0]["layers"][0]["connectionProperties"]["dataset"] == "statesp020_clip1"
 
     # Layer 2
-    #assert result['layers'][0][1]['id'] == 2
-    assert result['layers'][0][1]['name'] == "Layer 2"
-    #assert result['layers'][0][1]['datasetName'] == "statesp020_clip2"
+    #assert result["layers"][0][1]["id"] == 2
+    assert result[0]["layers"][1]["name"] == "Layer 2"
+    assert result[0]["layers"][1]["connectionProperties"]["dataset"] == "statesp020_clip2"
 
     # Layer 3
-    #assert result['layers'][0][3]['id'] == 3
-    assert result['layers'][0][3]['name'] == "Layer 3"
-    #assert result['layers'][0][3]['datasetName'] == "statesp020_clip1"
+    #assert result["layers"][0][3]["id"] == 3
+    assert result[0]["layers"][3]["name"] == "Layer 3"
+    assert result[0]["layers"][3]["connectionProperties"]["dataset"] == "statesp020_clip1"
 
     # Tables
-    assert len(result['tableViews']) == 1
+    assert len(result[0]["tableViews"]) == 1
 
 @pytest.mark.parametrize(("mxd_a", "mxd_b", "data_frame_updates", "layers_added", "layers_updated", "layers_removed", "raises_ex", "ex_type"), [
     (PROJECT_COMPLEX_PATH, PROJECT_COMPLEX_B_PATH, 2, 2, 2, 2, False, None)
