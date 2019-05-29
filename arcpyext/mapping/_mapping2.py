@@ -6,92 +6,28 @@
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from future.builtins.disabled import *
 from future.builtins import *
+from future.moves.collections import deque
+from future.moves.itertools import zip_longest
 from future.standard_library import install_aliases
+from future.utils import viewitems
 install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 # Standard lib imports
 import logging
+import os.path
 import re
-from itertools import zip_longest
 
 # Third-party imports
 import arcpy
 import olefile
 
 # Local imports
-from ..exceptions import MapLayerError, DataSourceUpdateError, UnsupportedLayerError, ChangeDataSourcesError
-from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, list_layers
+from .. import _native as _ao
+from ..exceptions import DataSourceUpdateError
 
 # Configure module logging
 logger = logging.getLogger("arcpyext.mapping")
-
-
-def change_data_sources(map, data_sources):
-    """ """
-    logger.debug("Data sources: %s", data_sources)
-
-    errors = []
-    data_tables = arcpy.mapping.ListTableViews(map)
-    layers_by_df = [arcpy.mapping.ListLayers(df) for df in arcpy.mapping.ListDataFrames(map)]
-
-    if not 'layers' in data_sources or not 'tableViews' in data_sources:
-        raise ChangeDataSourcesError("Data sources dictionary does not contain both 'layers' and 'tableViews' keys")
-
-    for layers, layer_sources in zip_longest(layers_by_df, data_sources["layers"]):
-
-        if layer_sources == None or len(layers) != len(layer_sources):
-            raise ChangeDataSourcesError("Number of layers does not match number of data sources.")
-
-        for layer, layer_source in zip_longest(layers, layer_sources):
-            try:
-                if layer_source == None:
-                    continue
-
-                if not layer.supports("dataSource") or not layer.supports("workspacePath"):
-                    #error on layers that we can't change
-                    raise UnsupportedLayerError(layer=layer)
-
-                if layer.supports("dataSource"):
-                    logger.debug(u"Layer '{0}': Current datasource: '{1}'".format(layer.longName,
-                                                                                  layer.dataSource).encode(
-                                                                                      "ascii", "ignore"))
-
-                logger.debug(u"Layer '{0}': Attempting to change workspace path".format(layer.longName).encode(
-                    "ascii", "ignore"))
-                _change_data_source(layer, layer_source["workspacePath"], layer_source.get("datasetName"),
-                                    layer_source.get("workspaceType"), layer_source.get("schema"))
-                logger.debug(u"Layer '{0}': Workspace path updated to: '{1}'".format(
-                    layer.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
-
-                if layer.supports("dataSource"):
-                    logger.debug(u"Layer '{0}': New datasource: '{1}'".format(layer.longName, layer.dataSource).encode(
-                        "ascii", "ignore"))
-
-            except MapLayerError as mle:
-                errors.append(mle)
-
-    if not len(data_tables) == len(data_sources['tableViews']):
-        raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
-
-    for data_table, layer_source in zip_longest(data_tables, data_sources['tableViews']):
-        try:
-            if layer_source == None:
-                continue
-
-            logger.debug(u"Data Table '{0}': Attempting to change workspace path".format(data_table.name).encode(
-                "ascii", "ignore"))
-            _change_data_source(data_table, layer_source["workspacePath"], layer_source.get("datasetName"),
-                                layer_source.get("workspaceType"), layer_source.get("schema"))
-            logger.debug(u"Data Table '{0}': Workspace path updated to: '{1}'".format(
-                data_table.name, layer_source["workspacePath"]).encode("ascii", "ignore"))
-
-        except MapLayerError as mle:
-            errors.append(mle)
-
-    if not len(errors) == 0:
-        raise ChangeDataSourcesError("A number of errors were encountered whilst change layer data sources.", errors)
-
 
 def create_replacement_data_sources_list(document_data_sources_list,
                                          data_source_templates,
@@ -197,386 +133,6 @@ def get_version(map_document):
         return s.read().decode("utf-16").split("\x00")[1]
 
 
-def list_document_data_sources(map):
-    """List the data sources for each layer or table view of the specified map.
-
-    Outputs a dictionary containing two keys, "layers" and "tableViews".
-
-    "layers" contains an array, with each element representing a data frame (as another array) that contains a
-    dictionary of layer details relevant to that layer's connection to its data source.
-
-    "tableViews" is also an array, where each element is a dictionary of table view details relevant to that table
-    view's connection to its data source.
-
-    The order of array elements is as displayed in the ArcMap table of contents.
-
-    An example of the output format is the following::
-
-        {
-            "layers": [
-                [
-                    # Data frame number one
-                    {
-                        # Layer number one
-                        "id":               "Layer ID",
-                        "name":             "Layer Name",
-                        "longName":         "Layer Group/Layer Name",
-                        "datasetName":      "(Optional) dataset name",
-                        "dataSource":       "(Optional) data source name",
-                        "serviceType":      "(Optional) service type, e.g. SDE, MapServer, IMS",
-                        "userName":         "(Optional) user name",
-                        "server":           "(Optional) server address/hostname",
-                        "service":          "(Optional) name or number of the ArcSDE Service",
-                        "database":         "(Optional) name of the database",
-                        "workspacePath":    "(Optional) workspace path"
-                        "visible":          "(Optional) visibility"
-                        "definitionQuery":  "definition query on the layer"
-                    },
-                    # ...more layers
-                ],
-                # ...more data frames
-            ],
-            "tableViews": [
-                {
-                    "datasetName":          "dataset name",
-                    "dataSource":           "data source",
-                    "definitionQuery":      "definition query on the table",
-                    "workspacePath":        "workspace path"
-                }
-            ]
-        }
-
-    :param map: The map to gather data source connection details about
-    :type map: arcpy.mapping.MapDocument
-    :returns: dict
-
-    """
-    layers = [[_get_layer_details(layer) for layer in arcpy.mapping.ListLayers(df)]
-              for df in arcpy.mapping.ListDataFrames(map)]
-    tableViews = [_get_table_details(table) for table in arcpy.mapping.ListTableViews(map)]
-    # Enrich arcpy data with additional information that is only accessible via arcobjects
-    try:
-
-        init_arcobjects_context()
-        additional_layer_info = list_layers(map.filePath)
-        destroy_arcobjects_context()
-
-        for layerGroup in layers:
-            for l in layerGroup:
-                if l is not None:
-                    layerName = l['name']
-                    layer_info = additional_layer_info[layerName]
-                    if layer_info is not None:
-                        l["id"] = layer_info['id']
-                        l["hasFixedId"] = layer_info['hasFixedId']
-                        l["visible"] = layer_info['visible']
-                        l["definitionQuery"] = layer_info['definitionQuery']
-
-    except Exception as e:
-        logger.exception("Could not read additional layer info using arcobjects")
-
-    return {"layers": layers, "tableViews": tableViews}
-
-
-def compare(map_a, map_b):
-    """Compares two map documents.
-
-    Outputs a list describing any differences
-
-    :param map_a: A map to compare
-    :type map_a: arcpy.mapping.MapDocument
-    :param map_b: Another version of the same map to compare
-    :type map_b: arcpy.mapping.MapDocument
-    :returns: dict
-
-    """
-
-    #
-    # Compare data frames
-    #
-    def compare_data_frames():
-
-        data_frame_count_changed = 301
-        data_frame_cs_code_changed = 302
-        data_frame_cs_name_changed = 303
-        data_frame_cs_type_changed = 304
-        diff = []
-
-        try:
-
-            map_a_data_frames = [x for x in arcpy.mapping.ListDataFrames(map_a) if x.type == "DATAFRAME_ELEMENT"]
-            map_b_data_frames = [x for x in arcpy.mapping.ListDataFrames(map_b) if x.type == "DATAFRAME_ELEMENT"]
-
-            map_a_data_frames_len = len(map_a_data_frames)
-            map_b_data_frames_len = len(map_b_data_frames)
-
-            if map_b_data_frames_len == 0 or map_a_data_frames_len != map_b_data_frames_len:
-                diff.append({
-                    "type": data_frame_count_changed,
-                    "was": map_a_data_frames_len,
-                    "now": map_b_data_frames_len
-                })
-
-            for index, a in enumerate(map_a_data_frames):
-
-                b = map_b_data_frames[index]
-
-                if a.spatialReference.factoryCode != b.spatialReference.factoryCode:
-                    diff.append({
-                        "type": data_frame_cs_code_changed,
-                        "was": a.spatialReference.factoryCode,
-                        "now": b.spatialReference.factoryCode,
-                    })
-
-                if a.spatialReference.type != b.spatialReference.type:
-                    diff.append({
-                        "type": data_frame_cs_type_changed,
-                        "was": a.spatialReference.type,
-                        "now": b.spatialReference.type,
-                    })
-
-                if a.spatialReference.name != b.spatialReference.name:
-                    diff.append({
-                        "type": data_frame_cs_name_changed,
-                        "was": a.spatialReference.name,
-                        "now": b.spatialReference.name,
-                    })
-
-        except Exception as e:
-            logger.exception("Error comparing data frames")
-
-        finally:
-            return diff
-
-    def compare_layers():
-        """
-        Compares layers for differences between versions of the same layer set on a map.
-        """
-
-        try:
-
-            # Scalar equality check
-            eq = lambda a, b, k: b[k] == a[k] if k in a and k in b else False
-
-            def _sort(obj):
-                """
-                Dictionary equality check. Sort is used to ensure consistent order before comparision
-                """
-
-                if isinstance(obj, dict):
-                    return sorted((k, _sort(v)) for k, v in obj.items())
-                if isinstance(obj, list):
-                    return sorted(_sort(x) for x in obj)
-                else:
-                    return obj
-
-            arrEq = lambda a, b, k: _sort(a[k]) == _sort(b[k]) if k in a and k in b else False
-
-            # Who are you? Who am I?
-            def _express_diff(a, b, k, type):
-                return {"type": type, "was": a[k] if k in a else None, "now": b[k] if k in b else None}
-
-            def _layer_diff(a, b):
-
-                # Layer change reasons
-                layer_id_changed = 401
-                layer_name_changed = 402
-                layer_datasource_changed = 403
-                layer_visibility_changed = 404
-                layer_fields_changed = 405
-                layer_definition_query_changed = 406
-
-                diff = []
-
-                tests = [
-                    {
-                        "layer_prop_name": "id",
-                        "change_id": layer_id_changed
-                    },
-                    {
-                        "layer_prop_name": "name",
-                        "change_id": layer_name_changed
-                    },
-                    {
-                        "layer_prop_name": "visible",
-                        "change_id": layer_visibility_changed
-                    },
-                    {
-                        "layer_prop_name": "workspacePath",
-                        "change_id": layer_datasource_changed
-                    },
-                    {
-                        "layer_prop_name": "datasetName",
-                        "change_id": layer_datasource_changed
-                    },
-                    {
-                        "layer_prop_name": "database",
-                        "change_id": layer_datasource_changed
-                    },
-                    {
-                        "layer_prop_name": "server",
-                        "change_id": layer_datasource_changed
-                    },
-                    {
-                        "layer_prop_name": "service",
-                        "change_id": layer_datasource_changed
-                    },
-                    {
-                        "layer_prop_name": "definitionQuery",
-                        "change_id": layer_definition_query_changed
-                    },
-                    {
-                        # Array fields must provide a hash function. This is used to create a UID that can be used for hashset comparison.
-                        # An unhash function must also be provided to reverse lookup the raw dict from a hash ID
-                        "layer_prop_name": "fields",
-                        "change_id": layer_fields_changed,
-                        "array": True,
-                        "hash": lambda _dict: "%s|%s|%s" % (_dict['index'], _dict['name'], _dict['visible']),
-                        "unhash": lambda hash: hash.split("|")[0]
-                    }
-                ]
-
-                # Test each property for changes
-                for test in tests:
-
-                    k = test["layer_prop_name"]
-                    v = test["change_id"]
-                    is_array = test["array"] == True if "array" in test else False
-
-                    if k in a and k in b:
-
-                        if is_array == True:
-
-                            # Set comparsion. Find the difference between A and B
-                            hash = test["hash"]
-                            unhash = test["unhash"]
-
-                            hashed_a = [hash(_dict) for _dict in a[k]]
-                            hashed_b = [hash(_dict) for _dict in b[k]]
-
-                            if set(hashed_a) != set(hashed_b):
-
-                                was = list(set(hashed_a).difference(set(hashed_b)))
-                                now = list(set(hashed_b).difference(set(hashed_a)))
-
-                                def inflate(arr, index):
-                                    return [x for x in arr if x['index'] == int(index)][0]
-
-                                was = [inflate(a[k], x) for x in [unhash(x) for x in was]]
-                                now = [inflate(b[k], x) for x in [unhash(x) for x in now]]
-
-                                diff.append({"type": v, "was": was, "now": now})
-
-                        else:
-                            if not eq(a, b, k):
-                                diff.append(_express_diff(a, b, k, v))
-                    else:
-                        diff.append(_express_diff(a, b, k, v))
-
-                return diff
-
-            a = list_document_data_sources(map_a)
-            b = list_document_data_sources(map_b)
-
-            # Flatten layer structure
-            a_layers = [item for sublist in a['layers'] for item in sublist if item is not None]
-            b_layers = [item for sublist in b['layers'] for item in sublist if item is not None]
-
-            # To correlate a layer in map a and map b, we run a series of specificity tests. Tests are ordered from
-            # most specific, to least specific. These tests apply a process of elimination methodology to correlate layers
-            # between the 2 maps
-            added = []
-            updated = []
-            removed = []
-            resolved_a = {}
-            resolved_b = {}
-            is_resolved_a = lambda x: x['name'] in resolved_a
-            is_resolved_b = lambda x: x['name'] in resolved_b
-            same_id = lambda a, b: eq(a, b, 'id')
-            same_name = lambda a, b: eq(a, b, 'name')
-            same_datasource = lambda a, b: eq(a, b, 'datasetName')
-
-            tests = [
-                {
-                    'fn': lambda a, b: b if same_id(a, b) and same_name(a, b) and same_datasource(a, b) else None,
-                    'desc': "same id/name and datasource. Unchanged",
-                    'ignore': True
-                },
-                {
-                    'fn':
-                    lambda a, b: b
-                    if same_id(a, b) and same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
-                    'desc':
-                    "same name and id, datasource changed"
-                },
-                {
-                    'fn':
-                    lambda a, b: b if same_id(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
-                    not is_resolved_b(b) else None,
-                    'desc':
-                    "same id and datasource, name changed"
-                },
-                {
-                    # TODO this should be skipped if we can verify that fixed layer IDs are not used
-                    'fn': lambda a, b: b if same_id(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
-                    'desc': "same id. Assumed valid if fixed data sources enabled"
-                },
-                {
-                    'fn':
-                    lambda a, b: b if same_name(a, b) and same_datasource(a, b) and not is_resolved_a(a) and
-                    not is_resolved_b(b) else None,
-                    'desc':
-                    "same name and datasource, id changed"
-                },
-                {
-                    'fn': lambda a, b: b if same_name(a, b) and not is_resolved_a(a) and not is_resolved_b(b) else None,
-                    'desc': "same name, id/datasource changed"
-                },
-            ]
-
-            # For every b layer, run a series of tests to find the correlating A layer (if any)
-            for b_layer in b_layers:
-                match = None
-
-                # Find A layer that correlates to B layer
-                for a_layer in a_layers:
-                    for index, test in enumerate(tests):
-                        matcher = test['fn']
-                        desc = test['desc']
-                        ignore = True if 'ignore' in test and test['ignore'] == True else False
-                        match = matcher(a_layer, b_layer)
-                        if match is not None:
-
-                            # Updated layer
-                            resolved_a[a_layer['name']] = True
-                            resolved_b[b_layer['name']] = True
-                            b_layer['diff'] = _layer_diff(a_layer, b_layer)
-
-                            # Add layers that have changes (and are not skipped by the ignore flag) to the result list
-                            if not ignore or len(b_layer['diff']) > 0:
-                                updated.append(b_layer)
-                                break
-
-                # New layer
-                if match is None and not is_resolved_b(b_layer):
-                    resolved_b[b_layer['name']] = True
-                    added.append(b_layer)
-
-            # Removed layers
-            for a_layer in a_layers:
-                if not is_resolved_a(a_layer):
-                    resolved_a[a_layer['name']] = True
-                    removed.append(a_layer)
-
-        except Exception as e:
-            logger.exception("Error comparing layers")
-
-        finally:
-            return {'added': added, 'updated': updated, 'removed': removed}
-
-    return {'dataFrames': compare_data_frames(), 'layers': compare_layers()}
-
-
 def open_document(mxd):
     """Open a arcpy.mapping.MapDocument from a given path.
     
@@ -591,44 +147,12 @@ def open_document(mxd):
     return arcpy.mapping.MapDocument(mxd)
 
 
-def validate_map(map):
-    """Analyse the map for broken layers and return a boolean indicating if it is in a valid state or not.
+def _change_data_source(layer, new_layer_source):
+    workspace_path = new_layer_source["workspacePath"]
+    dataset_name = new_layer_source.get("datasetName"),
+    workspace_type = new_layer_source.get("workspaceType")
+    schema = new_layer_source.get("schema")
 
-    Lists broken layers on the shell output.
-
-    :param map: The map to be validated
-    :type map: arcpy.mapping.MapDocument
-    :returns: Boolean, True if valid, False if there are one or more broken layers
-
-    """
-
-    if isinstance(map, (basestring)):
-        map = arcpy.mapping.MapDocument(map)
-
-    broken_layers = arcpy.mapping.ListBrokenDataSources(map)
-
-    if len(broken_layers) > 0:
-        logger.debug(u"Map '{0}': Broken data sources:".format(map.title))
-        for layer in broken_layers:
-            logger.debug(u" {0}".format(layer.name))
-            if not hasattr(layer, "supports"):
-                #probably a TableView
-                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
-                logger.debug(u"  datasource: {0}".format(layer.dataSource))
-                continue
-
-            #Some sort of layer
-            if layer.supports("workspacePath"):
-                logger.debug(u"  workspace: {0}".format(layer.workspacePath))
-            if layer.supports("dataSource"):
-                logger.debug(u"  datasource: {0}".format(layer.dataSource))
-
-        return False
-
-    return True
-
-
-def _change_data_source(layer, workspace_path, dataset_name=None, workspace_type=None, schema=None):
     try:
         if ((not hasattr(layer, "supports") or layer.supports("workspacePath"))
                 and (dataset_name == None and workspace_type == None and schema == None)):
@@ -672,65 +196,339 @@ def _change_data_source(layer, workspace_path, dataset_name=None, workspace_type
         raise DataSourceUpdateError("Layer is now broken.", layer)
 
 
-def _get_layer_details(layer):
-
-    if layer.isGroupLayer and not layer.isNetworkAnalystLayer:
-        return None
-
-    details = {"name": layer.name, "longName": layer.longName}
-
-    if layer.supports("definitionQuery"):
-        details["definitionQuery"] = layer.definitionQuery
-
-    if layer.supports("datasetName"):
-        details["datasetName"] = layer.datasetName
-
-    if layer.supports("dataSource"):
-        details["dataSource"] = layer.dataSource
-
-    if layer.supports("serviceProperties"):
-        details["serviceType"] = layer.serviceProperties["ServiceType"]
-
-        if "UserName" in layer.serviceProperties:
-            # File GDB doesn't support username and throws an exception
-            details["userName"] = layer.serviceProperties["UserName"]
-
-        if layer.serviceProperties["ServiceType"].upper() == "SDE":
-            details["server"] = layer.serviceProperties["Server"]
-            details["service"] = layer.serviceProperties["Service"]
-            details["database"] = layer.serviceProperties["Database"]
-
-    if layer.supports("workspacePath"):
-        details["workspacePath"] = layer.workspacePath
-
-    # Fields
-    # @see https://desktop.arcgis.com/en/arcmap/10.4/analyze/arcpy-functions/describe.htm
-    # Wrapped in a try catch, because fields can only be resolved if the layer's datasource is valid.
-    try:
-        desc = arcpy.Describe(layer)
-        logger.debug(desc)
-        if desc.dataType == "FeatureLayer":
-            field_info = desc.fieldInfo
-            details["fields"] = []
-            for index in range(0, field_info.count):
-                details["fields"].append({
-                    "index": index,
-                    "name": field_info.getFieldName(index),
-                    "visible": field_info.getVisible(index) == "VISIBLE"
-                })
-    except Exception as e:
-        logger.exception("Could not resolve layer fields ({0}). The layer datasource may be broken".format(layer.name))
-
-    return details
+def _get_data_source_desc(layer_or_table):
+    return layer_or_table.dataSource
 
 
-def _get_table_details(table):
-    return {
-        "datasetName": table.datasetName,
-        "dataSource": table.dataSource,
-        "definitionQuery": table.definitionQuery,
-        "workspacePath": table.workspacePath
+def _get_spatial_ref(code):
+    return arcpy.SpatialReference(code)
+
+
+def _list_layers(map_document, data_frame):
+    return arcpy.mapping.ListLayers(map_document, None, data_frame)
+
+
+def _list_maps(map_document):
+    return arcpy.mapping.ListDataFrames(map_document)
+
+
+def _list_tables(map_document, data_frame):
+    return arcpy.mapping.ListTableViews(map_document, None, data_frame)
+
+
+def _native_add_data_connection_details(idataset, layer_details):
+    if bool(idataset):
+        # can enrich with database details
+        connection_properties = dict(zip(*idataset.Workspace.ConnectionProperties.GetAllProperties()))
+        layer_details["userName"] = connection_properties.get("USER")
+        layer_details["server"] = connection_properties.get("SERVER")
+        layer_details["service"] = connection_properties.get("INSTANCE")
+        layer_details["database"] = connection_properties.get("DATABASE")
+
+    # TODO: Implement details for web service layer
+
+
+def _native_desribe_layer(layer_parts):
+    layer_details = {
+        "dataSource": _native_get_data_source(layer_parts),
+        "database": None,
+        "datasetName": _native_get_dataset_name(layer_parts["dataset"]),
+        "datasetType": _native_get_dataset_type(layer_parts["dataset"]),
+        "definitionQuery": _native_get_definition_query(layer_parts["featureLayerDefinition"]),
+        "index": layer_parts["index"],
+        "isBroken": not layer_parts["layer"].Valid,
+        "isFeatureLayer": bool(layer_parts["featureLayer"]),
+        "isNetworkAnalystLayer": bool(layer_parts["networkAnalystLayer"]),
+        "isRasterLayer": bool(layer_parts["rasterLayer"]),
+        "isRasterizingLayer": None,  # not implemented yet
+        "isServiceLayer": None,  # not implemented yet
+        "isGroupLayer": bool(layer_parts["groupLayer"]),
+        "longName": "\\".join(_native_get_layer_name_parts(layer_parts)),
+        "name": layer_parts["layer"].Name,
+        "server": None,
+        "service": None,
+        "serviceId": _native_get_service_layer_property_value(layer_parts["serverLayerExtensions"], "ServiceLayerID"),
+        "userName": None,
+        "visible": layer_parts["layer"].Visible
     }
+
+    _native_add_data_connection_details(layer_parts["dataset"], layer_details)
+
+    return layer_details
+
+
+def _native_describe_map(map_document, map_frame):
+    return {
+        "name": map_frame.Name,
+        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)),
+        "layers": [_native_desribe_layer(l) for l in _native_list_layers(map_document, map_frame)],
+        "tables": [_native_desribe_table(t) for t in _native_list_tables(map_document, map_frame)]
+    }
+
+
+def _native_desribe_table(table_parts):
+    table_details = {
+        "dataSource": _native_get_data_source(table_parts),
+        "database": None,
+        "datasetName": _native_get_dataset_name(table_parts["tableDataset"]),
+        "datasetType": _native_get_dataset_type(table_parts["tableDataset"]),
+        "definitionQuery": _native_get_definition_query(table_parts["standaloneTableDefinition"]),
+        "name": table_parts["standaloneTable"].Name,
+        "index": table_parts["index"],
+        "isBroken": not table_parts["standaloneTable"].Valid,
+        "server": None,
+        "service": None,
+        "serviceId": _native_get_service_layer_property_value(table_parts["serverLayerExtensions"], "ServiceTableID"),
+        "userName": None
+    }
+
+    _native_add_data_connection_details(table_parts["tableDataset"], table_details)
+
+    return table_details
+
+
+def _native_get_data_source(layer_or_table):
+    """Attempts to get the path to the data source for a given layer or table."""
+    path = None
+
+    if layer_or_table.get("featureLayer"):
+        # input is a feature layer
+        if layer_or_table["featureLayer"].FeatureClass:
+            feature_class_name = layer_or_table["dataset"].Name
+            workspace_path = layer_or_table["dataset"].Workspace.PathName
+
+            # Test if feature dataset in use, NULL COM pointers return falsey
+            if layer_or_table["featureLayer"].FeatureClass.FeatureDataset:
+                feature_dataset_name = layer_or_table["featureLayer"].FeatureClass.FeatureDataset.Name
+                path = os.path.join(workspace_path, feature_dataset_name, feature_class_name)
+            else:
+                path = os.path.join(workspace_path, feature_class_name)
+    elif layer_or_table.get("tableDataset"):
+        # input is a standalone table
+        table_name = layer_or_table["tableDataset"].Name
+        workspace_path = layer_or_table["tableDataset"].Workspace.PathName
+        path = os.path.join(workspace_path, table_name)
+
+    return path
+
+
+def _native_get_dataset_name(idataset):
+    dataset_name = None
+
+    if idataset:
+        dataset_name = idataset.Name
+
+    return dataset_name
+
+
+def _native_get_dataset_type(idataset):
+    dataset_type = None
+
+    if idataset:
+        dataset_type = idataset.Category
+
+    return dataset_type
+
+
+def _native_get_definition_query(feature_layer_or_table_definition):
+    definition_query = None
+
+    if feature_layer_or_table_definition:
+        definition_query = feature_layer_or_table_definition.DefinitionExpression
+
+    return definition_query
+
+
+def _native_get_layer_name_parts(layer):
+
+    name_parts = deque()
+
+    def get_parent_layer_name(child_layer):
+        # add to name parts
+        name_parts.appendleft(child_layer["layer"].Name)
+
+        if child_layer["parent"]:
+            get_parent_layer_name(child_layer["parent"])
+
+    get_parent_layer_name(layer)
+
+    return name_parts
+
+
+def _native_get_service_layer_property_value(service_layer_extensions, property_key):
+    # flatten layer server extensions into a list of server property dictionaries
+    # ServerProperties.GetAllProperties() returns two lists, names and values, so zip them and turn them into a
+    # dictionary
+    layer_extensions_server_properties = [
+        p for p in (dict(zip(*sle.ServerProperties.GetAllProperties())) if bool(sle) else None
+                    for sle in service_layer_extensions) if p is not None
+    ]
+
+    # find service layer ID, if it exists
+    # value may be returned non-unique, this will be checked further up the stack
+    service_layer_id = None
+    for props in layer_extensions_server_properties:
+        for key, value in viewitems(props):
+            if key == property_key:
+                return value
+
+    return service_layer_id
+
+
+def _native_list_layers(map_document, map_frame):
+    """Recursively iterates through a map frame to get all layers, building up parent relationships as it goes."""
+
+    # get the ArcObjects types we need
+    import comtypes.gen.esriCarto as esriCarto
+    import comtypes.gen.esriGeoDatabase as esriGeoDatabase
+    import comtypes.gen.esriNetworkAnalyst as esriNetworkAnalyst
+    import comtypes.gen.esriSystem as esriSystem
+
+    # list of all layers that we'll be returning
+    layers = []
+
+    def build_layer_parts(map_layer):
+        layer_parts = {
+            "children": [],
+            "dataset": None,
+            "layer": _ao.cast_obj(map_layer, esriCarto.ILayer2),
+            "featureLayer": _ao.cast_obj(map_layer, esriCarto.IFeatureLayer),
+            "featureLayerDefinition": _ao.cast_obj(map_layer, esriCarto.IFeatureLayerDefinition2),
+            "groupLayer": _ao.cast_obj(map_layer, esriCarto.IGroupLayer),
+            "index": len(layers),  # map index will be the same as the current length of this array
+            "networkAnalystLayer": _ao.cast_obj(map_layer, esriNetworkAnalyst.INALayer),
+            "parent": None,
+            "rasterLayer": _ao.cast_obj(map_layer, esriCarto.IRasterLayer),
+            "serverLayerExtensions": None
+        }
+
+        if bool(layer_parts["featureLayer"]):
+            layer_parts["dataset"] = _ao.cast_obj(layer_parts["featureLayer"].FeatureClass, esriGeoDatabase.IDataset)
+
+        # Get server layer extensions
+        layer_extensions = _ao.cast_obj(map_layer, esriCarto.ILayerExtensions)
+        layer_parts["serverLayerExtensions"] = [
+            _ao.cast_obj(layer_extensions.Extension(i), esriCarto.IServerLayerExtension)
+            for i in range(0, layer_extensions.ExtensionCount)
+        ]
+
+        layers.append(layer_parts)
+
+        return layer_parts
+
+    def get_child_layers(layer_parts, parent_parts):
+        # Set parent
+        layer_parts["parent"] = parent_parts
+
+        if not bool(layer_parts["groupLayer"]):
+            # layer is not a group layer, ignore
+            return
+
+        # layer is a group layer, cast to ICompositeLayer to get access to child layers
+        composite_layer = _ao.cast_obj(layer_parts["layer"], esriCarto.ICompositeLayer)
+        for i in range(0, composite_layer.Count):
+            # get child layer
+            child_layer = composite_layer.Layer[i]
+
+            # get child layer parts
+            child_layer_parts = build_layer_parts(child_layer)
+
+            # add child_layer_parts to the list of children for the current layer
+            layer_parts["children"].append(child_layer_parts)
+
+            # recursively find children
+            get_child_layers(child_layer_parts, layer_parts)
+
+    # iterate through the top level of layers
+    map_layer_iterator = map_frame.Layers(None, False)
+    map_layer = map_layer_iterator.Next()
+    while (map_layer):
+        layer_parts = build_layer_parts(map_layer)
+        get_child_layers(layer_parts, None)
+
+        map_layer = map_layer_iterator.Next()
+
+    return layers
+
+
+def _native_list_maps(map_document):
+    """Gets a list of IMaps (Data Frames) from the provided map document."""
+
+    # get the ArcObjects types we need
+    import comtypes.gen.esriCarto as esriCarto
+
+    # make sure map document is a map document
+    map_document = _ao.cast_obj(map_document, esriCarto.IMapDocument)
+
+    # iterate the list of maps, casting each one to IMap
+    return [_ao.cast_obj(map_document.Map[i], esriCarto.IMap) for i in range(0, map_document.MapCount)]
+
+
+def _native_list_tables(map_document, map_frame):
+    """Iterates through a map frame to get all tables."""
+
+    # get the ArcObjects types we need
+    import comtypes.gen.esriCarto as esriCarto
+    import comtypes.gen.esriGeoDatabase as esriGeoDatabase
+
+    # list of all tables
+    tables = []
+
+    def build_table_parts(standalone_table):
+        table_parts = {
+            "index": len(tables),  # map index will be the same as the current length of this array
+            "standaloneTable": standalone_table,
+            "standaloneTableDataset": _ao.cast_obj(standalone_table, esriGeoDatabase.IDataset),
+            "standaloneTableDefinition": _ao.cast_obj(standalone_table, esriCarto.ITableDefinition),
+            "table": standalone_table.Table,
+            "tableDataset": _ao.cast_obj(standalone_table.Table, esriGeoDatabase.IDataset),
+            "serverLayerExtensions": None
+        }
+
+        # Get server layer extensions
+        table_extensions = _ao.cast_obj(standalone_table, esriCarto.ITableExtensions)
+        table_parts["serverLayerExtensions"] = [
+            sle for sle in (_ao.cast_obj(table_extensions.Extension(i), esriCarto.IServerLayerExtension)
+                            for i in range(0, table_extensions.ExtensionCount)) if sle is not None
+        ]
+
+        tables.append(table_parts)
+
+        return table_parts
+
+    # cast map to a standalone table collection to get access to tables
+    table_collection = _ao.cast_obj(map_frame, esriCarto.IStandaloneTableCollection)
+
+    # iterate the table collection
+    for i in range(0, table_collection.StandaloneTableCount):
+        table = table_collection.StandaloneTable[i]
+        build_table_parts(table)
+
+    return tables
+
+
+def _native_get_map_spatial_ref_code(map_document, map_frame):
+    return map_frame.spatialReference.FactoryCode
+
+
+def _native_mxd_exists(mxd_path):
+    import comtypes.gen.esriCarto as esriCarto
+
+    map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
+    exists = map_document.IsPresent(mxd_path)
+    valid = map_document.IsMapDocument(mxd_path)
+    return exists and valid
+
+
+def _native_open_document(mxd_path):
+    import comtypes.gen.esriCarto as esriCarto
+
+    if _native_mxd_exists(mxd_path):
+        map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
+        map_document.Open(mxd_path)
+        return map_document
+    else:
+        raise ValueError("'mxd_path' not found or invalid.")
 
 
 def _parse_data_source(data_source):

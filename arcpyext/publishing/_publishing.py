@@ -36,9 +36,9 @@ def convert_pro_map_to_service_draft(map_obj,
                                      summary=None,
                                      copy_data_to_server=False,
                                      portal_folder=None):
-    from ..mapping import validate_map
+    from ..mapping import is_valid
 
-    if not validate_map(map_obj):
+    if not is_valid(map_obj):
         raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 
     if os.path.exists(sd_draft_path):
@@ -64,13 +64,13 @@ def convert_desktop_map_to_service_draft(map_doc,
                                          folder_name=None,
                                          summary=None,
                                          copy_data_to_server=False):
-    from ..mapping import validate_map
+    from ..mapping import is_valid
 
     # server and portal_folder parameters are required for pro services. Ignore in this function.
     if not isinstance(map_doc, arcpy.mapping.MapDocument):
         map_doc = arcpy.mapping.MapDocument(map_doc)
 
-    if not validate_map(map_doc):
+    if not is_valid(map_doc):
         raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 
     if os.path.exists(sd_draft_path):
