@@ -124,12 +124,17 @@ def describe(mxd_or_proj):
     mxd_or_proj = open_document(mxd_or_proj)
 
     # open the MXD in ArcObjects
-    mxd_or_proj = _mh._native_open_document(mxd_or_proj.filePath)
+    mxd_or_proj = _mh._native_document_open(mxd_or_proj.filePath)
 
     # build return object
-    return {
+    desc = {
         "maps": [_mh._native_describe_map(mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(mxd_or_proj)]
     }
+
+    # close the native document
+    _mh._native_document_close(mxd_or_proj)
+
+    return desc
 
 
 def is_valid(mxd_or_proj):

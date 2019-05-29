@@ -517,10 +517,20 @@ def _native_mxd_exists(mxd_path):
     map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
     exists = map_document.IsPresent(mxd_path)
     valid = map_document.IsMapDocument(mxd_path)
+    map_document.Release()
     return exists and valid
 
 
-def _native_open_document(mxd_path):
+def _native_document_close(map_document):
+    import comtypes.gen.esriCarto as esriCarto
+
+    # Make sure it's a map document
+    map_document = _ao.cast_obj(map_document, esriCarto.IMapDocument)
+    map_document.Close()
+    map_document.Release()
+
+
+def _native_document_open(mxd_path):
     import comtypes.gen.esriCarto as esriCarto
 
     if _native_mxd_exists(mxd_path):
