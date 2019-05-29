@@ -24,7 +24,6 @@ from . import publishing
 try:
     # Python 2 imports
     import arcpy.mapping
-    from . import arcobjects
 except (AttributeError, ImportError):
     # Python 3 imports
     pass
