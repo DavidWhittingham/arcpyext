@@ -18,6 +18,7 @@ import operator
 from ._compare_helpers import *
 from .._json import JsonEnum
 
+
 class _ChangeTypesBase(JsonEnum):
     @classmethod
     def compare(cls, was_desc_part, now_desc_part):
@@ -84,16 +85,22 @@ class ChangeType(object):
 
 class DocumentChangeTypes(_ChangeTypesBase):
 
-    # Order is required metadata on Python 2.x
-    __order__ = "MAP_COUNT_CHANGED"
+    # Order is important for test evaluation (some tests skip the remaining tests), but declared order is not
+    # respected on Python 2.x.  Explictly set order here to compensate.
+    __order__ = " ".join(["MAP_COUNT_CHANGED"])
 
     MAP_COUNT_CHANGED = ChangeType(301, "Map Count Changed",
                                    ChangeSeverity.WARNING, lambda doc_desc: len(doc_desc["maps"]), operator.ne)
 
 
 class LayerChangeTypes(_ChangeTypesBase):
-    # Order is required metadata on Python 2.x
-    __order__ = "LAYER_BROKEN LAYER_REMOVED LAYER_ID_NOT_SET LAYER_ADDED LAYER_NAME_CHANGED LAYER_DATASOURCE_CHANGED LAYER_VISIBILITY_CHANGED LAYER_ID_CHANGED"
+
+    # Order is important for test evaluation (some tests skip the remaining tests), but declared order is not
+    # respected on Python 2.x.  Explictly set order here to compensate.
+    __order__ = " ".join([
+        "LAYER_BROKEN", "LAYER_REMOVED", "LAYER_ID_NOT_SET", "LAYER_ADDED", "LAYER_NAME_CHANGED",
+        "LAYER_DATASOURCE_CHANGED", "LAYER_VISIBILITY_CHANGED", "LAYER_ID_CHANGED"
+    ])
 
     LAYER_BROKEN = ChangeType(412,
                               "Layer: Broken",
@@ -121,8 +128,9 @@ class LayerChangeTypes(_ChangeTypesBase):
                              skip_remainder=True)
     LAYER_NAME_CHANGED = ChangeType(402, "Layer: Name Changed",
                                     ChangeSeverity.WARNING, lambda layer_desc: layer_desc.get("name", ""), operator.ne)
-    LAYER_DATASOURCE_CHANGED = ChangeType(403, "Layer: Datasource Changed", ChangeSeverity.WARNING, lambda layer_desc:
-                                          get_datasource_info(layer_desc), lambda a, b: not dictionaries_eq_ignore_case(a, b))
+    LAYER_DATASOURCE_CHANGED = ChangeType(403, "Layer: Datasource Changed",
+                                          ChangeSeverity.WARNING, lambda layer_desc: get_datasource_info(
+                                              layer_desc), lambda a, b: not dictionaries_eq_ignore_case(a, b))
     LAYER_VISIBILITY_CHANGED = ChangeType(404, "Layer: Visibility Changed",
                                           ChangeSeverity.WARNING, lambda layer_desc: layer_desc["visible"], operator.ne)
 
@@ -135,8 +143,9 @@ class LayerChangeTypes(_ChangeTypesBase):
 
 class MapChangeTypes(_ChangeTypesBase):
 
-    # Order is required metadata on Python 2.x
-    __order__ = "MAP_DELETED MAP_COOR_SYS_CHANGED"
+    # Order is important for test evaluation (some tests skip the remaining tests), but declared order is not
+    # respected on Python 2.x.  Explictly set order here to compensate.
+    __order__ = " ".join(["MAP_DELETED", "MAP_COOR_SYS_CHANGED"])
 
     MAP_DELETED = ChangeType(305,
                              "Map Deleted",
