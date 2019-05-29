@@ -14,6 +14,7 @@ install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 # Standard lib imports
+import ctypes
 import logging
 import os.path
 import re
@@ -28,6 +29,7 @@ from ..exceptions import DataSourceUpdateError
 
 # Configure module logging
 logger = logging.getLogger("arcpyext.mapping")
+
 
 def create_replacement_data_sources_list(document_data_sources_list,
                                          data_source_templates,
@@ -228,13 +230,36 @@ def _native_add_data_connection_details(idataset, layer_details):
     # TODO: Implement details for web service layer
 
 
-def _native_desribe_layer(layer_parts):
+def _native_describe_fields(layer_or_table_fields):
+    def field_type_id_to_name(f_type_id):
+        field_types = [
+            "SmallInteger", "Integer", "Single", "Double", "String", "Date", "OID", "Geometry", "Blob", "Raster",
+            "Guid", "GlobalID", "Xml"
+        ]
+
+        if f_type_id >= 0 and f_type_id < len(field_types):
+            return field_types[f_type_id]
+
+        return None
+
+    if not layer_or_table_fields:
+        return None
+
+    print("Field count: {}".format(layer_or_table_fields.FieldCount))
+
+    fields = [layer_or_table_fields.Field[i] for i in range(0, layer_or_table_fields.FieldCount)]
+
+    return [{"name": f.Name, "type": field_type_id_to_name(f.Type)} for f in fields]
+
+
+def _native_describe_layer(layer_parts):
     layer_details = {
         "dataSource": _native_get_data_source(layer_parts),
         "database": None,
         "datasetName": _native_get_dataset_name(layer_parts["dataset"]),
         "datasetType": _native_get_dataset_type(layer_parts["dataset"]),
         "definitionQuery": _native_get_definition_query(layer_parts["featureLayerDefinition"]),
+        "fields": _native_describe_fields(layer_parts["layerFields"]),
         "index": layer_parts["index"],
         "isBroken": not layer_parts["layer"].Valid,
         "isFeatureLayer": bool(layer_parts["featureLayer"]),
@@ -261,18 +286,19 @@ def _native_describe_map(map_document, map_frame):
     return {
         "name": map_frame.Name,
         "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)),
-        "layers": [_native_desribe_layer(l) for l in _native_list_layers(map_document, map_frame)],
-        "tables": [_native_desribe_table(t) for t in _native_list_tables(map_document, map_frame)]
+        "layers": [_native_describe_layer(l) for l in _native_list_layers(map_document, map_frame)],
+        "tables": [_native_describe_table(t) for t in _native_list_tables(map_document, map_frame)]
     }
 
 
-def _native_desribe_table(table_parts):
+def _native_describe_table(table_parts):
     table_details = {
         "dataSource": _native_get_data_source(table_parts),
         "database": None,
         "datasetName": _native_get_dataset_name(table_parts["tableDataset"]),
         "datasetType": _native_get_dataset_type(table_parts["tableDataset"]),
         "definitionQuery": _native_get_definition_query(table_parts["standaloneTableDefinition"]),
+        "fields": _native_describe_fields(table_parts["standaloneTableFields"]),
         "name": table_parts["standaloneTable"].Name,
         "index": table_parts["index"],
         "isBroken": not table_parts["standaloneTable"].Valid,
@@ -392,6 +418,7 @@ def _native_list_layers(map_document, map_frame):
             "children": [],
             "dataset": None,
             "layer": _ao.cast_obj(map_layer, esriCarto.ILayer2),
+            "layerFields": _ao.cast_obj(map_layer, esriCarto.ILayerFields),
             "featureLayer": _ao.cast_obj(map_layer, esriCarto.IFeatureLayer),
             "featureLayerDefinition": _ao.cast_obj(map_layer, esriCarto.IFeatureLayerDefinition2),
             "groupLayer": _ao.cast_obj(map_layer, esriCarto.IGroupLayer),
@@ -480,6 +507,7 @@ def _native_list_tables(map_document, map_frame):
             "standaloneTable": standalone_table,
             "standaloneTableDataset": _ao.cast_obj(standalone_table, esriGeoDatabase.IDataset),
             "standaloneTableDefinition": _ao.cast_obj(standalone_table, esriCarto.ITableDefinition),
+            "standaloneTableFields": _ao.cast_obj(standalone_table, esriGeoDatabase.ITableFields),
             "table": standalone_table.Table,
             "tableDataset": _ao.cast_obj(standalone_table.Table, esriGeoDatabase.IDataset),
             "serverLayerExtensions": None
@@ -517,7 +545,6 @@ def _native_mxd_exists(mxd_path):
     map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
     exists = map_document.IsPresent(mxd_path)
     valid = map_document.IsMapDocument(mxd_path)
-    map_document.Release()
     return exists and valid
 
 
@@ -527,7 +554,6 @@ def _native_document_close(map_document):
     # Make sure it's a map document
     map_document = _ao.cast_obj(map_document, esriCarto.IMapDocument)
     map_document.Close()
-    map_document.Release()
 
 
 def _native_document_open(mxd_path):
@@ -536,6 +562,14 @@ def _native_document_open(mxd_path):
     if _native_mxd_exists(mxd_path):
         map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
         map_document.Open(mxd_path)
+
+        # Maps must be activated in order to get all properties to be initialized
+        maps = _native_list_maps(map_document)
+        window_handle = ctypes.windll.user32.GetDesktopWindow()
+        for m in maps:
+            active_view = _ao.cast_obj(m, esriCarto.IActiveView)
+            active_view.Activate(window_handle)
+
         return map_document
     else:
         raise ValueError("'mxd_path' not found or invalid.")
