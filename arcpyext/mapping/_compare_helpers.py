@@ -11,18 +11,33 @@ install_aliases()
 from future.utils import iteritems
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
+from collections import Mapping, Sequence
+
 
 def dictionaries_eq(a, b):
     return set(iteritems(a)) == set(iteritems(b))
 
 
 def dictionaries_eq_ignore_case(a, b):
-    lowercase_dict = lambda d: {k: v.lower() if isinstance(v, str) else v for (k, v) in iteritems(d)}
-
     a = lowercase_dict(a)
     b = lowercase_dict(b)
 
     return dictionaries_eq(a, b)
+
+
+def lowercase_dict(d):
+    def process_value(v):
+        print(v)
+        if isinstance(v, Mapping):
+            return lowercase_dict(d)
+        elif isinstance(v, ("".__class__, u"".__class__, b"".__class__)):
+            return v.lower()
+        elif isinstance(v, Sequence):
+            return [process_value(sv) for sv in v]
+        else:
+            return v
+
+    return {k: process_value(v) for (k, v) in iteritems(d)}
 
 
 def get_datasource_info(layer_desc):
