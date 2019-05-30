@@ -151,7 +151,7 @@ def open_document(mxd):
 
 def _change_data_source(layer, new_layer_source):
     workspace_path = new_layer_source["workspacePath"]
-    dataset_name = new_layer_source.get("datasetName"),
+    dataset_name = new_layer_source.get("datasetName")
     workspace_type = new_layer_source.get("workspaceType")
     schema = new_layer_source.get("schema")
 
