@@ -32,7 +32,7 @@ def get_datasource_info(layer_desc):
         "datasetName": str(layer_desc.get("datasetName", "")),
         "database": str(layer_desc.get("database", "")),
         "server": str(layer_desc.get("server", "")),
-        "service": str(layer_desc.get("service", "")),
+        "service": str(layer_desc.get("service", ""))
     }
 
 
