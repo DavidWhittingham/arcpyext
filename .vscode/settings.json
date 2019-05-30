@@ -6,5 +6,10 @@
     "python.testing.nosetestsEnabled": false,
     "python.testing.pyTestEnabled": true,
     "python.venvPath": "${workspaceFolder}/.venvs",
-    "python.pythonPath": ".venvs\\test-py2\\Scripts\\python.exe"
+    "python.pythonPath": ".venvs\\test-py2\\Scripts\\python.exe",
+
+    "search.exclude": {
+        "**/.git": true,
+        "**/.venvs": true
+    }
 }
