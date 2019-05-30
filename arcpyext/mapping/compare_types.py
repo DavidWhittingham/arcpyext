@@ -136,9 +136,18 @@ class LayerChangeTypes(_ChangeTypesBase):
 
     LAYER_ID_CHANGED = ChangeType(401, "Layer: Service ID Changed",
                                   ChangeSeverity.ERROR, lambda layer_desc: layer_desc["serviceId"], operator.ne)
-    # LAYER_FIELDS_ADDED = ChangeType(408, "Layer: Fields Added", ChangeSeverity.INFO)
-    # LAYER_FIELDS_REMOVED = ChangeType(409, "Layer: Fields Removed", ChangeSeverity.ERROR)
-    # LAYER_DEFINITION_QUERY_CHANGED = ChangeType(406, "Layer: Definition Query Changed", ChangeSeverity.WARNING)
+    LAYER_FIELDS_ADDED = ChangeType(
+        408,
+        "Layer: Fields Added",
+        ChangeSeverity.INFO,
+        lambda layer_desc: get_fields_compare_info(layer_desc["fields"] or []),
+        lambda was_fields, now_fields: is_superset(now_fields, was_fields) and not is_superset(was_fields, now_fields))
+    LAYER_FIELDS_REMOVED = ChangeType(
+        409, "Layer: Fields Removed", ChangeSeverity.ERROR, lambda layer_desc: get_fields_compare_info(layer_desc[
+            "fields"] or []), lambda was_fields, now_fields: not is_superset(now_fields, was_fields))
+    LAYER_DEFINITION_QUERY_CHANGED = ChangeType(
+        406, "Layer: Definition Query Changed",
+        ChangeSeverity.WARNING, lambda layer_desc: layer_desc["definitionQuery"], operator.ne)
 
 
 class MapChangeTypes(_ChangeTypesBase):

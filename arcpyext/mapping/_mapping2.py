@@ -245,11 +245,23 @@ def _native_describe_fields(layer_or_table_fields):
     if not layer_or_table_fields:
         return None
 
-    print("Field count: {}".format(layer_or_table_fields.FieldCount))
+    fields = [
+        {
+            "field": layer_or_table_fields.Field[i],
+            "fieldInfo": layer_or_table_fields.FieldInfo[i],
+            "index": i
+        } for i in range(0, layer_or_table_fields.FieldCount)
+    ]
 
-    fields = [layer_or_table_fields.Field[i] for i in range(0, layer_or_table_fields.FieldCount)]
-
-    return [{"name": f.Name, "type": field_type_id_to_name(f.Type)} for f in fields]
+    return [
+        {
+            "alias": f["fieldInfo"].Alias,
+            "index": f["index"],
+            "name": f["field"].Name,
+            "type": field_type_id_to_name(f["field"].Type),
+            "visible": f["fieldInfo"].Visible
+        } for f in fields
+    ]
 
 
 def _native_describe_layer(layer_parts):

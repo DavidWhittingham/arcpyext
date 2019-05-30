@@ -12,17 +12,6 @@ from future.utils import iteritems
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 
-def get_datasource_info(layer_desc):
-    # wrapped in str to ensure consistant type across source and Py versions
-    return {
-        "workspacePath": str(layer_desc.get("workspacePath", "")),
-        "datasetName": str(layer_desc.get("datasetName", "")),
-        "database": str(layer_desc.get("database", "")),
-        "server": str(layer_desc.get("server", "")),
-        "service": str(layer_desc.get("service", "")),
-    }
-
-
 def dictionaries_eq(a, b):
     return set(iteritems(a)) == set(iteritems(b))
 
@@ -34,6 +23,30 @@ def dictionaries_eq_ignore_case(a, b):
     b = lowercase_dict(b)
 
     return dictionaries_eq(a, b)
+
+
+def get_datasource_info(layer_desc):
+    # wrapped in str to ensure consistant type across source and Py versions
+    return {
+        "workspacePath": str(layer_desc.get("workspacePath", "")),
+        "datasetName": str(layer_desc.get("datasetName", "")),
+        "database": str(layer_desc.get("database", "")),
+        "server": str(layer_desc.get("server", "")),
+        "service": str(layer_desc.get("service", "")),
+    }
+
+
+def get_dict_subset(d, *keys):
+    return {k: d[k] for k in keys}
+
+
+def get_fields_compare_info(fields):
+    return [get_dict_subset(f, "name", "type") for f in fields if f["visible"]]
+
+
+def is_superset(superset, subset):
+    return all(item in superset for item in subset)
+
 
 def recursive_sort(obj):
     """
