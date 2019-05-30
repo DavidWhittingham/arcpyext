@@ -17,7 +17,7 @@ TEST_DATA_SOURCE = {
 
 
 @pytest.fixture(scope="module")
-def map():
+def map_doc():
     return arcpy.mapping.MapDocument(MXD_PATH)
 
 
@@ -25,45 +25,40 @@ def map():
     ("data_sources", "layer_data_sources_equal", "table_data_sources_equal", "raises_ex", "ex_type"),
     [([{
         'layers': [CLIP2_DATA_SOURCE],
-        'tableViews': [TEST_DATA_SOURCE]
+        'tables': [TEST_DATA_SOURCE]
     }], [False], [False], False, None), ([{
         'layers': [None],
-        'tableViews': [None]
+        'tables': [None]
     }], [True], [True], False, None),
      ([{
          'layers': [],
-         'tableViews': []
+         'tables': []
      }], [True], [True], True, arcpyext.exceptions.ChangeDataSourcesError)])
-def test_change_data_sources(map, data_sources, layer_data_sources_equal, table_data_sources_equal, raises_ex, ex_type):
-    layers = arcpy.mapping.ListLayers(map)
+def test_change_data_sources(map_doc, data_sources, layer_data_sources_equal, table_data_sources_equal, raises_ex, ex_type):
+    layers = arcpy.mapping.ListLayers(map_doc)
     old_data_sources = []
 
     for layer in layers:
         old_data_sources.append(layer.dataSource)
 
-    data_tables = arcpy.mapping.ListTableViews(map)
+    data_tables = arcpy.mapping.ListTableViews(map_doc)
     old_table_sources = []
 
     for table in data_tables:
-        # print table.name
         old_table_sources.append(table.dataSource)
 
     if (raises_ex):
         with pytest.raises(ex_type):
-            arcpyext.mapping.change_data_sources(map, data_sources)
+            arcpyext.mapping.change_data_sources(map_doc, data_sources)
     else:
-        arcpyext.mapping.change_data_sources(map, data_sources)
+        arcpyext.mapping.change_data_sources(map_doc, data_sources)
 
         for idx, layer in enumerate(layers):
             if layer.isGroupLayer or not layer.supports("workspacePath"):
                 continue
-            # print layer.dataSource
-            # print old_data_sources[idx]
             assert (layer.dataSource == old_data_sources[idx]) == layer_data_sources_equal[idx]
 
         for idx, table in enumerate(data_tables):
-            # print table.dataSource
-            # print old_table_sources[idx]
             assert (table.dataSource == old_table_sources[idx]) == table_data_sources_equal[idx]
 
 
@@ -71,38 +66,6 @@ def test_change_data_sources(map, data_sources, layer_data_sources_equal, table_
 def test_describe(mxd, raises_ex, ex_type):
     mxd = arcpy.mapping.MapDocument(mxd)
     result = arcpyext.mapping.describe(mxd)
-    # print(json.dumps(result))
-
-    # Expecting:
-    # {
-    #     "layers": [
-    #         [
-    #           {
-    #             "datasetName": "statesp020_clip1",
-    #             "workspacePath": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples",
-    #             "name": "Layer 1",
-    #             "dataSource": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020_clip1.shp",
-    #             "longName": "Layer 1"
-    #           },
-    #           {
-    #             "datasetName": "statesp020_clip1",
-    #             "workspacePath": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples",
-    #             "name": "Layer 2 (Duplicated)",
-    #             "dataSource": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020_clip1.shp",
-    #             "longName": "Layer 2 (Duplicated)"
-    #           },
-    #           "None",             // This is a group layer
-    #           {
-    #             "datasetName": "statesp020_clip1",
-    #             "workspacePath": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples",
-    #             "name": "Layer 3 (Nested)",
-    #             "dataSource": "G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020_clip1.shp",
-    #             "longName": "New Group Layer\\Layer 3 (Nested)"
-    #           }
-    #         ]
-    #     ],
-    #     "tableViews: [{'definitionQuery': u'', 'datasetName': u'statesp020.txt', 'dataSource': u'G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples\\statesp020.txt', 'workspacePath': u'G:\\LARIE\\AutoPublish\\arcpyext\\tests\\samples'}]}]
-    # }
 
     # Dataframes
     assert len(result['maps']) == 1
@@ -149,20 +112,27 @@ def test_compare_map_documents(mxd_a, mxd_b, document_updates, data_frame_update
     assert len(layer_changes['removed']) == layers_removed, "Expected {0} d".format(layers_removed)
 
 
-def test_create_replacement_data_sources_list():
-    document_data_sources_list = load_pickle('../samples/document_data_sources_list.pkl')
-    data_source_templates = load_pickle('../samples/data_source_templates.pkl')
-
-    arcpyext.mapping.create_replacement_data_sources_list(document_data_sources_list, data_source_templates)
+@pytest.mark.parametrize(
+    ("data_source_templates"),
+    [
+        (
+            [
+                {
+                    "dataSource": {
+                        "datasetName": "statesp020_clip2"
+                    },
+                    "matchCriteria": {
+                        "datasetName": "STATESP020_CLIP1"
+                    }
+                }
+            ]
+        )
+    ]
+)
+def test_create_replacement_data_sources_list(map_doc, data_source_templates):
+    arcpyext.mapping.create_replacement_data_sources_list(map_doc, data_source_templates)
 
 
 def test_map_is_valid():
     #TODO: Test this function. Input is map object
     pass
-
-
-def load_pickle(filename):
-    import pickle
-
-    with open(filename, 'rb') as f:
-        return pickle.load(f)
