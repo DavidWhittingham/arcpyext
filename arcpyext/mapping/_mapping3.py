@@ -21,49 +21,9 @@ import arcpy
 # Local imports
 from .. import _native as _prosdk
 from ..exceptions import DataSourceUpdateError
-from ..arcobjects import init_arcobjects_context, destroy_arcobjects_context, list_layers
 
 # Configure module logging
 logger = logging.getLogger("arcpyext.mp")
-
-def create_replacement_data_sources_list(document_data_sources_list,
-                                         data_source_templates,
-                                         raise_exception_no_change=False):
-
-    # Here we are rearranging the data_source_templates so that the match criteria can be compared as a set - in case there are more than one.
-    template_sets = [
-        dict(list(template.items()) + [("matchCriteria", set(template["matchCriteria"].items()))])
-        for template in data_source_templates
-    ]
-
-    # freeze values in dict for set comparison
-    def freeze(d):
-        """Freezes dicts and lists for set comparison."""
-        if isinstance(d, dict):
-            return frozenset((key, freeze(value)) for key, value in d.items())
-        elif isinstance(d, list):
-            return tuple(freeze(value) for value in d)
-        return d
-
-    def match_new_data_source(item):
-        if item == None:
-            return None
-
-        new_conn = None
-        for template in template_sets:
-            # The item variable is a layer object which contains a fields property (type list) that can't be serialised and used in set operations
-            # It is not required for datasource matching, so exclude it from the the set logic
-            if template["matchCriteria"].issubset(set(freeze(item))):
-                new_conn = template["dataSource"]
-                break
-        if new_conn == None and raise_exception_no_change:
-            raise RuntimeError("No matching data source was found for layer")
-        return new_conn
-
-    return [{
-        "layers": [match_new_data_source(layer) for layer in df["layers"]],
-        "tableViews": [match_new_data_source(table) for table in df["tableViews"]]
-    } for df in document_data_sources_list]
 
 
 def open_document(project):
@@ -76,33 +36,6 @@ def open_document(project):
         return project
 
     return arcpy.mp.ArcGISProject(project)
-
-
-def validate_pro_project(project):
-    # make sure the project is a project, not a path
-    project = open_document(project)
-
-    broken_layers = project.listBrokenDataSources()
-
-    if len(broken_layers) > 0:
-        logger.debug("Map '{0}': Broken data sources:".format(project.filePath))
-        for layer in broken_layers:
-            logger.debug(" {0}".format(layer.name))
-            if not hasattr(layer, "supports"):
-                #probably a TableView
-                logger.debug("  workspace: {0}".format(layer.workspacePath))
-                logger.debug("  datasource: {0}".format(layer.dataSource))
-                continue
-
-            #Some sort of layer
-            if layer.supports("workspacePath"):
-                logger.debug("  workspace: {0}".format(layer.workspacePath))
-            if layer.supports("dataSource"):
-                logger.debug("  datasource: {0}".format(layer.dataSource))
-
-        return False
-
-    return True
 
 
 def _change_data_source(layer, new_props):

@@ -15,11 +15,13 @@ from future.utils import iteritems
 
 # Standard libary imports
 import json
+import re
 import sys
 
 from enum import Enum  # comes from third-party package on Py 2
 
 # Local imports
+from ._compare_helpers import lowercase_dict
 from .compare_types import *
 from .._json import JsonEnum
 from ..exceptions import MapLayerError, ChangeDataSourcesError
@@ -50,8 +52,8 @@ def change_data_sources(mxd_or_proj, data_sources):
     # match map with data sources
     for map_frame, map_data_sources in zip_longest(_mh._list_maps(map_document), data_sources):
 
-        if not 'layers' in map_data_sources or not 'tableViews' in map_data_sources:
-            raise ChangeDataSourcesError("Data sources dictionary does not contain both layers and tableViews keys")
+        if not 'layers' in map_data_sources or not 'tables' in map_data_sources:
+            raise ChangeDataSourcesError("Data sources dictionary does not contain both layers and tables keys")
 
         layers = _mh._list_layers(map_document, map_frame)
         layer_sources = map_data_sources["layers"]
@@ -74,7 +76,7 @@ def change_data_sources(mxd_or_proj, data_sources):
                 errors.append(e)
 
         data_tables = _mh._list_tables(map_document, map_frame)
-        data_table_sources = map_data_sources["tableViews"]
+        data_table_sources = map_data_sources["tables"]
 
         if not len(data_tables) == len(data_table_sources):
             raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
@@ -115,6 +117,109 @@ def compare(was_mxd_proj_or_desc, now_mxd_proj_or_desc):
     #yapf: enable
 
     return differences
+
+
+def create_replacement_data_sources_list(mxd_proj_or_desc,
+                                         data_source_templates,
+                                         raise_exception_no_change=False):
+
+    def tokenise_table_name(x):
+        """Given a feature class or feature dataset name, returns the schema (optional) and simple name"""
+
+        if "." in x:
+            return {"schema": x[:x.index(".")], "name": x[x.index(".") + 1:]}
+        else:
+            return {"schema": None, "name": x}
+
+    def tokenise_datasource(x):
+        """Given a fully qualified feature class path, returns the feature class' schema, simple name and parent dataset (optional)"""
+
+        regex = r"([\w\.]+)?(/|\\+)([\w\.]+$)"
+        parts = re.search(regex, x, re.MULTILINE | re.IGNORECASE)
+
+        if parts and parts.groups > 3:
+
+            dataset = None if ".gdb" in parts.group(1).lower() or ".sde" in parts.group(
+                1).lower() else tokenise_table_name(parts.group(1))
+            table = tokenise_table_name(parts.group(3))
+
+            return {
+                "schema": None if table["schema"] is None else table["schema"],
+                "dataSet": None if dataset is None else dataset["name"],
+                "table": table["name"]
+            }
+
+        else:
+            return None
+
+    # ensure we have a description of the map, and not a map itself
+    map_desc = mxd_proj_or_desc if isinstance(mxd_proj_or_desc, Mapping) else describe(mxd_proj_or_desc)
+
+    # Here we are rearranging the data_source_templates so that the match criteria can be compared as a set - in case there are more than one.
+    #yapf: disable
+    template_sets = [
+        dict(
+            list(iteritems(template)) + [
+                ("matchCriteria", set(iteritems(lowercase_dict(template["matchCriteria"]))))
+            ]
+        ) for template in data_source_templates
+    ]
+    #yapf: enable
+
+    # freeze values in dict for set comparison
+    def freeze(d):
+        """Freezes dicts and lists for set comparison."""
+        if isinstance(d, dict):
+            return frozenset((key, freeze(value)) for key, value in d.items())
+        elif isinstance(d, list):
+            return tuple(freeze(value) for value in d)
+        return d
+
+    def match_new_data_source(layer_or_table):
+        if layer_or_table == None:
+            return None
+
+        new_conn = None
+        for template in template_sets:
+            # The layer_or_table variable contains properties that can't be put into sets without freezing
+            if template["matchCriteria"].issubset(set(freeze(layer_or_table))):
+                new_conn = template["dataSource"].copy()
+
+                # Test #2: If the target workspace is a collection of workspaces, infer the target child workspace by using a
+                # deterministic naming convention that maps the layer's dataset name to a workspace.
+                if template.get("matchOptions", {}).get("isWorkspaceContainer") == True:
+
+                    logger.debug("Data source template is workspace container.")
+
+                    tokens = tokenise_datasource(layer_or_table["dataSource"])
+
+                    if tokens is not None:
+
+                        logger.debug("Tokens are: %s", tokens)
+
+                        if tokens["dataSet"] is not None and tokens["schema"] is not None:
+                            logger.debug(1.11)
+                            new_conn["workspacePath"] = "{}\\{}.{}.gdb".format(new_conn["workspacePath"],
+                                                                               tokens["schema"], tokens["dataSet"])
+                        elif tokens["dataSet"] is not None:
+                            logger.debug(1.12)
+                            new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"],
+                                                                            tokens["dataSet"])
+                        else:
+                            logger.debug(1.13)
+                            new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"], tokens["table"])
+
+                break
+        if new_conn == None and raise_exception_no_change:
+            raise RuntimeError("No matching data source was found for layer")
+        return new_conn
+
+    return [
+        {
+            "layers": [match_new_data_source(layer) for layer in df["layers"]],
+            "tables": [match_new_data_source(table) for table in df["tables"]]
+        } for df in map_desc["maps"]
+    ]
 
 
 def describe(mxd_or_proj):

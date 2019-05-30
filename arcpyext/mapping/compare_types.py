@@ -99,7 +99,8 @@ class LayerChangeTypes(_ChangeTypesBase):
     # respected on Python 2.x.  Explictly set order here to compensate.
     __order__ = " ".join([
         "LAYER_BROKEN", "LAYER_REMOVED", "LAYER_ID_NOT_SET", "LAYER_ADDED", "LAYER_NAME_CHANGED",
-        "LAYER_DATASOURCE_CHANGED", "LAYER_VISIBILITY_CHANGED", "LAYER_ID_CHANGED"
+        "LAYER_DATASOURCE_CHANGED", "LAYER_VISIBILITY_CHANGED", "LAYER_ID_CHANGED", "LAYER_FIELDS_ADDED",
+        "LAYER_FIELDS_REMOVED", "LAYER_DEFINITION_QUERY_CHANGED"
     ])
 
     LAYER_BROKEN = ChangeType(412,
@@ -137,11 +138,9 @@ class LayerChangeTypes(_ChangeTypesBase):
     LAYER_ID_CHANGED = ChangeType(401, "Layer: Service ID Changed",
                                   ChangeSeverity.ERROR, lambda layer_desc: layer_desc["serviceId"], operator.ne)
     LAYER_FIELDS_ADDED = ChangeType(
-        408,
-        "Layer: Fields Added",
-        ChangeSeverity.INFO,
-        lambda layer_desc: get_fields_compare_info(layer_desc["fields"] or []),
-        lambda was_fields, now_fields: is_superset(now_fields, was_fields) and not is_superset(was_fields, now_fields))
+        408, "Layer: Fields Added",
+        ChangeSeverity.INFO, lambda layer_desc: get_fields_compare_info(layer_desc["fields"] or []), lambda was_fields,
+        now_fields: is_superset(now_fields, was_fields) and not is_superset(was_fields, now_fields))
     LAYER_FIELDS_REMOVED = ChangeType(
         409, "Layer: Fields Removed", ChangeSeverity.ERROR, lambda layer_desc: get_fields_compare_info(layer_desc[
             "fields"] or []), lambda was_fields, now_fields: not is_superset(now_fields, was_fields))
