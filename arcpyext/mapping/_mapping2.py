@@ -6,11 +6,11 @@
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from future.builtins.disabled import *
 from future.builtins import *
+from future.standard_library import install_aliases
+install_aliases()
 from future.moves.collections import deque
 from future.moves.itertools import zip_longest
-from future.standard_library import install_aliases
 from future.utils import viewitems
-install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 # Standard lib imports
