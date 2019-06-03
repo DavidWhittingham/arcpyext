@@ -25,7 +25,7 @@ from .. import _native as _prosdk
 from ..exceptions import DataSourceUpdateError
 
 # Configure module logging
-logger = logging.getLogger("arcpyext.mp")
+logger = logging.getLogger("arcpyext.mapping")
 
 
 def open_document(project):

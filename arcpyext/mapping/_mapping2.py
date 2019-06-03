@@ -9,7 +9,6 @@ from future.builtins import *
 from future.standard_library import install_aliases
 install_aliases()
 from future.moves.collections import deque
-from future.moves.itertools import zip_longest
 from future.utils import viewitems
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
