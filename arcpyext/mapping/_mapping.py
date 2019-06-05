@@ -226,23 +226,28 @@ def describe(mxd_or_proj):
     """Describe a Map Document or ArcGIS Pro project."""
 
     # Ensure document is open before
-    mxd_or_proj = open_document(mxd_or_proj)
+    arcpy_mxd_or_proj = open_document(mxd_or_proj)
 
-    mxd_or_proj = None
+    native_mxd_or_proj = None
     try:
 
         # open the MXD in ArcObjects
-        mxd_or_proj = _mh._native_document_open(mxd_or_proj.filePath)
+        native_mxd_or_proj = _mh._native_document_open(arcpy_mxd_or_proj.filePath)
 
         # build return object
         desc = {
-            "maps": [_mh._native_describe_map(mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(mxd_or_proj)]
+            "maps": [_mh._native_describe_map(native_mxd_or_proj, arcpy_mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(native_mxd_or_proj, arcpy_mxd_or_proj)]
         }
 
+    except Exception as e:
+        raise e
+
     finally:
-        if mxd_or_proj:
+        if native_mxd_or_proj:
             # close the native document
-            _mh._native_document_close(mxd_or_proj)
+            _mh._native_document_close(native_mxd_or_proj)
+            # TODO: Does this even work?
+            arcpy_mxd_or_proj = None
 
     return desc
 

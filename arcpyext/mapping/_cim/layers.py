@@ -16,9 +16,11 @@ from abc import ABCMeta
 
 # Local imports
 from .helpers import passthrough_prop
-from .tables import ProFeatureTable
+from .tables import ProFeatureTable, ProFieldDescription
 
 # .NET Imports
+import clr
+clr.AddReference("ArcGIS.Core")
 from ArcGIS.Core.CIM import CIMFeatureLayer, CIMGroupLayer
 
 
