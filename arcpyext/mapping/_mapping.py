@@ -393,8 +393,7 @@ def _compare_map_frames(was_map_desc, now_map_desc):
         # new map introduced, ignore
         return map_differences
 
-    map_doc_changes = MapChangeTypes.compare(was_map_desc, now_map_desc)
-    map_differences["map"] = map_doc_changes
+    map_differences["map"] = MapChangeTypes.compare(was_map_desc, now_map_desc)
 
     (map_differences["layers"]["added"], matched,
      map_differences["layers"]["removed"]) = _match_layers(was_map_desc["layers"], now_map_desc["layers"])
