@@ -27,7 +27,7 @@ def project():
         [
             {
                 'layers': [CLIP_DATA_SOURCE],
-                'tableViews': [TEST_DATA_SOURCE]
+                'tables': [TEST_DATA_SOURCE]
             }
         ],
         [False],
@@ -39,7 +39,7 @@ def project():
         [
             {
                 'layers': [],
-                'tableViews': []
+                'tables': []
             }
         ], 
         [True],
@@ -48,14 +48,14 @@ def project():
         arcpyext.exceptions.ChangeDataSourcesError
     ),
     (
-        {'tableViews': [None]},
+        {'tables': [None]},
         [True],
         [True],
         True,
         arcpyext.exceptions.ChangeDataSourcesError
     ),
     (
-        {'tableViews': [None, None, None]},
+        {'tables': [None, None, None]},
         [True],
         [True],
         True,

@@ -201,12 +201,12 @@ def _native_describe_layer(layer_parts):
     return layer_details
 
 
-def _native_describe_map(map_document, map_frame):
+def _native_describe_map(map_document, map_frame, arcpy_map=None):
     return {
-        "name": map_frame.Name,
-        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)),
-        "layers": [_native_describe_layer(l) for l in _native_list_layers(map_document, map_frame)],
-        "tables": [_native_describe_table(t) for t in _native_list_tables(map_document, map_frame)]
+        "name": arcpy_map.Name,
+        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, arcpy_map)),
+        "layers": [_native_describe_layer(l) for l in _native_list_layers(map_document,arcpy_map)],
+        "tables": [_native_describe_table(t) for t in _native_list_tables(map_document, arcpy_map)]
     }
 
 
@@ -397,7 +397,7 @@ def _native_list_layers(map_document, map_frame):
     return layers
 
 
-def _native_list_maps(map_document):
+def _native_list_maps(map_document, arcpy_map=None):
     """Gets a list of IMaps (Data Frames) from the provided map document."""
 
     # get the ArcObjects types we need
