@@ -99,49 +99,18 @@ def test_change_data_sources(project, data_sources, layer_data_sources_equal, ta
             assert (table.dataSource ==
                     old_table_sources[idx]) == table_data_sources_equal[idx]
 
-@pytest.mark.parametrize(("proj_path", "raises_ex", "ex_type"), [
-    (PROJECT_COMPLEX_PATH, False, None)])
-def test_list_document_data_sources(proj_path, raises_ex, ex_type):
-    result = arcpyext.mapping.list_document_data_sources(arcpy.mp.ArcGISProject(proj_path))
-
-    # Number of maps in the project
-    assert len(result) == 1
-
-    # Dataframe 1
-    assert len(result[0]["layers"]) == 5, "Layer count"
-
-    # "id" and "datasetName" comes from from _arcobjects. Assertions removed for now
-
-    # Layer 1
-    #assert result["layers"][0][0]["id"] == 1
-    assert result[0]["layers"][0]["name"] == "Layer 1"
-    assert result[0]["layers"][0]["connectionProperties"]["dataset"] == "statesp020_clip1"
-
-    # Layer 2
-    #assert result["layers"][0][1]["id"] == 2
-    assert result[0]["layers"][1]["name"] == "Layer 2"
-    assert result[0]["layers"][1]["connectionProperties"]["dataset"] == "statesp020_clip2"
-
-    # Layer 3
-    #assert result["layers"][0][3]["id"] == 3
-    assert result[0]["layers"][3]["name"] == "Layer 3"
-    assert result[0]["layers"][3]["connectionProperties"]["dataset"] == "statesp020_clip1"
-
-    # Tables
-    assert len(result[0]["tableViews"]) == 1
-
 @pytest.mark.parametrize(("mxd_a", "mxd_b", "data_frame_updates", "layers_added", "layers_updated", "layers_removed", "raises_ex", "ex_type"), [
-    (PROJECT_COMPLEX_PATH, PROJECT_COMPLEX_B_PATH, 2, 2, 2, 2, False, None)
+    (PROJECT_COMPLEX_PATH, PROJECT_COMPLEX_B_PATH, 1, 2, 4, 0, False, None)
 ])
 def test_compare_map_documents(mxd_a, mxd_b, data_frame_updates, layers_added, layers_updated, layers_removed, raises_ex, ex_type):
     a = arcpy.mp.ArcGISProject(mxd_a)
     b = arcpy.mp.ArcGISProject(mxd_b)
     result = arcpyext.mapping.compare(a, b)
 
-    data_frame_changes = result['dataFrames']
-    layer_changes = result['layers']
+    layer_changes = result['maps'][0]['layers']
+    map_changes = result['maps'][0]['map']
 
-    assert len(data_frame_changes) == data_frame_updates, "Expected {0} data frame updates".format(data_frame_updates)
+    assert len(map_changes) == data_frame_updates, "Expected {0}".format(data_frame_updates)
     assert len(layer_changes['added']) == layers_added, "Expected {0} a".format(layers_added)
     assert len(layer_changes['updated']) == layers_updated, "Expected {0} u".format(layers_updated)
     assert len(layer_changes['removed']) == layers_removed, "Expected {0} d".format(layers_removed)

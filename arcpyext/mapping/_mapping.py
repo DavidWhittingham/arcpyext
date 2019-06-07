@@ -52,7 +52,7 @@ def change_data_sources(mxd_or_proj, data_sources):
     # match map with data sources
     for map_frame, map_data_sources in zip_longest(_mh._list_maps(map_document), data_sources):
 
-        if not 'layers' in map_data_sources or not 'tables' in map_data_sources:
+        if not 'layers' in map_data_sources or not 'tableViews' in map_data_sources:
             raise ChangeDataSourcesError("Data sources dictionary does not contain both layers and tables keys")
 
         layers = _mh._list_layers(map_document, map_frame)
@@ -76,7 +76,7 @@ def change_data_sources(mxd_or_proj, data_sources):
                 errors.append(e)
 
         data_tables = _mh._list_tables(map_document, map_frame)
-        data_table_sources = map_data_sources["tables"]
+        data_table_sources = map_data_sources["tableViews"]
 
         if not len(data_tables) == len(data_table_sources):
             raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
