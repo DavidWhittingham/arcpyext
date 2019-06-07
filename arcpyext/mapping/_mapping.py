@@ -228,7 +228,6 @@ def describe(mxd_or_proj):
     # Ensure document is open before
     mxd_or_proj = open_document(mxd_or_proj)
 
-    mxd_or_proj = None
     try:
 
         # open the MXD in ArcObjects
