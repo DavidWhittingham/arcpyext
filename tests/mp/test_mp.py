@@ -145,3 +145,27 @@ def test_compare_map_documents(mxd_a, mxd_b, data_frame_updates, layers_added, l
     assert len(layer_changes['added']) == layers_added, "Expected {0} a".format(layers_added)
     assert len(layer_changes['updated']) == layers_updated, "Expected {0} u".format(layers_updated)
     assert len(layer_changes['removed']) == layers_removed, "Expected {0} d".format(layers_removed)
+
+@pytest.mark.parametrize(("proj_path", "raises_ex", "ex_type"), [
+    (PROJECT_COMPLEX_PATH, False, None)])
+def test_describe_from_project(proj_path, raises_ex, ex_type):
+    result = arcpyext.mapping.describe(arcpy.mp.ArcGISProject(proj_path))
+
+    # Number of maps in the project
+    assert result
+
+@pytest.mark.parametrize(("proj_path", "raises_ex", "ex_type"), [
+    (PROJECT_COMPLEX_PATH, False, None)])
+def test_describe_from_path(proj_path, raises_ex, ex_type):
+    result = arcpyext.mapping.describe(proj_path)
+
+    # Number of maps in the project
+    assert result
+
+@pytest.mark.parametrize(("proj_path_a", "proj_path_b", "raises_ex", "ex_type"), [
+    (PROJECT_COMPLEX_PATH, PROJECT_COMPLEX_B_PATH, False, None)])
+def test_compare(proj_path_a, proj_path_b, raises_ex, ex_type):
+    result = arcpyext.mapping.compare(proj_path_a, proj_path_b)
+
+    # Number of maps in the project
+    assert result

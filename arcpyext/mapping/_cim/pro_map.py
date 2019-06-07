@@ -35,9 +35,11 @@ class ProMap(object):
     description = passthrough_prop("Description")
     name = passthrough_prop("Name")
 
+    @property
     def spatial_reference(self):
         if not self._spatial_reference:
             self._spatial_reference = arcpy.SpatialReference(self._cim_obj.SpatialReference.Wkid)
+        return self._spatial_reference
 
     @property
     def layers(self):

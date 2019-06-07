@@ -84,14 +84,6 @@ def _describe_table(table):
 def _get_spatial_ref(project, map):
     return arcpy.Describe(map).spatial_reference
 
-def _native_describe_map(project, map):
-    return {
-        "name": map.name,
-        "spatialReference": _get_spatial_ref(project, map),
-        "layers": [_describe_layer(l) for l in _list_layers(project, map)],
-        "tables": [_describe_table(t) for t in _list_tables(project, map)]
-    }
-
 def _describe_fields(native_layer_or_table_fields, layer_or_table_fields):
 
     if not layer_or_table_fields:
@@ -107,31 +99,36 @@ def _describe_fields(native_layer_or_table_fields, layer_or_table_fields):
         } for i in range(0, len(layer_or_table_fields))
     ]
 
+def _get_value_or_none(native_layer, arcpy_layer, expression):
+    try:
+        return eval(expression)
+    except (AttributeError, NameError, TypeError):
+        return None
+
 def _native_describe_layer(native_layer, arcpy_map):
     arcpy_layer = arcpy_map.listLayers(native_layer.name)[0]
 
     layer_details = {
-        "dataSource": arcpy_layer.dataSource,
+        "dataSource": _get_value_or_none(native_layer, arcpy_layer, 'arcpy_layer.dataSource'),
         "database": None,
-        "datasetName": arcpy_layer.connectionProperties["dataset"],
-        "datasetType": arcpy_layer.connectionProperties["workspace_factory"],
-        "definitionQuery": arcpy_layer.definitionQuery,
-        "fields": _describe_fields(native_layer.feature_table.fields, arcpy.ListFields(arcpy_layer)),
+        "datasetType": _get_value_or_none(native_layer, arcpy_layer, "arcpy_layer.connectionProperties['workspace_factory']"),
+        "datasetName": _get_value_or_none(native_layer, arcpy_layer, "arcpy_layer.connectionProperties['dataset']"),
+        "definitionQuery": _get_value_or_none(native_layer, arcpy_layer, "arcpy_layer.definitionQuery"),
+        "fields": _get_value_or_none(native_layer, arcpy_layer, "_describe_fields(native_layer.feature_table.fields, arcpy.ListFields(arcpy_layer))"),
         "index": None, # TODO
-        "isBroken": arcpy_layer.isBroken,
-        "isFeatureLayer": arcpy_layer.isFeatureLayer,
-        "isNetworkAnalystLayer": arcpy_layer.isNetworkAnalystLayer,
-        "isRasterLayer": arcpy_layer.isRasterLayer,
+        "isBroken":  _get_value_or_none(native_layer, arcpy_layer, "arcpy_layer.isBroken"),
+        "isFeatureLayer":  _get_value_or_none(native_layer, arcpy_layer, "arcpy_layer.isFeatureLayer"),
+        "isNetworkAnalystLayer":  _get_value_or_none(native_layer, arcpy_layer, "arcpy_layer.isNetworkAnalystLayer"),
+        "isRasterLayer":  _get_value_or_none(native_layer, arcpy_layer, "arcpy_layer.isRasterLayer"),
         "isRasterizingLayer": None, # Not implemented
         "isServiceLayer": None, # Not implemented
-        "isGroupLayer": arcpy_layer.isGroupLayer,
-        "longName": native_layer.long_name,
-        "name": native_layer.name,
+        "isGroupLayer":  _get_value_or_none(native_layer, arcpy_layer, "arcpy_layer.isGroupLayer"),
+        "longName":  _get_value_or_none(native_layer, arcpy_layer, "native_layer.long_name"),
+        "name":  _get_value_or_none(native_layer, arcpy_layer, "native_layer.name"),
         "server": None,
-        "serviceId": native_layer._cim_obj.ServiceLayerID,
+        "serviceId":  _get_value_or_none(native_layer, arcpy_layer, "native_layer._cim_obj.ServiceLayerID"),
         "userName": None,
-        "visible": native_layer.visible
-
+        "visible":  _get_value_or_none(native_layer, arcpy_layer, "native_layer.visible")
     }
 
     _add_data_connection_details(arcpy_layer, layer_details)
@@ -153,8 +150,9 @@ def _native_describe_table(native_table, arcpy_map):
     return table_details
 
 def _add_data_connection_details(arcpy_layer, layer_details):
-    for key, value in arcpy_layer.connectionProperties["connection_info"].items():
-        layer_details[key] = value
+    if arcpy_layer.connectionProperties is not None:
+        for key, value in arcpy_layer.connectionProperties["connection_info"].items():
+            layer_details[key] = value
 
 def _native_describe_map(native_pro_proj, arcpy_pro_proj, map_frame):
     arcpy_map = arcpy_pro_proj.listMaps(map_frame.name)[0]
