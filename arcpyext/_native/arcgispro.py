@@ -25,8 +25,6 @@ import winreg
 # Third-party imports
 import clr
 
-from contextlib import contextmanager
-
 def get_arcgis_pro_install_dir():
     # open the registry at HKEY_LOCAL_MACHINE
     hklm_key = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
@@ -65,58 +63,4 @@ def _bootstrap():
     clr.AddReference("ArcGIS.Core")
 
 
-def singlethreadapartment(func=None):
-    def decorator(func):
-        """Factory for creating the STA decorator."""
-
-        def sta_wrapper(*args, **kwargs):
-            """The STA wrapper function."""
-
-            # Create an 'outer' result value
-            result = None
-
-            def thread_exec():
-                """The function passed to .NET, cannot contain arguments or return values."""
-                # Get access to the result value, outside this score
-                nonlocal result
-
-                # Assign the result outside the execution of this function
-                result = func(*args, **kwargs)
-
-            # Create a new thread, with the thread_exec method as the code runner
-            thread = System.Threading.Thread(System.Threading.ThreadStart(thread_exec))
-
-            # Set thread to Single Thread Apartment mode, for accessing COM safely
-            thread.SetApartmentState(System.Threading.ApartmentState.STA)
-
-            # Start the thread, join and wait for conclusion of work
-            thread.Start()
-            thread.Join()
-
-            # return the result that has been placed outside the thread_exec function
-            return result
-
-        return sta_wrapper
-    
-    if func is None:
-        # if decorator is called parameterlessly
-        return decorator
-    else:
-        # execute the factory given the passed-in function
-        return decorator(func)
-
-@contextmanager
-def licenced_context():
-    # it appears arcpy being imported is enough to be licenced
-    import arcpy
-    try:
-        yield
-    finally:
-        # no teardown required
-        pass
-
 _bootstrap()
-
-#import System
-#import System.Threading
-#import ArcGIS.Core
