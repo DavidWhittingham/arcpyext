@@ -2,9 +2,9 @@ import arcpyext
 import os
 import sys
 
-PROJECT_PATH = os.path.abspath("{0}/../samples/ChemicalDistributionRegulatedAreas.aprx".format(os.path.dirname(__file__)))
-MXD_PATH = os.path.abspath("{0}/../samples/test_mapping.mxd".format(os.path.dirname(__file__)))
-DRAFT_PATH = os.path.abspath("{0}/../samples/test_mapping.sddraft".format(os.path.dirname(__file__)))
+PROJECT_PATH = os.path.abspath("{0}/../samples/test_mapping_complex.aprx".format(os.path.dirname(__file__)))
+MXD_PATH = os.path.abspath("{0}/../samples/test_mapping_complex.mxd".format(os.path.dirname(__file__)))
+DRAFT_PATH = os.path.abspath("{0}/../samples/test_mapping_complex.sddraft".format(os.path.dirname(__file__)))
 
 
 def test_convert_map_to_sddraft():
