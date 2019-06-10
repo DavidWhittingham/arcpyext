@@ -1,10 +1,12 @@
 {
+    "python.formatting.provider": "yapf",
+    "python.testing.cwd": "${workspaceFolder}",
+    "python.testing.nosetestsEnabled": false,
     "python.testing.pyTestArgs": [
         "tests"
     ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
     "python.testing.pyTestEnabled": true,
+    "python.testing.unittestEnabled": false,
     "python.venvPath": "${workspaceFolder}/.venvs",
     "python.pythonPath": ".venvs\\test-py2\\Scripts\\python.exe",
 
