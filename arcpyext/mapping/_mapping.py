@@ -119,10 +119,7 @@ def compare(was_mxd_proj_or_desc, now_mxd_proj_or_desc):
     return differences
 
 
-def create_replacement_data_sources_list(mxd_proj_or_desc,
-                                         data_source_templates,
-                                         raise_exception_no_change=False):
-
+def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates, raise_exception_no_change=False):
     def tokenise_table_name(x):
         """Given a feature class or feature dataset name, returns the schema (optional) and simple name"""
 
@@ -214,12 +211,10 @@ def create_replacement_data_sources_list(mxd_proj_or_desc,
             raise RuntimeError("No matching data source was found for layer")
         return new_conn
 
-    return [
-        {
-            "layers": [match_new_data_source(layer) for layer in df["layers"]],
-            "tables": [match_new_data_source(table) for table in df["tables"]]
-        } for df in map_desc["maps"]
-    ]
+    return [{
+        "layers": [match_new_data_source(layer) for layer in df["layers"]],
+        "tables": [match_new_data_source(table) for table in df["tables"]]
+    } for df in map_desc["maps"]]
 
 
 def describe(mxd_or_proj):
@@ -235,7 +230,8 @@ def describe(mxd_or_proj):
 
         # build return object
         desc = {
-            "maps": [_mh._native_describe_map(mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(mxd_or_proj)]
+            "maps":
+            [_mh._native_describe_map(mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(mxd_or_proj)]
         }
 
     finally:
@@ -247,9 +243,8 @@ def describe(mxd_or_proj):
 
 
 def is_valid(mxd_or_proj):
-    """Analyse the map for broken layers and return a boolean indicating if it is in a valid state or not.
-
-    Lists broken layers on the shell output.
+    """Analyse a map document or ArcGIS Pro Project for broken layers and return a boolean indicating if it is in a
+    valid state or not.
 
     :param map: The map to be validated
     :type map: arcpy.mapping.MapDocument
@@ -268,7 +263,7 @@ def is_valid(mxd_or_proj):
                 broken_layers.append(l)
 
     if len(broken_layers) > 0:
-        #logger.debug(u"Map '{0}': Broken data sources:".format(description.title))
+        logger.debug(u"Map '{0}': Broken data sources:".format(description.title))
         for layer in broken_layers:
             logger.debug(u" {0}".format(layer["longName"] if "longName" in layer else layer["name"]))
             logger.debug(u"  datasource: {0}".format(layer.dataSource))
