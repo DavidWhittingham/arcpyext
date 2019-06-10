@@ -36,24 +36,20 @@ else:
     MAP_A_PATH = os.path.abspath("{0}/../samples/test_mapping_complex.aprx".format(os.path.dirname(__file__)))
     MAP_B_PATH = os.path.abspath("{0}/../samples/test_mapping_complex_b.aprx".format(os.path.dirname(__file__)))
     ALT_LAYER_DATA_SOURCE = {
-        'connectionProperties': {
-            'dataset': 'statesp020_clip1.shp',
-            'workspace_factory': 'Shape File',
-            'connection_info': {
-                'database': os.path.abspath("{0}/../samples/".format(os.path.dirname(__file__)))
-            }
+        'dataset': 'statesp020_clip2.shp',
+        'workspace_factory': 'Shape File',
+        'connection_info': {
+            'database': os.path.abspath("{0}/../samples/".format(os.path.dirname(__file__)))
         }
     }
     ALT_TABLE_DATA_SOURCE = {
-        'connectionProperties': {
-            'dataset': 'DataTableTest',
-            'workspace_factory': 'File Geodatabase',
-            'connection_info': {
-                'database': '{0}/../samples/test_data_table1.gdb'.format(os.path.dirname(__file__))
-            }
+        'dataset': 'DataTableTest',
+        'workspace_factory': 'File Geodatabase',
+        'connection_info': {
+            'database': '{0}/../samples/test_data_table2.gdb'.format(os.path.dirname(__file__))
         }
     }
-
+ 
 
 @pytest.fixture(scope="module")
 def map_doc_a():
@@ -115,7 +111,8 @@ def map_doc_b():
 def test_change_data_sources(map_doc_a, data_sources, layer_data_sources_equal, table_data_sources_equal, raises_ex,
                              ex_type):
     # Get layers, Python 2 or 3
-    layers = map_doc_a.listLayers() if hasattr(map_doc_a, "listLayers") else arcpy.mapping.ListLayers(map_doc_a)
+    layers = map_doc_a.listMaps()[0].listLayers() if hasattr(map_doc_a,
+                                                             "listMaps") else arcpy.mapping.ListLayers(map_doc_a)
 
     old_data_sources = []
 
@@ -123,8 +120,8 @@ def test_change_data_sources(map_doc_a, data_sources, layer_data_sources_equal, 
         old_data_sources.append(layer.dataSource if layer.supports("dataSource") else None)
 
     # Get table views, Python 2 or 3
-    data_tables = map_doc_a.listTables() if hasattr(map_doc_a,
-                                                    "listTables") else arcpy.mapping.ListTableViews(map_doc_a)
+    data_tables = map_doc_a.listMaps()[0].listTables() if hasattr(
+        map_doc_a, "listMaps") else arcpy.mapping.ListTableViews(map_doc_a)
     old_table_sources = []
 
     for table in data_tables:
@@ -158,17 +155,20 @@ def test_describe(map_doc_a, raises_ex, ex_type):
     # Layer 1
     assert result["maps"][0]["layers"][0]["serviceId"] == 1
     assert result["maps"][0]["layers"][0]["name"] == "Layer 1"
-    assert result["maps"][0]["layers"][0]["datasetName"] == "statesp020_clip1"
+    # dataset names of shape files are returned consistently between arcpy versions
+    assert result["maps"][0]["layers"][0]["datasetName"].startswith("statesp020_clip1")
 
     # Layer 2
     assert result["maps"][0]["layers"][1]["serviceId"] == 2
     assert result["maps"][0]["layers"][1]["name"] == "Layer 2"
-    assert result["maps"][0]["layers"][1]["datasetName"] == "statesp020_clip2"
+    # dataset names of shape files are returned consistently between arcpy versions
+    assert result["maps"][0]["layers"][1]["datasetName"].startswith("statesp020_clip2")
 
     # Layer 3
     assert result["maps"][0]["layers"][3]["serviceId"] == 3
     assert result["maps"][0]["layers"][3]["name"] == "Layer 3"
-    assert result["maps"][0]["layers"][3]["datasetName"] == "statesp020_clip1"
+    # dataset names of shape files are returned consistently between arcpy versions
+    assert result["maps"][0]["layers"][3]["datasetName"].startswith("statesp020_clip1")
 
     # Tables
     assert len(result["maps"][0]["tables"]) == 1
