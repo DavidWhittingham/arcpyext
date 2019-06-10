@@ -14,6 +14,7 @@ import arcpy
 from . import _patches as _patches
 _patches.apply()
 
+from . import _native
 from . import conversion
 from . import data
 from . import toolbox
