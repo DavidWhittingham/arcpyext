@@ -29,7 +29,7 @@ def check_analysis(analysis):
         raise ServDefDraftCreateError("Analysis Errors: \n{errs}".format(errs="\n".join(err_message_list)))
 
 
-def convert_pro_map_to_service_draft(map_obj,
+def convert_pro_map_to_service_draft(path_proj_or_map,
                                      sd_draft_path,
                                      service_name,
                                      folder_name=None,
@@ -38,8 +38,19 @@ def convert_pro_map_to_service_draft(map_obj,
                                      portal_folder=None):
     from ..mapping import is_valid
 
-    if not is_valid(map_obj):
-        raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
+    if isinstance(path_proj_or_map, arcpy.mp.ArcGISProject):
+        # assume we want to publish the first map
+        map_obj = path_proj_or_map.listMaps()[0]
+    elif isinstance(path_proj_or_map, arcpy._mp.Map):
+        # got a map, all good to go
+        # have to grab the class from the internal module
+        map_obj = path_proj_or_map
+    else:
+        # assume it's a path
+        map_obj = arcpy.mp.ArcGISProject(path_proj_or_map).listMaps()[0]
+
+    if len(map_obj.listBrokenDataSources()) > 0:
+        raise MapDataSourcesBrokenError("One or more layers or tables have broken data sources.")
 
     if os.path.exists(sd_draft_path):
         os.remove(sd_draft_path)
@@ -66,7 +77,6 @@ def convert_desktop_map_to_service_draft(map_doc,
                                          copy_data_to_server=False):
     from ..mapping import is_valid
 
-    # server and portal_folder parameters are required for pro services. Ignore in this function.
     if not isinstance(map_doc, arcpy.mapping.MapDocument):
         map_doc = arcpy.mapping.MapDocument(map_doc)
 
