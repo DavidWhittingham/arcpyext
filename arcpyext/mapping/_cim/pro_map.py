@@ -15,6 +15,7 @@ import arcpy
 # Local imports
 from .helpers import get_xml, passthrough_prop
 from .factories import create_layer
+from .tables import ProStandaloneTable
 
 # .NET Imports
 from ArcGIS.Core.CIM import CIMMap
@@ -24,9 +25,9 @@ class ProMap(object):
 
     _layers = None
     _spatial_reference = None
+    _tables = None
 
     def __init__(self, proj_zip, xml_string):
-        self._layers = []
         self._proj_zip = proj_zip
         self._cim_obj = CIMMap.FromXml(xml_string)
 
@@ -35,13 +36,18 @@ class ProMap(object):
     description = passthrough_prop("Description")
     name = passthrough_prop("Name")
 
+    @property
     def spatial_reference(self):
         if not self._spatial_reference:
             self._spatial_reference = arcpy.SpatialReference(self._cim_obj.SpatialReference.Wkid)
+        
+        return self._spatial_reference
 
     @property
     def layers(self):
-        if not self._layers:
+        if self._layers is None:
+            self._layers = []
+
             # layer paths are pre-pended with 'CIMPATH=', strip that to get the actual zip file path
             layer_paths = [lp[8:] for lp in self._cim_obj.Layers]
 
@@ -51,6 +57,24 @@ class ProMap(object):
 
         # return a shallow copy so our internal list isn't altered
         return self._layers.copy()
+    
+    @property
+    def tables(self):
+        if self._tables is None:
+            self._tables = []
+
+            # table paths are pre-pended with 'CIMPATH=', strip that to get the actual zip file path
+            table_paths = [tp[8:] for tp in self._cim_obj.StandaloneTables]
+
+            # build tables
+            for tp in table_paths:
+                # get xml, determine type, create layer object, add to list
+                table_xml = get_xml(self._proj_zip, tp)
+
+                self._tables.append(ProStandaloneTable(self._proj_zip, table_xml))
+        
+        return self._tables.copy()
+
 
     #endregion
 

@@ -7,8 +7,6 @@ from future.builtins.disabled import *
 from future.builtins import *
 from future.standard_library import install_aliases
 install_aliases()
-from future.moves.collections import deque
-from future.moves.itertools import zip_longest
 from future.utils import with_metaclass
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
@@ -17,6 +15,10 @@ from abc import ABCMeta
 
 # Local imports
 from .helpers import passthrough_prop
+
+# .NET Imports
+from ArcGIS.Core.CIM import CIMStandaloneTable
+
 
 class ProFieldDescription(object):
 
@@ -41,7 +43,11 @@ class ProDisplayTableBase(with_metaclass(ABCMeta, object)):
     @property
     def fields(self):
         if not self._fields:
-            self._fields = [ProFieldDescription(cimfield) for cimfield in self._cim_obj.FieldDescriptions]
+            # there can be null field descriptions, test for that scenario
+            if not self._cim_obj.FieldDescriptions:
+                self._fields = []
+            else:
+                self._fields = [ProFieldDescription(cimfield) for cimfield in self._cim_obj.FieldDescriptions]
 
         return self._fields
 
@@ -49,3 +55,12 @@ class ProDisplayTableBase(with_metaclass(ABCMeta, object)):
 class ProFeatureTable(ProDisplayTableBase):
     def __init__(self, cim_obj):
         super().__init__(cim_obj)
+
+
+class ProStandaloneTable(ProDisplayTableBase):
+    def __init__(self, proj_zip, xml_string):
+        self._proj_zip = proj_zip
+        super().__init__(CIMStandaloneTable.FromXml(xml_string))
+    
+    name = passthrough_prop("Name")
+    service_id = passthrough_prop("ServiceTableID")
