@@ -26,10 +26,6 @@ import olefile
 from .. import _native as _ao
 from ..exceptions import DataSourceUpdateError
 
-# Configure module logging
-logger = logging.getLogger("arcpyext.mapping")
-
-
 def get_version(map_document):
     """Gets the version of a given map document (or path to a map document)."""
 
@@ -57,10 +53,16 @@ def open_document(mxd):
 
 
 def _change_data_source(layer, new_layer_source):
+    logger = _get_logger()
     workspace_path = new_layer_source["workspacePath"]
     dataset_name = new_layer_source.get("datasetName")
     workspace_type = new_layer_source.get("workspaceType")
     schema = new_layer_source.get("schema")
+
+    logger.debug("Workspace path: {}".format(workspace_path))
+    logger.debug("Dataset name: {}".format(dataset_name))
+    logger.debug("Workspace type: {}".format(workspace_type))
+    logger.debug("Schema: {}".format(schema))
 
     try:
         if ((not hasattr(layer, "supports") or layer.supports("workspacePath"))
@@ -99,6 +101,7 @@ def _change_data_source(layer, new_layer_source):
         layer.replaceDataSource(workspace_path, **kwargs)
 
     except Exception as e:
+        logger.exception("Exception raised by ArcPy")
         raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
 
     if hasattr(layer, "isBroken") and layer.isBroken:
@@ -106,7 +109,15 @@ def _change_data_source(layer, new_layer_source):
 
 
 def _get_data_source_desc(layer_or_table):
+    if hasattr(layer_or_table, "supports"):
+        if not layer_or_table.supports("DATASOURCE"):
+            return None
+    
     return layer_or_table.dataSource
+
+
+def _get_logger():
+    return logging.getLogger("arcpyext.mapping")
 
 
 def _get_spatial_ref(code):
@@ -126,9 +137,16 @@ def _list_tables(map_document, data_frame):
 
 
 def _native_add_data_connection_details(idataset, layer_details):
+    import ESRI.ArcGIS.Geodatabase as esriGeoDatabase
+    import ESRI.ArcGIS.esriSystem as esriSystem
+
     if bool(idataset):
         # can enrich with database details
-        connection_properties = dict(zip(*idataset.Workspace.ConnectionProperties.GetAllProperties()))
+        workspace = _ao.cast_obj(idataset.Workspace, esriGeoDatabase.IWorkspace)
+        property_set = _ao.cast_obj(workspace.ConnectionProperties, esriSystem.IPropertySet)
+        _, property_keys, property_values = property_set.GetAllProperties(None, None)
+
+        connection_properties = dict(zip(property_keys, property_values))
         layer_details["userName"] = connection_properties.get("USER")
         layer_details["server"] = connection_properties.get("SERVER")
         layer_details["service"] = connection_properties.get("INSTANCE")
@@ -138,6 +156,8 @@ def _native_add_data_connection_details(idataset, layer_details):
 
 
 def _native_describe_fields(layer_or_table_fields):
+    import ESRI.ArcGIS.Geodatabase as esriGeoDatabase
+
     def field_type_id_to_name(f_type_id):
         field_types = [
             "SmallInteger", "Integer", "Single", "Double", "String", "Date", "OID", "Geometry", "Blob", "Raster",
@@ -154,8 +174,8 @@ def _native_describe_fields(layer_or_table_fields):
 
     fields = [
         {
-            "field": layer_or_table_fields.Field[i],
-            "fieldInfo": layer_or_table_fields.FieldInfo[i],
+            "field": _ao.cast_obj(layer_or_table_fields.get_Field(i), esriGeoDatabase.IField2),
+            "fieldInfo": _ao.cast_obj(layer_or_table_fields.get_FieldInfo(i), esriGeoDatabase.IFieldInfo),
             "index": i
         } for i in range(0, layer_or_table_fields.FieldCount)
     ]
@@ -186,7 +206,7 @@ def _native_describe_layer(layer_parts):
         "isRasterLayer": bool(layer_parts["rasterLayer"]),
         "isRasterizingLayer": None,  # not implemented yet
         "isServiceLayer": None,  # not implemented yet
-        "isGroupLayer": bool(layer_parts["groupLayer"]),
+        "isGroupLayer": not layer_parts["groupLayer"] == None,
         "longName": "\\".join(_native_get_layer_name_parts(layer_parts)),
         "name": layer_parts["layer"].Name,
         "server": None,
@@ -234,24 +254,33 @@ def _native_describe_table(table_parts):
 
 def _native_get_data_source(layer_or_table):
     """Attempts to get the path to the data source for a given layer or table."""
+    import ESRI.ArcGIS.Geodatabase as esriGeoDatabase
+
     path = None
 
     if layer_or_table.get("featureLayer"):
         # input is a feature layer
+
         if layer_or_table["featureLayer"].FeatureClass:
             feature_class_name = layer_or_table["dataset"].Name
-            workspace_path = layer_or_table["dataset"].Workspace.PathName
+
+            workspace = _ao.cast_obj(layer_or_table["dataset"].Workspace, esriGeoDatabase.IWorkspace)
+            workspace_path = workspace.PathName
+
+            feature_class = _ao.cast_obj(layer_or_table["featureLayer"].FeatureClass, esriGeoDatabase.IFeatureClass)
 
             # Test if feature dataset in use, NULL COM pointers return falsey
-            if layer_or_table["featureLayer"].FeatureClass.FeatureDataset:
-                feature_dataset_name = layer_or_table["featureLayer"].FeatureClass.FeatureDataset.Name
+            if feature_class.FeatureDataset:
+                feature_dataset = _ao.cast_obj(feature_class.FeatureDataset, esriGeoDatabase.IFeatureDataset)
+                feature_dataset_name = feature_dataset.Name
                 path = os.path.join(workspace_path, feature_dataset_name, feature_class_name)
             else:
                 path = os.path.join(workspace_path, feature_class_name)
     elif layer_or_table.get("tableDataset"):
         # input is a standalone table
         table_name = layer_or_table["tableDataset"].Name
-        workspace_path = layer_or_table["tableDataset"].Workspace.PathName
+        workspace = _ao.cast_obj(layer_or_table["tableDataset"].Workspace, esriGeoDatabase.IWorkspace)
+        workspace_path = workspace.PathName
         path = os.path.join(workspace_path, table_name)
 
     return path
@@ -302,12 +331,19 @@ def _native_get_layer_name_parts(layer):
 
 def _native_get_service_layer_property_value(service_layer_extensions, property_key):
     # flatten layer server extensions into a list of server property dictionaries
-    # ServerProperties.GetAllProperties() returns two lists, names and values, so zip them and turn them into a
-    # dictionary
-    layer_extensions_server_properties = [
-        p for p in (dict(zip(*sle.ServerProperties.GetAllProperties())) if bool(sle) else None
-                    for sle in service_layer_extensions) if p is not None
-    ]
+    # ServerProperties.GetAllProperties() returns two lists, names and values, so zip them and turn them into a dictionary
+    import ESRI.ArcGIS.esriSystem as esriSystem
+
+    layer_extensions_server_properties = [] 
+
+    for sle in service_layer_extensions:
+        if sle == None:
+            continue
+        property_set = _ao.cast_obj(sle.ServerProperties, esriSystem.IPropertySet)
+        _, property_keys, property_values = property_set.GetAllProperties(None, None)
+        if len(property_keys) > 0:
+            properties = dict(zip(property_keys, property_values))
+            layer_extensions_server_properties.append(properties)
 
     # find service layer ID, if it exists
     # value may be returned non-unique, this will be checked further up the stack
@@ -324,10 +360,10 @@ def _native_list_layers(map_document, map_frame):
     """Recursively iterates through a map frame to get all layers, building up parent relationships as it goes."""
 
     # get the ArcObjects types we need
-    import comtypes.gen.esriCarto as esriCarto
-    import comtypes.gen.esriGeoDatabase as esriGeoDatabase
-    import comtypes.gen.esriNetworkAnalyst as esriNetworkAnalyst
-    import comtypes.gen.esriSystem as esriSystem
+    import ESRI.ArcGIS.Geodatabase as esriGeoDatabase
+    import ESRI.ArcGIS.Carto as esriCarto
+    import ESRI.ArcGIS.NetworkAnalyst as esriNetworkAnalyst
+    
 
     # list of all layers that we'll be returning
     layers = []
@@ -354,8 +390,8 @@ def _native_list_layers(map_document, map_frame):
         # Get server layer extensions
         layer_extensions = _ao.cast_obj(map_layer, esriCarto.ILayerExtensions)
         layer_parts["serverLayerExtensions"] = [
-            _ao.cast_obj(layer_extensions.Extension(i), esriCarto.IServerLayerExtension)
-            for i in range(0, layer_extensions.ExtensionCount)
+            sle for sle in (_ao.cast_obj(layer_extensions.get_Extension(i), esriCarto.IServerLayerExtension)
+            for i in range(0, layer_extensions.get_ExtensionCount())) if sle is not None
         ]
 
         layers.append(layer_parts)
@@ -374,7 +410,7 @@ def _native_list_layers(map_document, map_frame):
         composite_layer = _ao.cast_obj(layer_parts["layer"], esriCarto.ICompositeLayer)
         for i in range(0, composite_layer.Count):
             # get child layer
-            child_layer = composite_layer.Layer[i]
+            child_layer = _ao.cast_obj(composite_layer.get_Layer(i), esriCarto.ILayer2)
 
             # get child layer parts
             child_layer_parts = build_layer_parts(child_layer)
@@ -386,7 +422,7 @@ def _native_list_layers(map_document, map_frame):
             get_child_layers(child_layer_parts, layer_parts)
 
     # iterate through the top level of layers
-    map_layer_iterator = map_frame.Layers(None, False)
+    map_layer_iterator = _ao.cast_obj(map_frame.get_Layers(None, False), esriCarto.IEnumLayer)
     map_layer = map_layer_iterator.Next()
     while (map_layer):
         layer_parts = build_layer_parts(map_layer)
@@ -401,21 +437,21 @@ def _native_list_maps(map_document):
     """Gets a list of IMaps (Data Frames) from the provided map document."""
 
     # get the ArcObjects types we need
-    import comtypes.gen.esriCarto as esriCarto
+    import ESRI.ArcGIS.Carto as esriCarto
 
     # make sure map document is a map document
     map_document = _ao.cast_obj(map_document, esriCarto.IMapDocument)
 
     # iterate the list of maps, casting each one to IMap
-    return [_ao.cast_obj(map_document.Map[i], esriCarto.IMap) for i in range(0, map_document.MapCount)]
+    return [_ao.cast_obj(map_document.get_Map(i), esriCarto.IMap) for i in range(0, map_document.MapCount)]
 
 
 def _native_list_tables(map_document, map_frame):
     """Iterates through a map frame to get all tables."""
 
     # get the ArcObjects types we need
-    import comtypes.gen.esriCarto as esriCarto
-    import comtypes.gen.esriGeoDatabase as esriGeoDatabase
+    import ESRI.ArcGIS.Carto as esriCarto
+    import ESRI.ArcGIS.Geodatabase as esriGeoDatabase
 
     # list of all tables
     tables = []
@@ -427,7 +463,7 @@ def _native_list_tables(map_document, map_frame):
             "standaloneTableDataset": _ao.cast_obj(standalone_table, esriGeoDatabase.IDataset),
             "standaloneTableDefinition": _ao.cast_obj(standalone_table, esriCarto.ITableDefinition),
             "standaloneTableFields": _ao.cast_obj(standalone_table, esriGeoDatabase.ITableFields),
-            "table": standalone_table.Table,
+            "table": _ao.cast_obj(standalone_table.Table, esriGeoDatabase.ITable),
             "tableDataset": _ao.cast_obj(standalone_table.Table, esriGeoDatabase.IDataset),
             "serverLayerExtensions": None
         }
@@ -435,8 +471,8 @@ def _native_list_tables(map_document, map_frame):
         # Get server layer extensions
         table_extensions = _ao.cast_obj(standalone_table, esriCarto.ITableExtensions)
         table_parts["serverLayerExtensions"] = [
-            sle for sle in (_ao.cast_obj(table_extensions.Extension(i), esriCarto.IServerLayerExtension)
-                            for i in range(0, table_extensions.ExtensionCount)) if sle is not None
+            sle for sle in (_ao.cast_obj(table_extensions.get_Extension(i), esriCarto.IServerLayerExtension)
+            for i in range(0, table_extensions.get_ExtensionCount())) if sle is not None
         ]
 
         tables.append(table_parts)
@@ -448,27 +484,33 @@ def _native_list_tables(map_document, map_frame):
 
     # iterate the table collection
     for i in range(0, table_collection.StandaloneTableCount):
-        table = table_collection.StandaloneTable[i]
+        table = _ao.cast_obj(table_collection.get_StandaloneTable(i), esriCarto.IStandaloneTable)
         build_table_parts(table)
 
     return tables
 
 
 def _native_get_map_spatial_ref_code(map_document, map_frame):
-    return map_frame.spatialReference.FactoryCode
+    #return map_frame.spatialReference.FactoryCode
+    import ESRI.ArcGIS.Geometry as esriGeometry
+    return _ao.cast_obj(map_frame.SpatialReference, esriGeometry.ISpatialReference).FactoryCode
 
 
 def _native_mxd_exists(mxd_path):
-    import comtypes.gen.esriCarto as esriCarto
+    #import comtypes.gen.esriCarto as esriCarto
+    import ESRI.ArcGIS.Carto as esriCarto
 
     map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
-    exists = map_document.IsPresent(mxd_path)
-    valid = map_document.IsMapDocument(mxd_path)
+    #exists = map_document.IsPresent(mxd_path)
+    exists = map_document.get_IsPresent(mxd_path)
+    #valid = map_document.IsMapDocument(mxd_path)
+    valid = map_document.get_IsMapDocument(mxd_path)
     return exists and valid
 
 
 def _native_document_close(map_document):
-    import comtypes.gen.esriCarto as esriCarto
+    #import comtypes.gen.esriCarto as esriCarto
+    import ESRI.ArcGIS.Carto as esriCarto
 
     # Make sure it's a map document
     map_document = _ao.cast_obj(map_document, esriCarto.IMapDocument)
@@ -476,7 +518,8 @@ def _native_document_close(map_document):
 
 
 def _native_document_open(mxd_path):
-    import comtypes.gen.esriCarto as esriCarto
+    #import comtypes.gen.esriCarto as esriCarto
+    import ESRI.ArcGIS.Carto as esriCarto
 
     if _native_mxd_exists(mxd_path):
         map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)

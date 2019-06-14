@@ -17,7 +17,7 @@ install_aliases()
 # Standard lib imports
 import ctypes
 # Set the apartment state for talking to COM
-ctypes.windll.ole32.CoInitialize()
+ctypes.windll.ole32.CoInitializeEx(0, 2)
 import os
 import sys
 import winreg

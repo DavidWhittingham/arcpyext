@@ -1,3 +1,5 @@
+from ._dotnet import singlethreadapartment
+
 # hide sys from * imports
 import sys as _sys
 
