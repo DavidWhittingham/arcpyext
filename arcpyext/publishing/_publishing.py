@@ -74,7 +74,14 @@ def convert_desktop_map_to_service_draft(map_doc,
                                          service_name,
                                          folder_name=None,
                                          summary=None,
-                                         copy_data_to_server=False):
+                                         copy_data_to_server=False,
+                                         portal_folder=None):
+    """
+    Convert a Map Document to a service definition draft.
+
+    portal_folder: ignored on ArcGIS Desktop
+    """
+
     from ..mapping import is_valid
 
     if not isinstance(map_doc, arcpy.mapping.MapDocument):
