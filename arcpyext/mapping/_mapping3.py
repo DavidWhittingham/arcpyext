@@ -24,9 +24,6 @@ from ._cim import ProProject
 from .. import _native as _prosdk
 from ..exceptions import DataSourceUpdateError
 
-# Configure module logging
-logger = logging.getLogger("arcpyext.mapping")
-
 
 def open_document(project):
     """Open an ArcGIS Pro Project from a given path.
