@@ -23,8 +23,10 @@ from enum import Enum  # comes from third-party package on Py 2
 # Local imports
 from ._compare_helpers import lowercase_dict
 from .compare_types import *
-from .._json import JsonEnum
 from ..exceptions import MapLayerError, ChangeDataSourcesError
+from .._json import JsonEnum
+from .._native import singlethreadapartment
+
 
 # Python-version dependent imports
 ARCPY_2 = sys.version_info[0] < 3
@@ -43,6 +45,9 @@ else:
 
 
 def change_data_sources(mxd_or_proj, data_sources):
+    logger = _get_logger()
+
+    logger.debug("Data sources: %s", data_sources)
 
     # make sure the MXD/project is open and not a path
     map_document = open_document(mxd_or_proj)
@@ -73,6 +78,7 @@ def change_data_sources(mxd_or_proj, data_sources):
 
             #TODO: Handle KeyError and AttributeError for badly written configs
             except MapLayerError as e:
+                logger.exception("An error occured changing the data source of a map layer.")
                 errors.append(e)
 
         data_tables = _mh._list_tables(map_document, map_frame)
@@ -93,6 +99,7 @@ def change_data_sources(mxd_or_proj, data_sources):
                     data_table.name, data_table_source))
 
             except MapLayerError as mle:
+                logger.exception("An error occured changing the data source of a table.")
                 errors.append(mle)
 
     if not len(errors) == 0:
@@ -173,7 +180,8 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
         return d
 
     def match_new_data_source(layer_or_table):
-        if layer_or_table == None:
+        if layer_or_table == None or layer_or_table.get("isGroupLayer") == True:
+            # Layers that can't be described or are group layers can't have their data updated
             return None
 
         new_conn = None
@@ -186,24 +194,24 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
                 # deterministic naming convention that maps the layer's dataset name to a workspace.
                 if template.get("matchOptions", {}).get("isWorkspaceContainer") == True:
 
-                    logger.debug("Data source template is workspace container.")
+                    _get_logger().debug("Data source template is workspace container.")
 
                     tokens = tokenise_datasource(layer_or_table["dataSource"])
 
                     if tokens is not None:
 
-                        logger.debug("Tokens are: %s", tokens)
+                        _get_logger().debug("Tokens are: %s", tokens)
 
                         if tokens["dataSet"] is not None and tokens["schema"] is not None:
-                            logger.debug(1.11)
+                            _get_logger().debug(1.11)
                             new_conn["workspacePath"] = "{}\\{}.{}.gdb".format(new_conn["workspacePath"],
                                                                                tokens["schema"], tokens["dataSet"])
                         elif tokens["dataSet"] is not None:
-                            logger.debug(1.12)
+                            _get_logger().debug(1.12)
                             new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"],
                                                                             tokens["dataSet"])
                         else:
-                            logger.debug(1.13)
+                            _get_logger().debug(1.13)
                             new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"], tokens["table"])
 
                 break
@@ -222,22 +230,24 @@ def describe(mxd_or_proj):
 
     # Ensure document is open before
     mxd_or_proj = open_document(mxd_or_proj)
+    native_mxd_or_proj = None
 
     try:
 
         # open the MXD in ArcObjects
-        mxd_or_proj = _mh._native_document_open(mxd_or_proj.filePath)
+        native_mxd_or_proj = _mh._native_document_open(mxd_or_proj.filePath)
 
         # build return object
         desc = {
+            "filePath": mxd_or_proj.filePath,
             "maps":
-            [_mh._native_describe_map(mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(mxd_or_proj)]
+            [_mh._native_describe_map(native_mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(native_mxd_or_proj)]
         }
 
     finally:
-        if mxd_or_proj:
+        if native_mxd_or_proj:
             # close the native document
-            _mh._native_document_close(mxd_or_proj)
+            _mh._native_document_close(native_mxd_or_proj)
 
     return desc
 
@@ -254,19 +264,19 @@ def is_valid(mxd_or_proj):
 
     description = describe(mxd_or_proj)
 
-    broken_layers = []
+    broken_items = []
 
     for m in description["maps"]:
         # iterate layers and tables
-        for l in chain(m["layers"], m["tables"]):
-            if l["isBroken"]:
-                broken_layers.append(l)
+        for i in chain(m["layers"], m["tables"]):
+            if i["isBroken"]:
+                broken_items.append(i)
 
-    if len(broken_layers) > 0:
-        logger.debug(u"Map '{0}': Broken data sources:".format(description.title))
-        for layer in broken_layers:
-            logger.debug(u" {0}".format(layer["longName"] if "longName" in layer else layer["name"]))
-            logger.debug(u"  datasource: {0}".format(layer.dataSource))
+    if len(broken_items) > 0:
+        _get_logger().debug(u"Map '{0}': Broken data sources:".format(description["filePath"]))
+        for layer in broken_items:
+            _get_logger().debug(u" {0}".format(layer["longName"] if "longName" in layer else layer["name"]))
+            _get_logger().debug(u"  datasource: {0}".format(layer["dataSource"]))
 
         return False
 
@@ -400,6 +410,10 @@ def _compare_map_frames(was_map_desc, now_map_desc):
             map_differences["layers"]["updated"].append(now_layer)
 
     return map_differences
+
+
+def _get_logger():
+    return logging.getLogger("arcpyext.mapping")
 
 
 def _recursive_sort(obj):
