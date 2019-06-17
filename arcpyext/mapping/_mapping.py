@@ -174,6 +174,8 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
     def freeze(d):
         """Freezes dicts and lists for set comparison."""
         if isinstance(d, dict):
+            # make dictionaries lowercase for comparison
+            d = lowercase_dict(d)
             return frozenset((key, freeze(value)) for key, value in d.items())
         elif isinstance(d, list):
             return tuple(freeze(value) for value in d)

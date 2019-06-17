@@ -28,7 +28,7 @@ def dictionaries_eq_ignore_case(a, b):
 def lowercase_dict(d):
     def process_value(v):
         if isinstance(v, Mapping):
-            return lowercase_dict(d)
+            return lowercase_dict(v)
         elif isinstance(v, ("".__class__, u"".__class__, b"".__class__)):
             return v.lower()
         elif isinstance(v, Sequence):
