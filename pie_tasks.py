@@ -12,7 +12,8 @@ from pie import *
 
 @task
 def build():
-    cmd(r'python setup.py bdist_wheel clean --all')
+    with venv(".venvs\\build"):
+        cmd(r'python setup.py bdist_wheel clean --all')
 
 
 @task
