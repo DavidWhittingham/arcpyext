@@ -392,13 +392,13 @@ def _compare_map_frames(was_map_desc, now_map_desc):
     will impact the API of a map service built from the given map.
     """
 
-    map_differences = {"map": [], "layers": {"added": [], "updated": [], "removed": []}, "tables": []}
+    map_differences = {"diff": [], "layers": {"added": [], "updated": [], "removed": []}, "tables": []}
 
     if was_map_desc is None:
         # new map introduced, ignore
         return map_differences
 
-    map_differences["map"] = MapChangeTypes.compare(was_map_desc, now_map_desc)
+    map_differences["diff"] = MapChangeTypes.compare(was_map_desc, now_map_desc)
 
     (map_differences["layers"]["added"], matched,
      map_differences["layers"]["removed"]) = _match_layers(was_map_desc["layers"], now_map_desc["layers"])
