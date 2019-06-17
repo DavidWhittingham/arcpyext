@@ -115,7 +115,7 @@ def compare(was_mxd_proj_or_desc, now_mxd_proj_or_desc):
 
     #yapf: disable
     differences = {
-        "document": DocumentChangeTypes.compare(was_description, now_description),
+        "diff": DocumentChangeTypes.compare(was_description, now_description),
         "maps": [
             _compare_map_frames(was_frame, now_frame)
             for was_frame, now_frame in zip_longest(was_description["maps"], now_description["maps"])
