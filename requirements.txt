@@ -1,4 +1,5 @@
-enum34>=1.0.4,<2
-future>=0.14.3
+enum34>=1.0.4,<2 ; python_version<'3.4'
+future>=0.17.1
+olefile==0.46 ; python_version<'3.4'
+pythonnet>=2.4.0,<3
 XlsxWriter>=0.7.7
-comtypes>=1.1.7

@@ -29,8 +29,6 @@ RANGE = "CodedValue"
 OUTPUT_GDB = 1
 OUTPUT_XML = 2
 
-# Configure module logging
-logger = logging.getLogger("arcpyext.schematransform")
 
 def trace(method):
 
@@ -44,7 +42,7 @@ def trace(method):
             if type(arg) is dict and "name" in arg:
                 name = arg["name"]
 
-        logger.debug("%r %r %2.2f sec" % (method.__name__, name, te-ts))
+        _get_logger().debug("%r %r %2.2f sec" % (method.__name__, name, te-ts))
         return result
 
     return timed
@@ -57,21 +55,21 @@ def to_json(in_gdb, out_file):
     new File GDB or XML Workspaces versions can be generated.
     """
 
-    logger.info("Transform GDB schema to JSON, from '{0}' to '{1}'...".format(in_gdb, out_file))
+    _get_logger().info("Transform GDB schema to JSON, from '{0}' to '{1}'...".format(in_gdb, out_file))
 
     arcpy.env.workspace = in_gdb
 
     if not arcpy.Exists(in_gdb):
         raise IOError('Input GDB not found')
 
-    logger.info("Profiling source gdb...")
+    _get_logger().info("Profiling source gdb...")
     domains = arcpy.da.ListDomains(in_gdb)
     datasets = [c for c in arcpy.Describe(in_gdb).children]
     tables = [c for c in datasets if c.dataType == TABLE]
     fcs = [c for c in datasets if c.dataType == FEATURE_CLASS]
     rs =  [c for c in datasets if c.dataType == RELATIONSHIP]
 
-    logger.info("Exporting...")
+    _get_logger().info("Exporting...")
     with io.open(out_file, "w", encoding = "utf-8") as f:
 
         domains = list(map(lambda x: _domain_to_json(x), domains))
@@ -83,23 +81,23 @@ def to_json(in_gdb, out_file):
             'schema': domains + fcs + tables + rs
         })
 
-    logger.info("Transform done.")
+    _get_logger().info("Transform done.")
 
 def to_gdb(in_file, out_gdb):
     """
     Convert a JSON gdb schema representation into a file/sde geodatabase
     """
 
-    logger.info("Transform JSOB to GDB, from '{0}' to '{1}'...".format(in_file, out_gdb))
+    _get_logger().info("Transform JSOB to GDB, from '{0}' to '{1}'...".format(in_file, out_gdb))
 
     if not arcpy.Exists(in_file):
-        logger.debug("Input file: {0}".format(in_file))
+        _get_logger().debug("Input file: {0}".format(in_file))
         raise IOError("Input file not found")
 
     if arcpy.Exists(out_gdb):
         shutil.rmtree(out_gdb, ignore_errors = False)
 
-    logger.info("Creating output File GDB...")
+    _get_logger().info("Creating output File GDB...")
     out_gdb_mem = "in_memory"
     arcpy.env.workspace = out_gdb
     out_path = os.path.dirname(out_gdb)
@@ -108,11 +106,11 @@ def to_gdb(in_file, out_gdb):
 
     with open(in_file) as f:
 
-        logger.info("Parsing json")
+        _get_logger().info("Parsing json")
         schema = json.load(f, encoding = "utf-8")
 
         # Domains
-        logger.info("Domains")
+        _get_logger().info("Domains")
         for x in schema['schema']:
             if x['type'] == DOMAIN:
                 _json_to_domain(OUTPUT_GDB, out_gdb, x)
@@ -121,7 +119,7 @@ def to_gdb(in_file, out_gdb):
         arcpy.env.workspace = out_gdb_mem
 
         # Tables
-        logger.info("Tables")
+        _get_logger().info("Tables")
         for x in schema['schema']:
             if x['type'] == TABLE:
                 _json_to_t(OUTPUT_GDB, out_gdb_mem, x)
@@ -139,30 +137,30 @@ def to_gdb(in_file, out_gdb):
         arcpy.env.workspace = out_gdb
 
         # Add global ID columns (not supported by in-memory workspaces)
-        logger.info("Global Ids'")
+        _get_logger().info("Global Ids'")
         for x in schema['schema']:
             if x['type'] == TABLE or x['type'] == FEATURE_CLASS:
                 _add_global_id(out_gdb, x)
 
         # Add global ID columns (not supported by in-memory workspaces)
-        logger.info("Bind domains")
+        _get_logger().info("Bind domains")
         for x in schema['schema']:
             if x['type'] == TABLE or x['type'] == FEATURE_CLASS:
                 _bind_domain(out_gdb, x)
 
         # Indexes
-        logger.info("Indexes")
+        _get_logger().info("Indexes")
         for x in schema['schema']:
             if x['type'] == TABLE or x['type'] == FEATURE_CLASS:
                 _add_indices(OUTPUT_GDB, out_gdb, x)
 
         # Relationships
-        logger.info("Relationships")
+        _get_logger().info("Relationships")
         for x in schema['schema']:
             if x['type'] == RELATIONSHIP:
                 _add_r(out_gdb, x)
 
-    logger.info("Transform done.")
+    _get_logger().info("Transform done.")
 
 def to_xml(in_file, out_file):
     """
@@ -172,19 +170,19 @@ def to_xml(in_file, out_file):
     broken run-time). I choose to use string templates for now given how verbose the xml libraries are to use.
     """
 
-    logger.info("Transform JSON to XML Workspace, from '{0}'' to '{1}'...")
+    _get_logger().info("Transform JSON to XML Workspace, from '{0}'' to '{1}'...")
 
     if not arcpy.Exists(in_file):
-        logger.error("Input file not found: {0}".format(in_file))
+        _get_logger().error("Input file not found: {0}".format(in_file))
         raise IOError('Input file not found')
 
     if arcpy.Exists(out_file):
         os.remove(out_file)
 
-    logger.info("Creating output xml workspace")
+    _get_logger().info("Creating output xml workspace")
     with open(in_file) as f:
 
-        logger.info("Parsing json")
+        _get_logger().info("Parsing json")
         schema = json.load(f, encoding = "utf-8")
 
         with io.open(out_file, 'w', encoding = "utf-8") as fo:
@@ -199,7 +197,7 @@ def to_xml(in_file, out_file):
             )
 
             # Domains
-            logger.info("Domains")
+            _get_logger().info("Domains")
             _xml_to_file(fo, """<Domains xsi:type='esri:ArrayOfDomain'>""")
             for x in schema['schema']:
                 if x['type'] == DOMAIN:
@@ -210,7 +208,7 @@ def to_xml(in_file, out_file):
 
             # Tables
             _xml_to_file(fo, """<DatasetDefinitions xsi:type='esri:ArrayOfDataElement'>""")
-            logger.info("Tables")
+            _get_logger().info("Tables")
             for x in schema['schema']:
                 if x['type'] == TABLE:
                     res = _json_to_t(OUTPUT_XML, None, x)
@@ -227,11 +225,13 @@ def to_xml(in_file, out_file):
             )
 
 
-    logger.info("Transform done.")
+    _get_logger().info("Transform done.")
 
 ###############################################################################
 # PRIVATE FUNCTIONS
 ###############################################################################
+def _get_logger():
+    return logging.getLogger("arcpyext.schematransform")
 
 #----------------
 # To XML methods
@@ -330,7 +330,7 @@ def _domain_to_json(x):
             res['min'] = x.range[0]
             res['max'] = x.range[1]
     except:
-        logger.error("Unexpected error: {0}".format(sys.exc_info()[0]))
+        _get_logger().error("Unexpected error: {0}".format(sys.exc_info()[0]))
         res['error'] = 'Error'
 
     return res
@@ -399,7 +399,7 @@ def _add_global_id(out_gdb, x):
 def _bind_domain(out_gdb, x):
     for f in x['fields']:
         if f['domain']:
-            logger.info(f['domain'])
+            _get_logger().info(f['domain'])
             arcpy.AssignDomainToField_management(
                 in_table=out_gdb + '/' + x['name'],
                 field_name=f['name'],
@@ -445,7 +445,7 @@ def _add_r(out_gdb, x):
     destination=x['destinationClassNames'][0]
     originField=x['originClassKeys'][0][0]
     destinationField=x['originClassKeys'][1][0]
-    logger.debug("{0} {1} {2} {3}".format(origin, originField, destination, destinationField))
+    _get_logger().debug("{0} {1} {2} {3}".format(origin, originField, destination, destinationField))
 
     arcpy.CreateRelationshipClass_management(
         out_relationship_class=x['name'],

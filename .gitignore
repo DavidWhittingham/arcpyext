@@ -47,6 +47,6 @@ nosetests.xml
 
 /.cache/
 /pie.bat
-/venvs/
+/.venvs/
 .vscode
 logfile.log
