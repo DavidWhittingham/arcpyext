@@ -115,7 +115,7 @@ def compare(was_mxd_proj_or_desc, now_mxd_proj_or_desc):
 
     #yapf: disable
     differences = {
-        "document": DocumentChangeTypes.compare(was_description, now_description),
+        "diff": DocumentChangeTypes.compare(was_description, now_description),
         "maps": [
             _compare_map_frames(was_frame, now_frame)
             for was_frame, now_frame in zip_longest(was_description["maps"], now_description["maps"])
@@ -174,6 +174,8 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
     def freeze(d):
         """Freezes dicts and lists for set comparison."""
         if isinstance(d, dict):
+            # make dictionaries lowercase for comparison
+            d = lowercase_dict(d)
             return frozenset((key, freeze(value)) for key, value in d.items())
         elif isinstance(d, list):
             return tuple(freeze(value) for value in d)
@@ -392,13 +394,13 @@ def _compare_map_frames(was_map_desc, now_map_desc):
     will impact the API of a map service built from the given map.
     """
 
-    map_differences = {"map": [], "layers": {"added": [], "updated": [], "removed": []}, "tables": []}
+    map_differences = {"diff": [], "layers": {"added": [], "updated": [], "removed": []}, "tables": []}
 
     if was_map_desc is None:
         # new map introduced, ignore
         return map_differences
 
-    map_differences["map"] = MapChangeTypes.compare(was_map_desc, now_map_desc)
+    map_differences["diff"] = MapChangeTypes.compare(was_map_desc, now_map_desc)
 
     (map_differences["layers"]["added"], matched,
      map_differences["layers"]["removed"]) = _match_layers(was_map_desc["layers"], now_map_desc["layers"])
