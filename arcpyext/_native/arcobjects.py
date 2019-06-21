@@ -27,15 +27,26 @@ import clr
 # Local imports
 from ._dotnet import find_gac_assembly_path
 
+
 def cast_obj(obj, ao_interface):
     """Casts obj to interface and returns comtypes POINTER or None"""
 
     logger = _get_logger()
 
     try:
+        if obj == None:
+            # no object provided
+            return None
+
+        # check if interface is assignable
+        if not clr.GetClrType(ao_interface).IsInstanceOfType(obj):
+            # can't be casted to given interface
+            return None
+
+        # Object can be casted
         return ao_interface(obj)
     except TypeError as te:
-        logger.warning("An error occured casting an object to an ArcObjects interface.", exc_info=True)
+        logger.exception("An error occured casting an object to an ArcObjects interface.", exc_info=True)
         return None
 
 def create_obj(ao_class, ao_interface):
