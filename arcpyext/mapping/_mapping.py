@@ -254,7 +254,7 @@ def describe(mxd_or_proj):
     return desc
 
 
-def is_valid(mxd_or_proj):
+def is_valid(mxd_proj_or_desc):
     """Analyse a map document or ArcGIS Pro Project for broken layers and return a boolean indicating if it is in a
     valid state or not.
 
@@ -263,8 +263,7 @@ def is_valid(mxd_or_proj):
     :returns: Boolean, True if valid, False if there are one or more broken layers
 
     """
-
-    description = describe(mxd_or_proj)
+    description = mxd_proj_or_desc if isinstance(mxd_proj_or_desc, Mapping) else describe(mxd_proj_or_desc)
 
     broken_items = []
 
