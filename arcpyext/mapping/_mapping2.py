@@ -192,6 +192,12 @@ def _native_describe_fields(layer_or_table_fields):
 
 
 def _native_describe_layer(layer_parts):
+    # avoid boxing/unboxing issues
+    # not sure if this is really necessary, but getting weird results without it
+    layer_is_valid = layer_parts["layer"].Valid
+    layer_is_visible = layer_parts["layer"].Visible
+    layer_name = layer_parts["layer"].Name
+
     layer_details = {
         "dataSource": _native_get_data_source(layer_parts),
         "database": None,
@@ -200,7 +206,7 @@ def _native_describe_layer(layer_parts):
         "definitionQuery": _native_get_definition_query(layer_parts["featureLayerDefinition"]),
         "fields": _native_describe_fields(layer_parts["layerFields"]),
         "index": layer_parts["index"],
-        "isBroken": not layer_parts["layer"].Valid,
+        "isBroken": not layer_is_valid,
         "isFeatureLayer": bool(layer_parts["featureLayer"]),
         "isNetworkAnalystLayer": bool(layer_parts["networkAnalystLayer"]),
         "isRasterLayer": bool(layer_parts["rasterLayer"]),
@@ -208,12 +214,12 @@ def _native_describe_layer(layer_parts):
         "isServiceLayer": None,  # not implemented yet
         "isGroupLayer": not layer_parts["groupLayer"] == None,
         "longName": "\\".join(_native_get_layer_name_parts(layer_parts)),
-        "name": layer_parts["layer"].Name,
+        "name": layer_name,
         "server": None,
         "service": None,
         "serviceId": _native_get_service_layer_property_value(layer_parts["serverLayerExtensions"], "ServiceLayerID"),
         "userName": None,
-        "visible": layer_parts["layer"].Visible
+        "visible": layer_is_visible
     }
 
     _native_add_data_connection_details(layer_parts["dataset"], layer_details)
@@ -492,25 +498,20 @@ def _native_list_tables(map_document, map_frame):
 
 
 def _native_get_map_spatial_ref_code(map_document, map_frame):
-    #return map_frame.spatialReference.FactoryCode
     import ESRI.ArcGIS.Geometry as esriGeometry
     return _ao.cast_obj(map_frame.SpatialReference, esriGeometry.ISpatialReference).FactoryCode
 
 
 def _native_mxd_exists(mxd_path):
-    #import comtypes.gen.esriCarto as esriCarto
     import ESRI.ArcGIS.Carto as esriCarto
 
     map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
-    #exists = map_document.IsPresent(mxd_path)
     exists = map_document.get_IsPresent(mxd_path)
-    #valid = map_document.IsMapDocument(mxd_path)
     valid = map_document.get_IsMapDocument(mxd_path)
     return exists and valid
 
 
 def _native_document_close(map_document):
-    #import comtypes.gen.esriCarto as esriCarto
     import ESRI.ArcGIS.Carto as esriCarto
 
     # Make sure it's a map document
