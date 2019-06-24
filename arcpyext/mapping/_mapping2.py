@@ -232,6 +232,9 @@ def _native_describe_layer(layer_parts):
 
 
 def _native_describe_map(map_document, map_frame):
+    # make the map frame active before getting details about it.
+    _native_make_map_frame_active_view(map_frame)
+
     return {
         "name": map_frame.Name,
         "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)),
@@ -531,16 +534,26 @@ def _native_document_open(mxd_path):
         map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
         map_document.Open(mxd_path)
 
-        # Maps must be activated in order to get all properties to be initialized
+        # Maps must be activated in order for all properties to be initialized correctly
         maps = _native_list_maps(map_document)
-        window_handle = ctypes.windll.user32.GetDesktopWindow()
         for m in maps:
-            active_view = _ao.cast_obj(m, esriCarto.IActiveView)
-            active_view.Activate(window_handle)
+            _native_make_map_frame_active_view(m)
 
         return map_document
     else:
-        raise ValueError("'mxd_path' not found or invalid.")
+        raise ValueError("MXD path '{}' not found or document invalid.".format(str(mxd_path)))
+
+
+def _native_make_map_frame_active_view(map_frame):
+    import ESRI.ArcGIS.Carto as esriCarto
+
+    window_handle = ctypes.windll.user32.GetDesktopWindow()
+
+    # cast map frame to active view
+    active_view = _ao.cast_obj(map_frame, esriCarto.IActiveView)
+
+    # make it the active view
+    active_view.Activate(window_handle)
 
 
 def _parse_data_source(data_source):
