@@ -34,8 +34,12 @@ def get_version(map_document):
     else:
         fp = map_document
 
-    with olefile.OleFileIO(fp) as o, o.openstream("Version") as s:
-        return s.read().decode("utf-16").split("\x00")[1]
+    with olefile.OleFileIO(fp) as o:
+        if o.exists("Version"):
+            with o.openstream("Version") as s:
+                return s.read().decode("utf-16").split("\x00")[1]
+    
+    return None
 
 
 def open_document(mxd):
