@@ -422,7 +422,8 @@ def _native_list_layers(map_document, map_frame):
             get_child_layers(child_layer_parts, layer_parts)
 
     # iterate through the top level of layers
-    map_layer_iterator = _ao.cast_obj(map_frame.get_Layers(None, False), esriCarto.IEnumLayer)
+    map_layer_iterator = map_frame.get_Layers(None, False)
+    map_layer_iterator = _ao.cast_obj(map_layer_iterator, esriCarto.IEnumLayer)
     map_layer = map_layer_iterator.Next()
     while (map_layer):
         layer_parts = build_layer_parts(map_layer)
