@@ -29,13 +29,7 @@ def check_analysis(analysis):
         raise ServDefDraftCreateError("Analysis Errors: \n{errs}".format(errs="\n".join(err_message_list)))
 
 
-def convert_pro_map_to_service_draft(path_proj_or_map,
-                                     sd_draft_path,
-                                     service_name,
-                                     folder_name=None,
-                                     summary=None,
-                                     copy_data_to_server=False,
-                                     portal_folder=None):
+def convert_pro_map_to_service_draft(path_proj_or_map, sd_draft_path, service_name, folder_name=None, summary=None, copy_data_to_server=False, portal_folder=None):
     from ..mapping import is_valid
 
     if isinstance(path_proj_or_map, arcpy.mp.ArcGISProject):
@@ -69,13 +63,7 @@ def convert_pro_map_to_service_draft(path_proj_or_map,
     return sd_draft_path
 
 
-def convert_desktop_map_to_service_draft(map_doc,
-                                         sd_draft_path,
-                                         service_name,
-                                         folder_name=None,
-                                         summary=None,
-                                         copy_data_to_server=False,
-                                         portal_folder=None):
+def convert_desktop_map_to_service_draft(map_doc, sd_draft_path, service_name, folder_name=None, summary=None, copy_data_to_server=False, portal_folder=None):
     """
     Convert a Map Document to a service definition draft.
 
@@ -115,6 +103,7 @@ def convert_service_draft_to_staged_service(sd_draft, sd_path):
 
     if isinstance(sd_draft, str):
         arcpy.StageService_server(sd_draft, sd_path)
+
     else:
         arcpy.StageService_server(sd_draft.file_path, sd_path)
 
