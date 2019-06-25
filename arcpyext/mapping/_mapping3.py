@@ -36,6 +36,10 @@ def open_document(project):
 
     return arcpy.mp.ArcGISProject(project)
 
+def _native_document_open(proj_path):
+    proj = ProProject(proj_path)
+    proj.open()
+    return proj
 
 def _change_data_source(layer, new_props):
     try:
@@ -67,18 +71,20 @@ def _change_data_source(layer, new_props):
 def _get_data_source_desc(layer_or_table):
     return layer_or_table.connectionProperties
 
+def _native_list_maps(native_proj, arcpy_proj):
+    return native_proj.maps
 
 def _list_maps(proj):
     return proj.listMaps()
 
-
 def _list_layers(proj, mp):
     return mp.listLayers()
-
 
 def _list_tables(proj, mp):
     return mp.listTables()
 
+def _describe_fields(layer_or_table_fields):
+    raise NotImplementedError
 
 def _native_add_data_connection_details(layer_table_parts, layer_table_details):
     l = layer_table_parts["arcpy"]
@@ -128,6 +134,8 @@ def _native_describe_fields(layer_or_table_fields):
         } for i, f in enumerate(layer_or_table_fields)
     ]
 
+    if not layer_or_table_fields:
+        return None
 
 def _native_list_maps(pro_proj):
     arcpy_maps = pro_proj["arcpy"].listMaps()
@@ -182,6 +190,15 @@ def _native_describe_layer(layer_parts):
 
     return layer_details
 
+    return table_details
+
+def _add_data_connection_details(arcpy_layer, layer_details):
+    if arcpy_layer.connectionProperties is not None:
+        for key, value in arcpy_layer.connectionProperties["connection_info"].items():
+            layer_details[key] = value
+
+def _native_describe_map(native_pro_proj, arcpy_pro_proj, map_frame):
+    arcpy_map = arcpy_pro_proj.listMaps(map_frame.name)[0]
 
 def _native_describe_map(pro_proj, map_frame):
 

@@ -246,6 +246,9 @@ def describe(mxd_or_proj):
             [_mh._native_describe_map(native_mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(native_mxd_or_proj)]
         }
 
+    except Exception as e:
+        raise e
+
     finally:
         if native_mxd_or_proj:
             # close the native document
