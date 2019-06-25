@@ -2,7 +2,7 @@
 """This module contains shared functionality for mapping-related functions across arcpy versions."""
 
 # Python 2/3 compatibility
-# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from future.builtins.disabled import *
 from future.builtins import *
@@ -11,7 +11,7 @@ install_aliases()
 from future.moves.collections import Mapping
 from future.moves.itertools import chain, zip_longest
 from future.utils import iteritems
-# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 
 # Standard libary imports
 import json
