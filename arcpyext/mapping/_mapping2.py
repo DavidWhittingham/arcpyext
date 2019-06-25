@@ -236,10 +236,10 @@ def _native_describe_map(map_document, map_frame):
     _native_make_map_frame_active_view(map_frame)
 
     return {
-        "name": arcpy_map.Name,
-        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, arcpy_map)),
-        "layers": [_native_describe_layer(l) for l in _native_list_layers(map_document,arcpy_map)],
-        "tables": [_native_describe_table(t) for t in _native_list_tables(map_document, arcpy_map)]
+        "name": map_frame.Name,
+        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)),
+        "layers": [_native_describe_layer(l) for l in _native_list_layers(map_document, map_frame)],
+        "tables": [_native_describe_table(t) for t in _native_list_tables(map_document, map_frame)]
     }
 
 
