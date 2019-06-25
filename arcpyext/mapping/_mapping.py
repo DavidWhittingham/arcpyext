@@ -220,8 +220,6 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
         if new_conn == None and raise_exception_no_change:
             raise RuntimeError("No matching data source was found for layer")
 
-        _get_logger().debug(json.dumps(new_conn))
-
         return new_conn
 
     return [{
