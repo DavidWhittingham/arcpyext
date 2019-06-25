@@ -34,8 +34,12 @@ def get_version(map_document):
     else:
         fp = map_document
 
-    with olefile.OleFileIO(fp) as o, o.openstream("Version") as s:
-        return s.read().decode("utf-16").split("\x00")[1]
+    with olefile.OleFileIO(fp) as o:
+        if o.exists("Version"):
+            with o.openstream("Version") as s:
+                return s.read().decode("utf-16").split("\x00")[1]
+    
+    return None
 
 
 def open_document(mxd):
@@ -192,6 +196,12 @@ def _native_describe_fields(layer_or_table_fields):
 
 
 def _native_describe_layer(layer_parts):
+    # avoid boxing/unboxing issues
+    # not sure if this is really necessary, but getting weird results without it
+    layer_is_valid = layer_parts["layer"].Valid
+    layer_is_visible = layer_parts["layer"].Visible
+    layer_name = layer_parts["layer"].Name
+
     layer_details = {
         "dataSource": _native_get_data_source(layer_parts),
         "database": None,
@@ -200,7 +210,7 @@ def _native_describe_layer(layer_parts):
         "definitionQuery": _native_get_definition_query(layer_parts["featureLayerDefinition"]),
         "fields": _native_describe_fields(layer_parts["layerFields"]),
         "index": layer_parts["index"],
-        "isBroken": not layer_parts["layer"].Valid,
+        "isBroken": not layer_is_valid,
         "isFeatureLayer": bool(layer_parts["featureLayer"]),
         "isNetworkAnalystLayer": bool(layer_parts["networkAnalystLayer"]),
         "isRasterLayer": bool(layer_parts["rasterLayer"]),
@@ -208,12 +218,12 @@ def _native_describe_layer(layer_parts):
         "isServiceLayer": None,  # not implemented yet
         "isGroupLayer": not layer_parts["groupLayer"] == None,
         "longName": "\\".join(_native_get_layer_name_parts(layer_parts)),
-        "name": layer_parts["layer"].Name,
+        "name": layer_name,
         "server": None,
         "service": None,
         "serviceId": _native_get_service_layer_property_value(layer_parts["serverLayerExtensions"], "ServiceLayerID"),
         "userName": None,
-        "visible": layer_parts["layer"].Visible
+        "visible": layer_is_visible
     }
 
     _native_add_data_connection_details(layer_parts["dataset"], layer_details)
@@ -221,7 +231,10 @@ def _native_describe_layer(layer_parts):
     return layer_details
 
 
-def _native_describe_map(map_document, map_frame, arcpy_map=None):
+def _native_describe_map(map_document, map_frame):
+    # make the map frame active before getting details about it.
+    _native_make_map_frame_active_view(map_frame)
+
     return {
         "name": arcpy_map.Name,
         "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, arcpy_map)),
@@ -422,7 +435,8 @@ def _native_list_layers(map_document, map_frame):
             get_child_layers(child_layer_parts, layer_parts)
 
     # iterate through the top level of layers
-    map_layer_iterator = _ao.cast_obj(map_frame.get_Layers(None, False), esriCarto.IEnumLayer)
+    map_layer_iterator = map_frame.get_Layers(None, False)
+    map_layer_iterator = _ao.cast_obj(map_layer_iterator, esriCarto.IEnumLayer)
     map_layer = map_layer_iterator.Next()
     while (map_layer):
         layer_parts = build_layer_parts(map_layer)
@@ -491,25 +505,20 @@ def _native_list_tables(map_document, map_frame):
 
 
 def _native_get_map_spatial_ref_code(map_document, map_frame):
-    #return map_frame.spatialReference.FactoryCode
     import ESRI.ArcGIS.Geometry as esriGeometry
     return _ao.cast_obj(map_frame.SpatialReference, esriGeometry.ISpatialReference).FactoryCode
 
 
 def _native_mxd_exists(mxd_path):
-    #import comtypes.gen.esriCarto as esriCarto
     import ESRI.ArcGIS.Carto as esriCarto
 
     map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
-    #exists = map_document.IsPresent(mxd_path)
     exists = map_document.get_IsPresent(mxd_path)
-    #valid = map_document.IsMapDocument(mxd_path)
     valid = map_document.get_IsMapDocument(mxd_path)
     return exists and valid
 
 
 def _native_document_close(map_document):
-    #import comtypes.gen.esriCarto as esriCarto
     import ESRI.ArcGIS.Carto as esriCarto
 
     # Make sure it's a map document
@@ -525,16 +534,26 @@ def _native_document_open(mxd_path):
         map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
         map_document.Open(mxd_path)
 
-        # Maps must be activated in order to get all properties to be initialized
+        # Maps must be activated in order for all properties to be initialized correctly
         maps = _native_list_maps(map_document)
-        window_handle = ctypes.windll.user32.GetDesktopWindow()
         for m in maps:
-            active_view = _ao.cast_obj(m, esriCarto.IActiveView)
-            active_view.Activate(window_handle)
+            _native_make_map_frame_active_view(m)
 
         return map_document
     else:
-        raise ValueError("'mxd_path' not found or invalid.")
+        raise ValueError("MXD path '{}' not found or document invalid.".format(str(mxd_path)))
+
+
+def _native_make_map_frame_active_view(map_frame):
+    import ESRI.ArcGIS.Carto as esriCarto
+
+    window_handle = ctypes.windll.user32.GetDesktopWindow()
+
+    # cast map frame to active view
+    active_view = _ao.cast_obj(map_frame, esriCarto.IActiveView)
+
+    # make it the active view
+    active_view.Activate(window_handle)
 
 
 def _parse_data_source(data_source):

@@ -228,7 +228,15 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
 
 
 def describe(mxd_or_proj):
-    """Describe a Map Document or ArcGIS Pro project."""
+    """
+    Describe a Map Document or ArcGIS Pro project.
+
+    This will only describe the document as saved on disk, it will not include any unsaved changes.
+
+    :param mxd_proj_or_desc: The map to be validated
+    :type mxd_proj_or_desc: arcpy.mapping.MapDocument/arcpy.mapping.ArcGISProject (Python-version depedent) or str (file path)
+    :returns: dict describing the object
+    """
 
     # Ensure document is open before
     mxd_or_proj = open_document(mxd_or_proj)
@@ -261,11 +269,15 @@ def is_valid(mxd_proj_or_desc):
     """Analyse a map document or ArcGIS Pro Project for broken layers and return a boolean indicating if it is in a
     valid state or not.
 
-    :param map: The map to be validated
-    :type map: arcpy.mapping.MapDocument
+    :param mxd_proj_or_desc: The map to be validated
+    :type mxd_proj_or_desc: arcpy.mapping.MapDocument/arcpy.mapping.ArcGISProject, description, or str
     :returns: Boolean, True if valid, False if there are one or more broken layers
 
     """
+    # get a logger instance
+    logger = _get_logger()
+
+    # make sure what we have is a description of the map
     description = mxd_proj_or_desc if isinstance(mxd_proj_or_desc, Mapping) else describe(mxd_proj_or_desc)
 
     broken_items = []
@@ -277,10 +289,10 @@ def is_valid(mxd_proj_or_desc):
                 broken_items.append(i)
 
     if len(broken_items) > 0:
-        _get_logger().debug(u"Map '{0}': Broken data sources:".format(description["filePath"]))
+        logger.debug(u"Map '{0}': Broken data sources:".format(description["filePath"]))
         for layer in broken_items:
-            _get_logger().debug(u" {0}".format(layer["longName"] if "longName" in layer else layer["name"]))
-            _get_logger().debug(u"  datasource: {0}".format(layer["dataSource"]))
+            logger.debug(u" {0}".format(layer["longName"] if "longName" in layer else layer["name"]))
+            logger.debug(u"  datasource: {0}".format(layer["dataSource"]))
 
         return False
 
