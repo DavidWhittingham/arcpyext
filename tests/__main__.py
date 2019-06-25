@@ -16,23 +16,22 @@ def runtests():
     cmd = ["-r fsxX"]
     thisDir = dirname(abspath(__file__))
 
-    # Discover the environment and run appropriate tests
-    if importable("arcpy.mapping"):
-        # py2 arc desktop
-        cmd.append("--ignore=tests\\mp\\")
-    else:
-        # py3 arc pro
-        cmd.append("--ignore=tests\\mapping\\")
-        cmd.append("--ignore=tests\\arcobjects\\test_arcobjects.py")
-
     if importable("pytest_cov"):
         cmd.append("--cov=arcpyext")
         cmd.append("--cov-report=term")
         cmd.append("--cov-report=html")
 
+        # Discover the environment and set appropriate coverage
+        if importable("arcpy.mapping"):
+            # py2 arc desktop
+            cmd.append("--cov-config=tests\\.coveragerc2")
+        else:
+            # py3 arc pro
+            cmd.append("--cov-config=tests\\.coveragerc3")
+
     cmd.append(thisDir)
-    
+
     pytest.main(cmd)
-    
+
 if __name__ == "__main__":
     runtests()

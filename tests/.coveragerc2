@@ -1,0 +1,5 @@
+[run]
+source = arcpyext
+omit = arcpyext/mapping/_mapping3.py
+        arcpyext/mapping/_cim/*
+        arcpyext/_native/arcgispro.py

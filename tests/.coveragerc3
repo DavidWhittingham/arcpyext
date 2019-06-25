@@ -1,0 +1,4 @@
+[run]
+branch = True
+omit = arcpyext/mapping/_mapping2.py
+        arcpyext/_native/arcobjects.py
