@@ -141,7 +141,7 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
         regex = r"([\w\.]+)?(/|\\+)([\w\.]+$)"
         parts = re.search(regex, x, re.MULTILINE | re.IGNORECASE)
 
-        if parts and parts.groups > 3:
+        if parts and len(parts.groups()) > 2:
 
             dataset = None if ".gdb" in parts.group(1).lower() or ".sde" in parts.group(
                 1).lower() else tokenise_table_name(parts.group(1))
@@ -219,6 +219,7 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
                 break
         if new_conn == None and raise_exception_no_change:
             raise RuntimeError("No matching data source was found for layer")
+
         return new_conn
 
     return [{
