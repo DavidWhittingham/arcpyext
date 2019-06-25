@@ -1,23 +1,22 @@
 # Python 2/3 compatibility
-# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,no-name-in-module,import-error
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from future.builtins.disabled import *
 from future.builtins import *
 from future.standard_library import install_aliases
 install_aliases()
-# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,no-name-in-module,import-error
 
+import sys
+import os
+import pytest
 import arcpyext
 from arcpyext.exceptions.serv_def_draft_create_error import ServDefDraftCreateError
 from arcpyext.publishing._publishing import check_analysis
-import pytest
-import os
-import sys
 
 PROJECT_PATH = os.path.abspath("{0}/../samples/test_mapping_complex.aprx".format(os.path.dirname(__file__)))
 MXD_PATH = os.path.abspath("{0}/../samples/test_mapping_complex.mxd".format(os.path.dirname(__file__)))
 DRAFT_PATH = os.path.abspath("{0}/../samples/test_mapping_complex.sddraft".format(os.path.dirname(__file__)))
-
 
 def test_convert_map_to_sddraft():
     if sys.version_info.major > 2:
