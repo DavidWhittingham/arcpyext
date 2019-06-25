@@ -2,14 +2,14 @@
 """This module contains helper functions used in making map document/project comparisons."""
 
 # Python 2/3 compatibility
-# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from future.builtins.disabled import *
 from future.builtins import *
 from future.standard_library import install_aliases
 install_aliases()
 from future.utils import iteritems
-# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 
 from collections import Mapping, Sequence
 

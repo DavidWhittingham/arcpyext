@@ -2,7 +2,7 @@
 """This module contains shared functionality for mapping-related functions across arcpy versions."""
 
 # Python 2/3 compatibility
-# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from future.builtins.disabled import *
 from future.builtins import *
@@ -11,7 +11,7 @@ install_aliases()
 from future.moves.collections import Mapping
 from future.moves.itertools import chain, zip_longest
 from future.utils import iteritems
-# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
+# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 
 # Standard libary imports
 import json
@@ -239,6 +239,8 @@ def describe(mxd_or_proj):
     :returns: dict describing the object
     """
 
+    logger = _get_logger()
+
     # Ensure document is open before
     mxd_or_proj = open_document(mxd_or_proj)
     native_mxd_or_proj = None
@@ -254,6 +256,10 @@ def describe(mxd_or_proj):
             "maps":
             [_mh._native_describe_map(native_mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(native_mxd_or_proj)]
         }
+
+    except Exception as e:
+        logger.exception("An unknown error occured describing the map document or project")
+        raise e
 
     finally:
         if native_mxd_or_proj:

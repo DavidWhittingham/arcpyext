@@ -180,14 +180,14 @@ def test_compare_map_documents(map_doc_a, map_doc_b, expected_document_changes, 
                                layers_added, layers_updated, layers_removed, raises_ex, ex_type):
     result = arcpyext.mapping.compare(map_doc_a, map_doc_b)
 
-    actual_document_changes = result["document"]
-    actual_first_map_changes = result["maps"][0]["map"]
+    actual_document_changes = result["diff"]
+    actual_first_map_changes = result["maps"][0]["diff"]
     layer_changes = result["maps"][0]["layers"]
 
     count_actual_map_changes = len(actual_first_map_changes)
 
     print("Actual map changes: {}".format(count_actual_map_changes))
-    print(result["maps"][0]["map"])
+    print(result["maps"][0]["diff"])
 
     assert len(actual_document_changes) == expected_document_changes, "Expected {0} document changes".format(
         expected_document_changes)

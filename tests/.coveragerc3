@@ -1,0 +1,9 @@
+[run]
+branch = True
+omit = arcpyext/mapping/_mapping2.py
+        arcpyext/_native/arcobjects.py
+
+[report]
+exclude_lines = def check_analysis
+                def convert_desktop_map_to_service_draft
+
