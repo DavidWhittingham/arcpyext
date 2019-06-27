@@ -26,6 +26,10 @@ import olefile
 from .. import _native as _ao
 from ..exceptions import DataSourceUpdateError
 
+# Put the map document class here so we can access the per-version type in a consistent location across Python versions
+Document = arcpy.mapping.MapDocument
+
+
 def get_version(map_document):
     """Gets the version of a given map document (or path to a map document)."""
 
@@ -38,7 +42,7 @@ def get_version(map_document):
         if o.exists("Version"):
             with o.openstream("Version") as s:
                 return s.read().decode("utf-16").split("\x00")[1]
-    
+
     return None
 
 
@@ -116,7 +120,7 @@ def _get_data_source_desc(layer_or_table):
     if hasattr(layer_or_table, "supports"):
         if not layer_or_table.supports("DATASOURCE"):
             return None
-    
+
     return layer_or_table.dataSource
 
 
@@ -176,23 +180,19 @@ def _native_describe_fields(layer_or_table_fields):
     if not layer_or_table_fields:
         return None
 
-    fields = [
-        {
-            "field": _ao.cast_obj(layer_or_table_fields.get_Field(i), esriGeoDatabase.IField2),
-            "fieldInfo": _ao.cast_obj(layer_or_table_fields.get_FieldInfo(i), esriGeoDatabase.IFieldInfo),
-            "index": i
-        } for i in range(0, layer_or_table_fields.FieldCount)
-    ]
+    fields = [{
+        "field": _ao.cast_obj(layer_or_table_fields.get_Field(i), esriGeoDatabase.IField2),
+        "fieldInfo": _ao.cast_obj(layer_or_table_fields.get_FieldInfo(i), esriGeoDatabase.IFieldInfo),
+        "index": i
+    } for i in range(0, layer_or_table_fields.FieldCount)]
 
-    return [
-        {
-            "alias": f["fieldInfo"].Alias,
-            "index": f["index"],
-            "name": f["field"].Name,
-            "type": field_type_id_to_name(f["field"].Type),
-            "visible": f["fieldInfo"].Visible
-        } for f in fields
-    ]
+    return [{
+        "alias": f["fieldInfo"].Alias,
+        "index": f["index"],
+        "name": f["field"].Name,
+        "type": field_type_id_to_name(f["field"].Type),
+        "visible": f["fieldInfo"].Visible
+    } for f in fields]
 
 
 def _native_describe_layer(layer_parts):
@@ -347,7 +347,7 @@ def _native_get_service_layer_property_value(service_layer_extensions, property_
     # ServerProperties.GetAllProperties() returns two lists, names and values, so zip them and turn them into a dictionary
     import ESRI.ArcGIS.esriSystem as esriSystem
 
-    layer_extensions_server_properties = [] 
+    layer_extensions_server_properties = []
 
     for sle in service_layer_extensions:
         if sle == None:
@@ -376,7 +376,6 @@ def _native_list_layers(map_document, map_frame):
     import ESRI.ArcGIS.Geodatabase as esriGeoDatabase
     import ESRI.ArcGIS.Carto as esriCarto
     import ESRI.ArcGIS.NetworkAnalyst as esriNetworkAnalyst
-    
 
     # list of all layers that we'll be returning
     layers = []
@@ -404,7 +403,7 @@ def _native_list_layers(map_document, map_frame):
         layer_extensions = _ao.cast_obj(map_layer, esriCarto.ILayerExtensions)
         layer_parts["serverLayerExtensions"] = [
             sle for sle in (_ao.cast_obj(layer_extensions.get_Extension(i), esriCarto.IServerLayerExtension)
-            for i in range(0, layer_extensions.get_ExtensionCount())) if sle is not None
+                            for i in range(0, layer_extensions.get_ExtensionCount())) if sle is not None
         ]
 
         layers.append(layer_parts)
@@ -486,7 +485,7 @@ def _native_list_tables(map_document, map_frame):
         table_extensions = _ao.cast_obj(standalone_table, esriCarto.ITableExtensions)
         table_parts["serverLayerExtensions"] = [
             sle for sle in (_ao.cast_obj(table_extensions.get_Extension(i), esriCarto.IServerLayerExtension)
-            for i in range(0, table_extensions.get_ExtensionCount())) if sle is not None
+                            for i in range(0, table_extensions.get_ExtensionCount())) if sle is not None
         ]
 
         tables.append(table_parts)

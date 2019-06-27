@@ -25,6 +25,10 @@ from .. import _native as _prosdk
 from ..exceptions import DataSourceUpdateError
 
 
+# Put the map document class here so we can access the per-version type in a consistent location across Python versions
+Document = arcpy.mapping.ArcGISProject
+
+
 def open_document(project):
     """Open an ArcGIS Pro Project from a given path.
     
