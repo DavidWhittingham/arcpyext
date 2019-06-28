@@ -26,7 +26,7 @@ from ..exceptions import DataSourceUpdateError
 
 
 # Put the map document class here so we can access the per-version type in a consistent location across Python versions
-Document = arcpy.mapping.ArcGISProject
+Document = arcpy.mp.ArcGISProject
 
 
 def open_document(project):
@@ -66,6 +66,20 @@ def _change_data_source(layer, new_props):
 
     if hasattr(layer, "isBroken") and layer.isBroken:
         raise DataSourceUpdateError("Layer is now broken.", layer)
+
+
+def _describe_map(file_path):
+    ao_map_document = _native_document_open(file_path)
+
+    try:
+        # build return object
+        return {
+            "filePath": file_path,
+            "maps":
+            [_native_describe_map(ao_map_document, map_frame) for map_frame in _native_list_maps(ao_map_document)]
+        }
+    finally:
+        _native_document_close(ao_map_document)
 
 
 def _get_data_source_desc(layer_or_table):

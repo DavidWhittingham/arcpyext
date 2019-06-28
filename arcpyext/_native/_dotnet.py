@@ -21,9 +21,53 @@ import clr
 # .NET Imports
 import System
 import System.Threading
+import System.Runtime.InteropServices
+
+
+class ComReleaser(object):
+    """Python/PythonNet implementation similar to the ComReleaser object in ArcObjects."""
+
+    _com_objects = None
+
+    def __init__(self):
+        self._com_objects = []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if not self._com_objects:
+            # not initialised or empty
+            return
+
+        for obj in self._com_objects:
+            self.release_com_object(obj)
+
+        self._com_objects = None
+
+    def manage_lifetime(self, obj):
+        self._com_objects.append(obj)
+
+    def release_com_object(self, obj):
+        if obj is None:
+            # skip if None
+            return
+
+        if not isinstance(obj, System.Object):
+            # skip if the object didn't come from .NET
+            return
+
+        if not System.Runtime.InteropServices.Marshal.IsComObject(obj):
+            # skip if not a COM object
+            return
+
+        # obj isn't null and is a COM object, loop the release until no refs held
+        while System.Runtime.InteropServices.Marshal.ReleaseComObject(obj) > 0:
+            # doing is done in the while loop test, do nothing here
+            pass
+
 
 def singlethreadapartment(func=None):
-
     def decorator(func):
         """Factory for creating the STA decorator."""
 
@@ -52,13 +96,14 @@ def singlethreadapartment(func=None):
             return result["result"]
 
         return sta_wrapper
-    
+
     if func is None:
         # if decorator is called parameterlessly
         return decorator
     else:
         # execute the factory given the passed-in function
         return decorator(func)
+
 
 def find_gac_assembly_path(simple_name):
     gac_path = os.path.join(os.environ["windir"], "Microsoft.NET\\assembly\\GAC_MSIL")
@@ -68,7 +113,8 @@ def find_gac_assembly_path(simple_name):
         sorted_version_dirs = sorted(os.listdir(simple_assembly_path))
         len_sorted_version_dirs = len(sorted_version_dirs)
         if len_sorted_version_dirs > 0:
-            latest_version_dir = os.path.join(simple_assembly_path, sorted(os.listdir(simple_assembly_path))[len_sorted_version_dirs-1])
+            latest_version_dir = os.path.join(simple_assembly_path,
+                                              sorted(os.listdir(simple_assembly_path))[len_sorted_version_dirs - 1])
             dll_path = os.path.join(latest_version_dir, simple_name + ".dll")
             if os.path.isfile(dll_path):
                 return dll_path

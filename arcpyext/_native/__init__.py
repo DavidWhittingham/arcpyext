@@ -1,4 +1,4 @@
-from ._dotnet import singlethreadapartment
+from ._dotnet import singlethreadapartment, ComReleaser
 
 # hide sys from * imports
 import sys as _sys

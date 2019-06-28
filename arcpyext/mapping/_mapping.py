@@ -248,44 +248,9 @@ def describe(mxd_or_proj):
     :returns: dict describing the object
     """
 
-    logger = _get_logger()
+    file_path = mxd_or_proj.filePath if isinstance(mxd_or_proj, Document) else mxd_or_proj
 
-    # we need to keep track of whether this function opened the document or not
-    document_was_opened = False
-
-    # Ensure document is open before
-    if not isinstance(mxd_or_proj, Document):
-        mxd_or_proj = open_document(mxd_or_proj)
-        document_was_opened = True    
-
-    native_mxd_or_proj = None
-
-    try:
-
-        # open the MXD in ArcObjects
-        native_mxd_or_proj = _mh._native_document_open(mxd_or_proj.filePath)
-
-        # build return object
-        desc = {
-            "filePath": mxd_or_proj.filePath,
-            "maps":
-            [_mh._native_describe_map(native_mxd_or_proj, map_frame) for map_frame in _mh._native_list_maps(native_mxd_or_proj)]
-        }
-
-    except Exception as e:
-        logger.exception("An unknown error occured describing the map document or project")
-        raise e
-
-    finally:
-        if native_mxd_or_proj:
-            # close the native document
-            _mh._native_document_close(native_mxd_or_proj)
-        
-        if document_was_opened:
-            # close the arcpy document
-            del mxd_or_proj
-
-    return desc
+    return _mh._describe_map(file_path)
 
 
 def is_valid(mxd_proj_or_desc):

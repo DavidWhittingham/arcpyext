@@ -116,6 +116,32 @@ def _change_data_source(layer, new_layer_source):
         raise DataSourceUpdateError("Layer is now broken.", layer)
 
 
+def _describe_map(file_path):
+    with _ao.ComReleaser() as com_releaser:
+        # open the MXD in ArcObjects
+        ao_map_document = _native_document_open(file_path)
+
+        # add the ArcObjects document to the com_releaser
+        com_releaser.manage_lifetime(ao_map_document)
+
+        # base description layout
+        desc = {
+            "filePath": file_path,
+            "maps": []
+        }
+
+        for map_frame in _native_list_maps(ao_map_document):
+            # add the ArcObjects map frame to the com_releaser
+            com_releaser.manage_lifetime(map_frame)
+
+            # add the map description to the output object
+            desc["maps"].append(_native_describe_map(ao_map_document, map_frame))
+        
+        _native_document_close(ao_map_document)
+
+        return desc
+
+
 def _get_data_source_desc(layer_or_table):
     if hasattr(layer_or_table, "supports"):
         if not layer_or_table.supports("DATASOURCE"):
@@ -235,12 +261,28 @@ def _native_describe_map(map_document, map_frame):
     # make the map frame active before getting details about it.
     _native_make_map_frame_active_view(map_frame)
 
-    return {
+    map_desc = {
         "name": map_frame.Name,
         "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)),
-        "layers": [_native_describe_layer(l) for l in _native_list_layers(map_document, map_frame)],
-        "tables": [_native_describe_table(t) for t in _native_list_tables(map_document, map_frame)]
+        "layers": [],
+        "tables": []
     }
+
+    # ensure we release the layers we get
+    with _ao.ComReleaser() as com_releaser:
+        for l in _native_list_layers(map_document, map_frame):
+            for (k, v) in viewitems(l):
+                # add each item to the COM releaser
+                com_releaser.manage_lifetime(v)
+            map_desc["layers"].append(_native_describe_layer(l))
+        
+        for t in _native_list_tables(map_document, map_frame):
+            for (k, v) in viewitems(t):
+                # add each item to the COM releaser
+                com_releaser.manage_lifetime(v)
+            map_desc["layers"].append(_native_describe_table(l))
+    
+    return map_desc
 
 
 def _native_describe_table(table_parts):
@@ -505,7 +547,12 @@ def _native_list_tables(map_document, map_frame):
 
 def _native_get_map_spatial_ref_code(map_document, map_frame):
     import ESRI.ArcGIS.Geometry as esriGeometry
-    return _ao.cast_obj(map_frame.SpatialReference, esriGeometry.ISpatialReference).FactoryCode
+
+    with _ao.ComReleaser() as com_releaser:
+        sr = _ao.cast_obj(map_frame.SpatialReference, esriGeometry.ISpatialReference)
+        com_releaser.manage_lifetime(sr)
+        factory_code = sr.FactoryCode
+        return factory_code
 
 
 def _native_mxd_exists(mxd_path):
