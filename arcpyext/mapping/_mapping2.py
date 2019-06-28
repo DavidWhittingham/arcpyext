@@ -280,7 +280,7 @@ def _native_describe_map(map_document, map_frame):
             for (k, v) in viewitems(t):
                 # add each item to the COM releaser
                 com_releaser.manage_lifetime(v)
-            map_desc["layers"].append(_native_describe_table(l))
+            map_desc["tables"].append(_native_describe_table(t))
     
     return map_desc
 
