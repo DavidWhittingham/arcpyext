@@ -558,10 +558,15 @@ def _native_get_map_spatial_ref_code(map_document, map_frame):
 def _native_mxd_exists(mxd_path):
     import ESRI.ArcGIS.Carto as esriCarto
 
-    map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
-    exists = map_document.get_IsPresent(mxd_path)
-    valid = map_document.get_IsMapDocument(mxd_path)
-    return exists and valid
+    logger = _get_logger()
+    logger.debug("Checking if MXD exists: %s", mxd_path)
+
+    with _ao.ComReleaser() as com_releaser:
+        map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
+        com_releaser.manage_lifetime(map_document)
+        exists = map_document.get_IsPresent(mxd_path)
+        valid = map_document.get_IsMapDocument(mxd_path)
+        return exists and valid
 
 
 def _native_document_close(map_document):
