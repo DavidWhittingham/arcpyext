@@ -65,7 +65,9 @@ def test():
 
 @task([OptionsParameter('version')])
 def upload(version):
-    cmd(r'python -m twine upload dist\arcpyext-{}-py2-none-any.whl'.format(version))
+    with venv(".venvs\\build"):
+        cmd(r'python -m twine check dist\arcpyext-{}-py2.py3-none-any.whl'.format(version))
+        cmd(r'python -m twine upload dist\arcpyext-{}-py2.py3-none-any.whl'.format(version))
 
 
 def create_venv(python_path, venv_path):
