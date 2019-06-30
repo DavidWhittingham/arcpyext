@@ -23,6 +23,7 @@ setup(
     author = __author__,
     description = "Extended functionality for Esri's ArcPy site-package",
     long_description = long_description,
+    long_description_content_type = "text/x-rst",
     license = "BSD 3-Clause",
     keywords = "arcgis esri arcpy",
     url = "https://github.com/DavidWhittingham/arcpyext",
