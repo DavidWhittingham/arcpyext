@@ -205,7 +205,7 @@ def _native_describe_map(pro_proj, map_frame):
 
     return {
         "name": map_frame["arcpy"].name,
-        "spatialReference": map_frame["prosdk"].spatial_reference,
+        "spatialReference": map_frame["prosdk"].spatial_reference.exportToString(),
         "layers": [_native_describe_layer(l) for l in _native_list_layers(pro_proj, map_frame)],
         "tables": [_native_describe_table(t) for t in _native_list_tables(pro_proj, map_frame)]
     }

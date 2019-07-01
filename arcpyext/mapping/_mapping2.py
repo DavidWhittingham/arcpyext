@@ -263,7 +263,7 @@ def _native_describe_map(map_document, map_frame):
 
     map_desc = {
         "name": map_frame.Name,
-        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)),
+        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)).exportToString(),
         "layers": [],
         "tables": []
     }
