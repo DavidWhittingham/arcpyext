@@ -15,6 +15,7 @@ import os
 import arcpy
 
 from ..exceptions import MapDataSourcesBrokenError, ServDefDraftCreateError
+from .._multiprocessing import Process
 
 
 def check_analysis(analysis):
@@ -110,13 +111,29 @@ def convert_desktop_map_to_service_draft(map_doc,
 
 
 def convert_service_draft_to_staged_service(sd_draft, sd_path):
+    """
+    Converts a Service Definition Draft (*.sddraft) to a Service Definiton (*.sd).
+    """
+
+    # The StageService toolbox seems unreliable when it comes to connecting to Enterprise Geodatabases.
+    # We're spinning it up here in a sub-process in a (perhaps vain) attempt to improve reliability.
+
+    if hasattr(sd_draft, "file_path"):
+        sd_draft_path = sd_draft.file_path
+    else:
+        sd_draft_path = sd_draft
+
+    p = Process(target=arcpy.StageService_server, args=(sd_draft_path, sd_path))
+
     if os.path.exists(sd_path):
         os.remove(sd_path)
 
-    if isinstance(sd_draft, str):
-        arcpy.StageService_server(sd_draft, sd_path)
-    else:
-        arcpy.StageService_server(sd_draft.file_path, sd_path)
+    p.start()
+    p.join()
+
+    if p.exception:
+        error, traceback = p.exception
+        raise error
 
 
 def convert_toolbox_to_service_draft(toolbox_path,

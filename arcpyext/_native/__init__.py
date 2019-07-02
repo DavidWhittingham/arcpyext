@@ -1,4 +1,8 @@
-from ._dotnet import singlethreadapartment
+# Set the apartment state for talking to COM
+import ctypes as _ctypes
+_ctypes.windll.ole32.CoInitializeEx(0, 2)
+
+from ._dotnet import singlethreadapartment, ComReleaser
 
 # hide sys from * imports
 import sys as _sys

@@ -13,9 +13,6 @@ install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 # Standard lib imports
-import ctypes
-# Set the apartment state for talking to COM
-ctypes.windll.ole32.CoInitializeEx(0, 2)
 import logging
 import os
 import sys

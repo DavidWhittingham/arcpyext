@@ -26,6 +26,10 @@ import olefile
 from .. import _native as _ao
 from ..exceptions import DataSourceUpdateError
 
+# Put the map document class here so we can access the per-version type in a consistent location across Python versions
+Document = arcpy.mapping.MapDocument
+
+
 def get_version(map_document):
     """Gets the version of a given map document (or path to a map document)."""
 
@@ -38,7 +42,7 @@ def get_version(map_document):
         if o.exists("Version"):
             with o.openstream("Version") as s:
                 return s.read().decode("utf-16").split("\x00")[1]
-    
+
     return None
 
 
@@ -112,11 +116,37 @@ def _change_data_source(layer, new_layer_source):
         raise DataSourceUpdateError("Layer is now broken.", layer)
 
 
+def _describe_map(file_path):
+    with _ao.ComReleaser() as com_releaser:
+        # open the MXD in ArcObjects
+        ao_map_document = _native_document_open(file_path)
+
+        # add the ArcObjects document to the com_releaser
+        com_releaser.manage_lifetime(ao_map_document)
+
+        # base description layout
+        desc = {
+            "filePath": file_path,
+            "maps": []
+        }
+
+        for map_frame in _native_list_maps(ao_map_document):
+            # add the ArcObjects map frame to the com_releaser
+            com_releaser.manage_lifetime(map_frame)
+
+            # add the map description to the output object
+            desc["maps"].append(_native_describe_map(ao_map_document, map_frame))
+        
+        _native_document_close(ao_map_document)
+
+        return desc
+
+
 def _get_data_source_desc(layer_or_table):
     if hasattr(layer_or_table, "supports"):
         if not layer_or_table.supports("DATASOURCE"):
             return None
-    
+
     return layer_or_table.dataSource
 
 
@@ -176,23 +206,19 @@ def _native_describe_fields(layer_or_table_fields):
     if not layer_or_table_fields:
         return None
 
-    fields = [
-        {
-            "field": _ao.cast_obj(layer_or_table_fields.get_Field(i), esriGeoDatabase.IField2),
-            "fieldInfo": _ao.cast_obj(layer_or_table_fields.get_FieldInfo(i), esriGeoDatabase.IFieldInfo),
-            "index": i
-        } for i in range(0, layer_or_table_fields.FieldCount)
-    ]
+    fields = [{
+        "field": _ao.cast_obj(layer_or_table_fields.get_Field(i), esriGeoDatabase.IField2),
+        "fieldInfo": _ao.cast_obj(layer_or_table_fields.get_FieldInfo(i), esriGeoDatabase.IFieldInfo),
+        "index": i
+    } for i in range(0, layer_or_table_fields.FieldCount)]
 
-    return [
-        {
-            "alias": f["fieldInfo"].Alias,
-            "index": f["index"],
-            "name": f["field"].Name,
-            "type": field_type_id_to_name(f["field"].Type),
-            "visible": f["fieldInfo"].Visible
-        } for f in fields
-    ]
+    return [{
+        "alias": f["fieldInfo"].Alias,
+        "index": f["index"],
+        "name": f["field"].Name,
+        "type": field_type_id_to_name(f["field"].Type),
+        "visible": f["fieldInfo"].Visible
+    } for f in fields]
 
 
 def _native_describe_layer(layer_parts):
@@ -235,12 +261,28 @@ def _native_describe_map(map_document, map_frame):
     # make the map frame active before getting details about it.
     _native_make_map_frame_active_view(map_frame)
 
-    return {
+    map_desc = {
         "name": map_frame.Name,
-        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)),
-        "layers": [_native_describe_layer(l) for l in _native_list_layers(map_document, map_frame)],
-        "tables": [_native_describe_table(t) for t in _native_list_tables(map_document, map_frame)]
+        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)).exportToString(),
+        "layers": [],
+        "tables": []
     }
+
+    # ensure we release the layers we get
+    with _ao.ComReleaser() as com_releaser:
+        for l in _native_list_layers(map_document, map_frame):
+            for (k, v) in viewitems(l):
+                # add each item to the COM releaser
+                com_releaser.manage_lifetime(v)
+            map_desc["layers"].append(_native_describe_layer(l))
+        
+        for t in _native_list_tables(map_document, map_frame):
+            for (k, v) in viewitems(t):
+                # add each item to the COM releaser
+                com_releaser.manage_lifetime(v)
+            map_desc["tables"].append(_native_describe_table(t))
+    
+    return map_desc
 
 
 def _native_describe_table(table_parts):
@@ -347,7 +389,7 @@ def _native_get_service_layer_property_value(service_layer_extensions, property_
     # ServerProperties.GetAllProperties() returns two lists, names and values, so zip them and turn them into a dictionary
     import ESRI.ArcGIS.esriSystem as esriSystem
 
-    layer_extensions_server_properties = [] 
+    layer_extensions_server_properties = []
 
     for sle in service_layer_extensions:
         if sle == None:
@@ -376,7 +418,6 @@ def _native_list_layers(map_document, map_frame):
     import ESRI.ArcGIS.Geodatabase as esriGeoDatabase
     import ESRI.ArcGIS.Carto as esriCarto
     import ESRI.ArcGIS.NetworkAnalyst as esriNetworkAnalyst
-    
 
     # list of all layers that we'll be returning
     layers = []
@@ -404,7 +445,7 @@ def _native_list_layers(map_document, map_frame):
         layer_extensions = _ao.cast_obj(map_layer, esriCarto.ILayerExtensions)
         layer_parts["serverLayerExtensions"] = [
             sle for sle in (_ao.cast_obj(layer_extensions.get_Extension(i), esriCarto.IServerLayerExtension)
-            for i in range(0, layer_extensions.get_ExtensionCount())) if sle is not None
+                            for i in range(0, layer_extensions.get_ExtensionCount())) if sle is not None
         ]
 
         layers.append(layer_parts)
@@ -486,7 +527,7 @@ def _native_list_tables(map_document, map_frame):
         table_extensions = _ao.cast_obj(standalone_table, esriCarto.ITableExtensions)
         table_parts["serverLayerExtensions"] = [
             sle for sle in (_ao.cast_obj(table_extensions.get_Extension(i), esriCarto.IServerLayerExtension)
-            for i in range(0, table_extensions.get_ExtensionCount())) if sle is not None
+                            for i in range(0, table_extensions.get_ExtensionCount())) if sle is not None
         ]
 
         tables.append(table_parts)
@@ -506,16 +547,26 @@ def _native_list_tables(map_document, map_frame):
 
 def _native_get_map_spatial_ref_code(map_document, map_frame):
     import ESRI.ArcGIS.Geometry as esriGeometry
-    return _ao.cast_obj(map_frame.SpatialReference, esriGeometry.ISpatialReference).FactoryCode
+
+    with _ao.ComReleaser() as com_releaser:
+        sr = _ao.cast_obj(map_frame.SpatialReference, esriGeometry.ISpatialReference)
+        com_releaser.manage_lifetime(sr)
+        factory_code = sr.FactoryCode
+        return factory_code
 
 
 def _native_mxd_exists(mxd_path):
     import ESRI.ArcGIS.Carto as esriCarto
 
-    map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
-    exists = map_document.get_IsPresent(mxd_path)
-    valid = map_document.get_IsMapDocument(mxd_path)
-    return exists and valid
+    logger = _get_logger()
+    logger.debug("Checking if MXD exists: %s", mxd_path)
+
+    with _ao.ComReleaser() as com_releaser:
+        map_document = _ao.create_obj(esriCarto.MapDocument, esriCarto.IMapDocument)
+        com_releaser.manage_lifetime(map_document)
+        exists = map_document.get_IsPresent(mxd_path)
+        valid = map_document.get_IsMapDocument(mxd_path)
+        return exists and valid
 
 
 def _native_document_close(map_document):
