@@ -57,8 +57,8 @@ def updatePackages():
 
 @task
 def test():
-    # with venv(".venvs\\test-py2"):
-    #     cmd("python -m pytest tests --cov=arcpyext --cov-report=")
+    with venv(".venvs\\test-py2"):
+        cmd("python -m pytest tests --cov=arcpyext --cov-report=")
 
     with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
         cmd("python -m pytest tests --cov=arcpyext --cov-append --cov-report=term --cov-report=html")
