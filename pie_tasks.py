@@ -8,7 +8,7 @@ except ImportError as ie:
     import _winreg as winreg
 
 from pie import *
-
+from pie import CmdContext, CmdContextManager
 
 @task
 def build():
@@ -25,11 +25,12 @@ def setup():
 @task
 def createVenvs():
     python2_path = os.path.join(get_arcpy2_python_path(), "Python.exe")
-    python3_path = os.path.join(get_arcpy3_python_path(), "Python.exe")
 
     create_venv(python2_path, ".venvs\\build")
     create_venv(python2_path, ".venvs\\test-py2")
-    create_venv(python3_path, ".venvs\\test-py3")
+
+    remove_dir(".venvs\\test-py3")
+    conda(".venvs\\test-py3", get_arcgis_pro_conda_path()).clone("arcgispro-py3", extraArguments="--copy --no-shortcuts --offline")
 
 
 @task
@@ -46,7 +47,7 @@ def updatePackages():
         pip(r'install -U -r requirements.txt')
         cmd(r'python setup.py develop')
 
-    with venv(".venvs\\test-py3"):
+    with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
         pip(r'install -U pip')
         pip(r'install -U -r requirements.build.txt')
         pip(r'install -U -r requirements.test.txt')
@@ -56,10 +57,10 @@ def updatePackages():
 
 @task
 def test():
-    with venv(".venvs\\test-py2"):
-        cmd("python -m pytest tests --cov=arcpyext --cov-report=")
+    # with venv(".venvs\\test-py2"):
+    #     cmd("python -m pytest tests --cov=arcpyext --cov-report=")
 
-    with venv(".venvs\\test-py3"):
+    with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
         cmd("python -m pytest tests --cov=arcpyext --cov-append --cov-report=term --cov-report=html")
 
 
@@ -70,31 +71,30 @@ def upload(version):
         cmd(r'python -m twine upload dist\arcpyext-{}-py2.py3-none-any.whl'.format(version))
 
 
+class conda(CmdContext):
+    """A context class used to execute commands within a conda environment"""
+    def __init__(self, path, conda_path):
+        self.conda_path = os.path.abspath(conda_path)
+        self.path = os.path.abspath(path)
+
+    def clone(self, env_to_clone, extraArguments=''):
+        """Creates a conda environment by running conda and cloning an existing named environment."""
+        cmd(r'"{}" create {} --prefix "{}" --clone "{}"'.format(self.conda_path, extraArguments, self.path, env_to_clone))
+
+    def cmd(self, c):
+        """Runs the command `c` in this conda environment."""
+        activate_path = os.path.join(os.path.dirname(self.conda_path), "activate.bat")
+        scripts_path = os.path.join(self.path, "Scripts")
+
+        c = 'cmd /v /c ""{}" && set PATH={};{};!PATH! && {}"'.format(activate_path, self.path, scripts_path, c)
+
+        return CmdContextManager.cmd(c, self.contextPosition)
+
+
 def create_venv(python_path, venv_path):
-    if os.path.isdir(venv_path):
-        shutil.rmtree(venv_path)
+    remove_dir(venv_path)
 
     cmd("\"{}\" -m virtualenv \"{}\" --system-site-packages".format(python_path, venv_path))
-
-
-def get_arcpy3_python_path():
-    # open the registry at HKEY_LOCAL_MACHINE
-    hklm_key = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
-
-    try:
-        # attempt to get the ArcGIS Pro installation details
-        arcgis_pro_key = winreg.OpenKey(hklm_key, "SOFTWARE\\ESRI\\ArcGISPro", 0,
-                                        winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
-        env_name = winreg.QueryValueEx(arcgis_pro_key, "PythonCondaEnv")[0]
-        install_root = winreg.QueryValueEx(arcgis_pro_key, "PythonCondaRoot")[0]
-        winreg.CloseKey(arcgis_pro_key)
-    except WindowsError as we:
-        raise Exception("ArcGIS Pro not installed.")
-    finally:
-        # close the registry
-        winreg.CloseKey(hklm_key)
-
-    return os.path.join(install_root, "envs", env_name)
 
 
 def get_arcpy2_python_path():
@@ -114,6 +114,35 @@ def get_arcpy2_python_path():
     finally:
         # close the registry
         winreg.CloseKey(hklm_key)
+
+
+def get_arcgis_pro_conda_path():
+    return os.path.join(_get_arcgis_pro_conda_root_path(), r"Scripts\conda.exe")
+
+
+def remove_dir(venv_path):
+    if os.path.isdir(venv_path):
+        shutil.rmtree(venv_path)
+
+
+def _get_arcgis_pro_conda_root_path():
+    # open the registry at HKEY_LOCAL_MACHINE
+    hklm_key = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
+
+    try:
+        # attempt to get the ArcGIS Pro installation details
+        arcgis_pro_key = winreg.OpenKey(hklm_key, "SOFTWARE\\ESRI\\ArcGISPro", 0,
+                                        winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+        env_name = winreg.QueryValueEx(arcgis_pro_key, "PythonCondaEnv")[0]
+        install_root = winreg.QueryValueEx(arcgis_pro_key, "PythonCondaRoot")[0]
+        winreg.CloseKey(arcgis_pro_key)
+    except WindowsError as we:
+        raise Exception("ArcGIS Pro not installed.")
+    finally:
+        # close the registry
+        winreg.CloseKey(hklm_key)
+    
+    return os.path.normpath(install_root)
 
 
 def _get_python2_path(hklm_key, install_name, major_version, minor_version, sam):
