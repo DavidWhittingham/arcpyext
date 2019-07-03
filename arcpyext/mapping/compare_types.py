@@ -163,7 +163,7 @@ class MapChangeTypes(_ChangeTypesBase):
                              skip_remainder=True)
     MAP_COOR_SYS_CHANGED = ChangeType(
         302, "Map Coordinate System Changed",
-        ChangeSeverity.ERROR, lambda map_desc: map_desc["spatialReference"].exportToString(), operator.ne)
+        ChangeSeverity.ERROR, lambda map_desc: map_desc["spatialReference"], operator.ne)
 
 
 class MapDocChange(object):
