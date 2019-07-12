@@ -211,5 +211,4 @@ def test_create_replacement_data_sources_list(map_doc_a, data_source_templates):
 
 
 def test_map_is_valid(map_doc_a):
-    #TODO: Test this function. Input is map object
-    pass
+    assert arcpyext.mapping.is_valid(map_doc_a) == True
