@@ -343,17 +343,20 @@ def _native_get_data_source(layer_or_table):
     return path
 
 
-def _native_get_dataset_name(layer_parts):
+def _native_get_dataset_name(layer_or_table):
     import ESRI.ArcGIS.esriSystem as esriSystem
 
     dataset_name = None
 
-    if layer_parts.get("featureLayer"):
-        # should be gotten from data set
-        dataset_name = layer_parts["dataset"].Name
-    elif layer_parts.get("rasterLayer"):
+    if layer_or_table.get("featureLayer"):
+        # should be gotten from dataset
+        dataset_name = layer_or_table["dataset"].Name
+    elif layer_or_table.get("table"):
+        # should be gotten from tableDataset
+        dataset_name = layer_or_table["tableDataset"].Name
+    elif layer_or_table.get("rasterLayer"):
         # should be gotten from data layer interface
-        dataset_name = _ao.cast_obj(layer_parts["dataLayer"].DataSourceName, esriSystem.IName).NameString
+        dataset_name = _ao.cast_obj(layer_or_table["dataLayer"].DataSourceName, esriSystem.IName).NameString
 
     return dataset_name
 
