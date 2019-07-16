@@ -125,10 +125,7 @@ def _describe_map(file_path):
         com_releaser.manage_lifetime(ao_map_document)
 
         # base description layout
-        desc = {
-            "filePath": file_path,
-            "maps": []
-        }
+        desc = {"filePath": file_path, "maps": []}
 
         for map_frame in _native_list_maps(ao_map_document):
             # add the ArcObjects map frame to the com_releaser
@@ -136,7 +133,7 @@ def _describe_map(file_path):
 
             # add the map description to the output object
             desc["maps"].append(_native_describe_map(ao_map_document, map_frame))
-        
+
         _native_document_close(ao_map_document)
 
         return desc
@@ -231,7 +228,7 @@ def _native_describe_layer(layer_parts):
     layer_details = {
         "dataSource": _native_get_data_source(layer_parts),
         "database": None,
-        "datasetName": _native_get_dataset_name(layer_parts["dataset"]),
+        "datasetName": _native_get_dataset_name(layer_parts),
         "datasetType": _native_get_dataset_type(layer_parts["dataset"]),
         "definitionQuery": _native_get_definition_query(layer_parts["featureLayerDefinition"]),
         "fields": _native_describe_fields(layer_parts["layerFields"]),
@@ -263,7 +260,8 @@ def _native_describe_map(map_document, map_frame):
 
     map_desc = {
         "name": map_frame.Name,
-        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document, map_frame)).exportToString(),
+        "spatialReference": _get_spatial_ref(_native_get_map_spatial_ref_code(map_document,
+                                                                              map_frame)).exportToString(),
         "layers": [],
         "tables": []
     }
@@ -275,13 +273,13 @@ def _native_describe_map(map_document, map_frame):
                 # add each item to the COM releaser
                 com_releaser.manage_lifetime(v)
             map_desc["layers"].append(_native_describe_layer(l))
-        
+
         for t in _native_list_tables(map_document, map_frame):
             for (k, v) in viewitems(t):
                 # add each item to the COM releaser
                 com_releaser.manage_lifetime(v)
             map_desc["tables"].append(_native_describe_table(t))
-    
+
     return map_desc
 
 
@@ -289,8 +287,8 @@ def _native_describe_table(table_parts):
     table_details = {
         "dataSource": _native_get_data_source(table_parts),
         "database": None,
-        "datasetName": _native_get_dataset_name(table_parts["tableDataset"]),
-        "datasetType": _native_get_dataset_type(table_parts["tableDataset"]),
+        "datasetName": _native_get_dataset_name(table_parts),
+        "datasetType": _native_get_dataset_type(table_parts["standaloneTableDataset"]),
         "definitionQuery": _native_get_definition_query(table_parts["standaloneTableDefinition"]),
         "fields": _native_describe_fields(table_parts["standaloneTableFields"]),
         "name": table_parts["standaloneTable"].Name,
@@ -331,6 +329,10 @@ def _native_get_data_source(layer_or_table):
                 path = os.path.join(workspace_path, feature_dataset_name, feature_class_name)
             else:
                 path = os.path.join(workspace_path, feature_class_name)
+    elif layer_or_table.get("rasterLayer"):
+        # input is a raster
+        path = layer_or_table["rasterLayer"].FilePath
+
     elif layer_or_table.get("tableDataset"):
         # input is a standalone table
         table_name = layer_or_table["tableDataset"].Name
@@ -341,11 +343,17 @@ def _native_get_data_source(layer_or_table):
     return path
 
 
-def _native_get_dataset_name(idataset):
+def _native_get_dataset_name(layer_parts):
+    import ESRI.ArcGIS.esriSystem as esriSystem
+
     dataset_name = None
 
-    if idataset:
-        dataset_name = idataset.Name
+    if layer_parts.get("featureLayer"):
+        # should be gotten from data set
+        dataset_name = layer_parts["dataset"].Name
+    elif layer_parts.get("rasterLayer"):
+        # should be gotten from data layer interface
+        dataset_name = _ao.cast_obj(layer_parts["dataLayer"].DataSourceName, esriSystem.IName).NameString
 
     return dataset_name
 
@@ -392,8 +400,9 @@ def _native_get_service_layer_property_value(service_layer_extensions, property_
     layer_extensions_server_properties = []
 
     for sle in service_layer_extensions:
-        if sle == None:
+        if sle is None:
             continue
+
         property_set = _ao.cast_obj(sle.ServerProperties, esriSystem.IPropertySet)
         _, property_keys, property_values = property_set.GetAllProperties(None, None)
         if len(property_keys) > 0:
@@ -426,20 +435,30 @@ def _native_list_layers(map_document, map_frame):
         layer_parts = {
             "children": [],
             "dataset": None,
+            "dataLayer": _ao.cast_obj(map_layer, esriCarto.IDataLayer2),
             "layer": _ao.cast_obj(map_layer, esriCarto.ILayer2),
             "layerFields": _ao.cast_obj(map_layer, esriCarto.ILayerFields),
             "featureLayer": _ao.cast_obj(map_layer, esriCarto.IFeatureLayer),
             "featureLayerDefinition": _ao.cast_obj(map_layer, esriCarto.IFeatureLayerDefinition2),
             "groupLayer": _ao.cast_obj(map_layer, esriCarto.IGroupLayer),
             "index": len(layers),  # map index will be the same as the current length of this array
+            "imageServerLayer": _ao.cast_obj(map_layer, esriCarto.IImageServerLayer),
+            "mapServerLayer": _ao.cast_obj(map_layer, esriCarto.IMapServerLayer),
             "networkAnalystLayer": _ao.cast_obj(map_layer, esriNetworkAnalyst.INALayer),
             "parent": None,
             "rasterLayer": _ao.cast_obj(map_layer, esriCarto.IRasterLayer),
             "serverLayerExtensions": None
         }
 
+        # get the relevant dataset
+        dataset = None
         if bool(layer_parts["featureLayer"]):
-            layer_parts["dataset"] = _ao.cast_obj(layer_parts["featureLayer"].FeatureClass, esriGeoDatabase.IDataset)
+            dataset = _ao.cast_obj(layer_parts["featureLayer"].FeatureClass, esriGeoDatabase.IDataset)
+        elif bool(layer_parts["rasterLayer"]):
+            dataset = _ao.cast_obj(layer_parts["rasterLayer"], esriGeoDatabase.IDataset)
+
+        if not dataset is None:
+            layer_parts["dataset"] = dataset
 
         # Get server layer extensions
         layer_extensions = _ao.cast_obj(map_layer, esriCarto.ILayerExtensions)
@@ -513,6 +532,7 @@ def _native_list_tables(map_document, map_frame):
 
     def build_table_parts(standalone_table):
         table_parts = {
+            "dataLayer": _ao.cast_obj(standalone_table, esriCarto.IDataLayer2),
             "index": len(tables),  # map index will be the same as the current length of this array
             "standaloneTable": standalone_table,
             "standaloneTableDataset": _ao.cast_obj(standalone_table, esriGeoDatabase.IDataset),
