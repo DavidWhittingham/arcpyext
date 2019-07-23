@@ -350,13 +350,14 @@ def _native_get_dataset_name(layer_or_table):
 
     if layer_or_table.get("featureLayer"):
         # should be gotten from dataset
-        dataset_name = layer_or_table["dataset"].Name
+        dataset_name = layer_or_table["dataset"].Name if not layer_or_table["dataset"] is None else None
     elif layer_or_table.get("table"):
         # should be gotten from tableDataset
-        dataset_name = layer_or_table["tableDataset"].Name
+        dataset_name = layer_or_table["tableDataset"].Name if not layer_or_table["tableDataset"] is None else None
     elif layer_or_table.get("rasterLayer"):
         # should be gotten from data layer interface
-        dataset_name = _ao.cast_obj(layer_or_table["dataLayer"].DataSourceName, esriSystem.IName).NameString
+        if not layer_or_table["dataLayer"] is None:
+            dataset_name = _ao.cast_obj(layer_or_table["dataLayer"].DataSourceName, esriSystem.IName).NameString
 
     return dataset_name
 
