@@ -10,6 +10,7 @@ from future.standard_library import install_aliases
 install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,no-name-in-module
 
+import logging
 import os
 
 import arcpy
@@ -84,56 +85,40 @@ def convert_desktop_map_to_service_draft(map_doc,
     """
 
     from ..mapping import is_valid
+    
+    logger = _get_logger()
+    was_opened = False
 
     if not isinstance(map_doc, arcpy.mapping.MapDocument):
+        logger.debug("Opening map document: %s", map_doc)
         map_doc = arcpy.mapping.MapDocument(map_doc)
+        was_opened = True
 
-    if not is_valid(map_doc):
-        raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
+    try:
+        if not is_valid(map_doc):
+            raise MapDataSourcesBrokenError("One or more layers have broken data sources.")
 
-    if os.path.exists(sd_draft_path):
-        os.remove(sd_draft_path)
+        if os.path.exists(sd_draft_path):
+            os.remove(sd_draft_path)
 
-    analysis = arcpy.mapping.CreateMapSDDraft(map_doc,
-                                              sd_draft_path,
-                                              service_name,
-                                              server_type="ARCGIS_SERVER",
-                                              copy_data_to_server=copy_data_to_server,
-                                              folder_name=folder_name,
-                                              summary=summary)
+        analysis = arcpy.mapping.CreateMapSDDraft(map_doc,
+                                                sd_draft_path,
+                                                service_name,
+                                                server_type="ARCGIS_SERVER",
+                                                copy_data_to_server=copy_data_to_server,
+                                                folder_name=folder_name,
+                                                summary=summary)
 
-    check_analysis(analysis)
+        check_analysis(analysis)
 
-    analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)
-    check_analysis(analysis)
+        analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)
+        check_analysis(analysis)
 
-    return sd_draft_path
-
-
-def convert_service_draft_to_staged_service(sd_draft, sd_path):
-    """
-    Converts a Service Definition Draft (*.sddraft) to a Service Definiton (*.sd).
-    """
-
-    # The StageService toolbox seems unreliable when it comes to connecting to Enterprise Geodatabases.
-    # We're spinning it up here in a sub-process in a (perhaps vain) attempt to improve reliability.
-
-    if hasattr(sd_draft, "file_path"):
-        sd_draft_path = sd_draft.file_path
-    else:
-        sd_draft_path = sd_draft
-
-    p = Process(target=arcpy.StageService_server, args=(sd_draft_path, sd_path))
-
-    if os.path.exists(sd_path):
-        os.remove(sd_path)
-
-    p.start()
-    p.join()
-
-    if p.exception:
-        error, traceback = p.exception
-        raise error
+        return sd_draft_path
+    finally:
+        if was_opened:
+            logger.debug("Closing map document: %s", map_doc.filePath)
+            del map_doc
 
 
 def convert_toolbox_to_service_draft(toolbox_path,
@@ -164,3 +149,6 @@ def convert_toolbox_to_service_draft(toolbox_path,
     check_analysis(analysis)
 
     return sd_draft_path
+
+def _get_logger():
+    return logging.getLogger(__name__)
