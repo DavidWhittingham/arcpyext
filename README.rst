@@ -319,20 +319,3 @@ This function checks that the map does not have any broken data sources before c
     service_name = "ExampleMapService"
     
     arcpyext.publishing.convert_map_to_service_draft(path_to_mxd_or_project, output_path, service_name)
-
-Create a Service Definition from a Draft
-........................................
-
-This function converts a Service Defintion Draft file (*.sddraft) to a Service Definition (*.sd).
-
-This function runs the conversion process on a sub-process, which seems to help with reliability issues calling this
-toolbox.
-
-.. code-block:: python
-
-    import arcpyext
-
-    path_to_sd_draft = "path/to/sddraft/output.sddraft"
-    output_path = "path/to/output.sd"
-    
-    arcpyext.publishing.convert_service_draft_to_staged_service(path_to_sd_draft, output_path)
