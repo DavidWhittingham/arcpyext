@@ -144,9 +144,6 @@ def convert_toolbox_to_service_draft(toolbox_path,
                                      folder_name=folder_name,
                                      summary=summary)
     check_analysis(analysis)
-    # and analyse it
-    analysis = arcpy.mapping.AnalyzeForSD(sd_draft_path)
-    check_analysis(analysis)
 
     return sd_draft_path
 
