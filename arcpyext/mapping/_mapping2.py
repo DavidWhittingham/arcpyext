@@ -26,6 +26,9 @@ import olefile
 from .. import _native as _ao
 from ..exceptions import DataSourceUpdateError
 
+# .NET Imports
+import System.Runtime.InteropServices
+
 # Put the map document class here so we can access the per-version type in a consistent location across Python versions
 Document = arcpy.mapping.MapDocument
 
@@ -203,19 +206,23 @@ def _native_describe_fields(layer_or_table_fields):
     if not layer_or_table_fields:
         return None
 
-    fields = [{
-        "field": _ao.cast_obj(layer_or_table_fields.get_Field(i), esriGeoDatabase.IField2),
-        "fieldInfo": _ao.cast_obj(layer_or_table_fields.get_FieldInfo(i), esriGeoDatabase.IFieldInfo),
-        "index": i
-    } for i in range(0, layer_or_table_fields.FieldCount)]
+    try:
+        fields = [{
+            "field": _ao.cast_obj(layer_or_table_fields.get_Field(i), esriGeoDatabase.IField2),
+            "fieldInfo": _ao.cast_obj(layer_or_table_fields.get_FieldInfo(i), esriGeoDatabase.IFieldInfo),
+            "index": i
+        } for i in range(0, layer_or_table_fields.FieldCount)]
 
-    return [{
-        "alias": f["fieldInfo"].Alias,
-        "index": f["index"],
-        "name": f["field"].Name,
-        "type": field_type_id_to_name(f["field"].Type),
-        "visible": f["fieldInfo"].Visible
-    } for f in fields]
+        return [{
+            "alias": f["fieldInfo"].Alias,
+            "index": f["index"],
+            "name": f["field"].Name,
+            "type": field_type_id_to_name(f["field"].Type),
+            "visible": f["fieldInfo"].Visible
+        } for f in fields]
+    except System.Runtime.InteropServices.COMException:
+        # ignore this, the layer is probably broken, return no fields information
+        return None
 
 
 def _native_describe_layer(layer_parts):
