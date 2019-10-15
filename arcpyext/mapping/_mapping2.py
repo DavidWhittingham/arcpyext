@@ -246,7 +246,7 @@ def _native_describe_layer(layer_parts):
         "isRasterLayer": bool(layer_parts["rasterLayer"]),
         "isRasterizingLayer": None,  # not implemented yet
         "isServiceLayer": None,  # not implemented yet
-        "isGroupLayer": not layer_parts["groupLayer"] == None,
+        "isGroupLayer": layer_parts["groupLayer"] != None or layer_parts["networkAnalystLayer"] != None,
         "longName": "\\".join(_native_get_layer_name_parts(layer_parts)),
         "name": layer_name,
         "server": None,
@@ -486,7 +486,7 @@ def _native_list_layers(map_document, map_frame):
         # Set parent
         layer_parts["parent"] = parent_parts
 
-        if not bool(layer_parts["groupLayer"]):
+        if not (bool(layer_parts["groupLayer"]) or bool(layer_parts["networkAnalystLayer"])):
             # layer is not a group layer, ignore
             return
 
