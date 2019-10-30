@@ -48,28 +48,3 @@ def test_check_analysis():
             arcpyext.publishing._publishing.check_analysis({"messages": None, 
                                             "warnings": None, 
                                             "errors": {('Some message', 999): None}})
-
-def test_convert_sddraft_to_sd():
-    if sys.version_info.major > 2:
-        # Create an sddraft
-        mapservice = arcpyext.publishing.convert_map_to_service_draft(
-            PROJECT_PATH,
-            DRAFT_PATH,
-            'Test',
-            'Test',
-            copy_data_to_server=False,
-            portal_folder=None)
-        # Convert to staged service
-        arcpyext.publishing.convert_service_draft_to_staged_service(mapservice, DRAFT_PATH.replace('.sddraft', '.sd'))
-        assert os.path.exists(DRAFT_PATH.replace('.sddraft', '.sd'))
-
-    else:
-        # Create sddraft
-        mapservice = arcpyext.publishing.convert_map_to_service_draft(MXD_PATH,
-                                                                      DRAFT_PATH,
-                                                                      'Test',
-                                                                      'Test',
-                                                                      copy_data_to_server=False)
-        # Convert to stages service
-        arcpyext.publishing.convert_service_draft_to_staged_service(mapservice, DRAFT_PATH.replace('.sddraft', '.sd'))
-        assert os.path.exists(DRAFT_PATH.replace('.sddraft', '.sd'))
