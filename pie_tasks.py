@@ -49,9 +49,9 @@ def updatePackages():
 
     with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
         pip(r'install -U pip')
-        pip(r'install -U -r requirements.build.txt')
-        pip(r'install -U -r requirements.test.txt')
-        pip(r'install -U -r requirements.txt')
+        pip(r'install -r requirements.build.txt')
+        pip(r'install -r requirements.test.txt')
+        pip(r'install -r requirements.txt')
         cmd(r'python setup.py develop')
 
 
