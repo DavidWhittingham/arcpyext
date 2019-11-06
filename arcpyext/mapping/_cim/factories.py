@@ -9,7 +9,7 @@ from future.standard_library import install_aliases
 install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 
-from .layers import ProFeatureLayer, ProGroupLayer
+from .layers import ProFeatureLayer, ProGroupLayer, ProRasterLayer
 
 def create_layer(proj_zip, layer_xml):
     """Factory function for creating a layer object bassed on the input XML."""
@@ -19,4 +19,6 @@ def create_layer(proj_zip, layer_xml):
         layer_obj = ProFeatureLayer(proj_zip, layer_xml)
     elif layer_xml.startswith("<CIMGroupLayer"):
         layer_obj = ProGroupLayer(proj_zip, layer_xml)
+    elif layer_xml.startswith("<CIMRasterLayer"):
+        layer_obj = ProRasterLayer(proj_zip, layer_xml)
     return layer_obj

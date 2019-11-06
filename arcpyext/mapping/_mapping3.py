@@ -147,25 +147,6 @@ def _native_describe_fields(layer_or_table_fields):
     ]
 
 
-def _native_list_maps(pro_proj):
-    arcpy_maps = pro_proj["arcpy"].listMaps()
-    prosdk_maps = pro_proj["prosdk"].maps
-
-    if not len(arcpy_maps) == len(prosdk_maps):
-        raise ValueError("Length of native maps and length of ArcGIS Pro SDK maps is not the same.")
-
-    maps = []
-
-    for arcpy_map, prosdk_map in zip(arcpy_maps, prosdk_maps):
-        if not arcpy_map.name == prosdk_map.name:
-            raise ValueError(
-                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct.")
-
-        maps.append({"arcpy": arcpy_map, "prosdk": prosdk_map})
-
-    return maps
-
-
 def _native_describe_layer(layer_parts):
     # yapf: disable
     layer_details = {
@@ -252,6 +233,25 @@ def _native_list_layers(pro_proj, map_frame):
         layers.append({"index": index, "arcpy": arcpy_layer, "prosdk": prosdk_layer})
 
     return layers
+
+
+def _native_list_maps(pro_proj):
+    arcpy_maps = pro_proj["arcpy"].listMaps()
+    prosdk_maps = pro_proj["prosdk"].maps
+
+    if not len(arcpy_maps) == len(prosdk_maps):
+        raise ValueError("Length of native maps and length of ArcGIS Pro SDK maps is not the same.")
+
+    maps = []
+
+    for arcpy_map, prosdk_map in zip(arcpy_maps, prosdk_maps):
+        if not arcpy_map.name == prosdk_map.name:
+            raise ValueError(
+                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct.")
+
+        maps.append({"arcpy": arcpy_map, "prosdk": prosdk_map})
+
+    return maps
 
 
 def _native_list_tables(pro_proj, map_frame):

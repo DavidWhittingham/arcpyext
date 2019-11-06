@@ -19,7 +19,7 @@ from .helpers import passthrough_prop
 from .tables import ProFeatureTable
 
 # .NET Imports
-from ArcGIS.Core.CIM import CIMFeatureLayer, CIMGroupLayer
+from ArcGIS.Core.CIM import CIMFeatureLayer, CIMGroupLayer, CIMRasterLayer
 
 
 class ProLayerBase(with_metaclass(ABCMeta, object)):
@@ -85,6 +85,11 @@ class ProBasicFeatureLayer(ProLayerBase):
 class ProFeatureLayer(ProBasicFeatureLayer):
     def __init__(self, proj_zip, xml_string):
         super().__init__(proj_zip, CIMFeatureLayer.FromXml(xml_string))
+
+
+class ProRasterLayer(ProLayerBase):
+    def __init__(self, proj_zip, xml_string):
+        super().__init__(proj_zip, CIMRasterLayer.FromXml(xml_string))
 
 
 class ProGroupLayer(ProLayerBase):
