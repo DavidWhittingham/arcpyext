@@ -23,6 +23,7 @@ Supported formats are:
  - Shapefile
  - MapInfo TAB (requires the ArcGIS Data Interoperability extension)
  - GeoPackage
+ - Keyhole Markup Language (KML)
  - Office Open XML Workbook (Excel .xlsx file)
  - Comma-Separated Values text file
 
