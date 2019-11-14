@@ -15,31 +15,40 @@ publishing, and performing CRUD operations within an edit session on a geo-datab
 arcpyext.conversion
 -------------------
 
-The *conversion* module features simple function for converting feature classes to different output formats.
+The *conversion* module features simple functions for converting workspaces (file geodatabase, enterprise geodatabase),
+and the items in them, into other formats.
 
-Example A - Convert Feature Class to a Comma-Separated Values File
-..................................................................
+Supported formats are:
 
-.. code-block:: python
+ - Shapefile
+ - MapInfo TAB (requires the ArcGIS Data Interoperability extension)
+ - GeoPackage
+ - Office Open XML Workbook (Excel .xlsx file)
+ - Comma-Separated Values text file
 
-    import arcpyext.conversion
-
-    INPUT_TABLE = "path/to/input_feature_class_or_table"
-    OUTPUT_CSV = "path/to/output/csv_file.csv"
-
-    arcpyext.conversion.table_to_csv(INPUT_TABLE, OUTPUT_CSV)
-
-Example B - Convert Feature Class to an Office Open XML Spreadsheet (Excel spreadsheet)
-.......................................................................................
+Example A - Convert File Geodatabase to a GeoPackage
+....................................................
 
 .. code-block:: python
 
     import arcpyext.conversion
 
-    INPUT_TABLE = "path/to/input_feature_class_or_table"
-    OUTPUT_WORKBOOK = "path/to/output/excel_file.xlsx"
+    INPUT_WORKSPACE = "path/to/input_geodatbase.gdb"
+    OUTPUT_GEOPACKAGE = "path/to/output/geopackage.gpkg"
 
-    arcpyext.conversion.table_to_ooxml_workbook(INPUT_TABLE, OUTPUT_WORKBOOK)
+    arcpyext.conversion.to_geopackage.workspace(INPUT_WORKSPACE, OUTPUT_GEOPACKAGE)
+
+Example B - Convert File Geodatabase to an Office Open XML Spreadsheet (Excel spreadsheet)
+..........................................................................................
+
+.. code-block:: python
+
+    import arcpyext.conversion
+
+    INPUT_WORKSPACE = "path/to/input_geodatbase.gdb"
+    OUTPUT_WORKBOOK = "path/to/output/workbook.xlsx"
+
+    arcpyext.conversion.to_ooxml_workbook.workspace(INPUT_WORKSPACE, OUTPUT_WORKBOOK)
 
 arcpyext.data
 -------------
