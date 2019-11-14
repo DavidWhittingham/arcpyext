@@ -24,10 +24,12 @@ def setup():
 
 @task
 def createVenvs():
-    python2_path = os.path.join(get_arcpy2_python_path(), "Python.exe")
+    python2_32bit_path = os.path.join(get_arcpy2_python_path(), "Python.exe")
+    python2_64bit_path = os.path.join(get_arcpy2_python_path(True), "Python.exe")
 
-    create_venv(python2_path, ".venvs\\build")
-    create_venv(python2_path, ".venvs\\test-py2")
+    create_venv(python2_64bit_path, ".venvs\\build")
+    create_venv(python2_32bit_path, ".venvs\\test-py2-x86_32")
+    create_venv(python2_64bit_path, ".venvs\\test-py2-x86_64")
 
     remove_dir(".venvs\\test-py3")
     conda(".venvs\\test-py3", get_arcgis_pro_conda_path()).clone("arcgispro-py3", extraArguments="--copy --no-shortcuts --offline")
@@ -40,7 +42,14 @@ def updatePackages():
         pip(r'install -U -r requirements.build.txt')
         pip(r'install -U -r requirements.txt')
 
-    with venv(".venvs\\test-py2"):
+    with venv(".venvs\\test-py2-x86_32"):
+        pip(r'install -U pip')
+        pip(r'install -U -r requirements.build.txt')
+        pip(r'install -U -r requirements.test.txt')
+        pip(r'install -U -r requirements.txt')
+        cmd(r'python setup.py develop')
+
+    with venv(".venvs\\test-py2-x86_64"):
         pip(r'install -U pip')
         pip(r'install -U -r requirements.build.txt')
         pip(r'install -U -r requirements.test.txt')
@@ -57,7 +66,10 @@ def updatePackages():
 
 @task
 def test():
-    with venv(".venvs\\test-py2"):
+    with venv(".venvs\\test-py2-x86_32"):
+        cmd("python -m pytest tests --cov=arcpyext --cov-report=")
+
+    with venv(".venvs\\test-py2-x86_64"):
         cmd("python -m pytest tests --cov=arcpyext --cov-report=")
 
     with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
@@ -97,20 +109,24 @@ def create_venv(python_path, venv_path):
     cmd("\"{}\" -m virtualenv \"{}\" --system-site-packages".format(python_path, venv_path))
 
 
-def get_arcpy2_python_path():
+def get_arcpy2_python_path(get_64bit_path=False):
     # open the registry at HKEY_LOCAL_MACHINE
     hklm_key = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
 
     try:
         # get root ArcGIS key
-        arcgis_key = winreg.OpenKey(hklm_key, "SOFTWARE\\ESRI\\ArcGIS", 0, winreg.KEY_READ | winreg.KEY_WOW64_32KEY)
+        if get_64bit_path:
+            arcgis_key = winreg.OpenKey(hklm_key, "SOFTWARE\\ESRI\\Desktop Background Geoprocessing (64-bit)", 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+        else:
+            arcgis_key = winreg.OpenKey(hklm_key, "SOFTWARE\\ESRI\\ArcGIS", 0, winreg.KEY_READ | winreg.KEY_WOW64_32KEY)
 
         # get installed version, split into parts
         version_info = winreg.QueryValueEx(arcgis_key, "RealVersion")[0].split(".")
 
-        # Use 32-bit version
-        return _get_python2_path(hklm_key, "ArcGIS", version_info[0], version_info[1],
-                                 winreg.KEY_READ | winreg.KEY_WOW64_32KEY)
+        if get_64bit_path:
+            return _get_python2_path(hklm_key, "ArcGISx64", version_info[0], version_info[1], winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+        else:
+            return _get_python2_path(hklm_key, "ArcGIS", version_info[0], version_info[1], winreg.KEY_READ | winreg.KEY_WOW64_32KEY)
     finally:
         # close the registry
         winreg.CloseKey(hklm_key)

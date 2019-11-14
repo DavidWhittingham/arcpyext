@@ -1,4 +1,11 @@
 {
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveTimeout": 3000,
+
+    "files.exclude": {
+        "**/*.pyc": true
+    },
+
     "python.formatting.provider": "yapf",
     "python.testing.cwd": "${workspaceFolder}",
     "python.testing.nosetestsEnabled": false,
@@ -8,7 +15,9 @@
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false,
     "python.venvPath": "${workspaceFolder}/.venvs",
-    "python.pythonPath": ".venvs\\test-py2\\Scripts\\python.exe",
+    //"python.pythonPath": ".venvs\\test-py2-x86_32\\Scripts\\python.exe",
+    //"python.pythonPath": ".venvs\\test-py2-x86_64\\Scripts\\python.exe",
+    "python.pythonPath": ".venvs\\test-py3\\python.exe",
 
     "search.exclude": {
         "**/.git": true,
