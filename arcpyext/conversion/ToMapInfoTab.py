@@ -57,7 +57,7 @@ class ToMapInfoTab(ToCsvBase):
                 self._feature_class_export(desc, output_fc, **kwargs)
 
     def _feature_class_export(self, desc, output_fc, **kwargs):
-        arcpy.QuickExport_interop(desc.catalogPath, "MITAB," + str(output_fc))
+        arcpy.QuickExport_interop(desc.catalogPath, "MITAB," + str(output_fc.parent))
 
     def _feature_class_default_name(self, desc, output_workspace, **kwargs):
         """
