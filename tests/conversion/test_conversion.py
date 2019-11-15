@@ -19,6 +19,7 @@ from pathlib2 import Path
 
 OUTPUT_DIR = Path(__file__).parent.joinpath("output")
 TEST_INPUT_GDB_PATH = Path(__file__).parent.joinpath("input/conversion.gdb")
+TEST_INPUT_COPY_GDB_PATH = Path(__file__).parent.joinpath("input/conversion.copy.gdb")
 TEST_OUTPUT_PATH = Path(__file__).parent.joinpath("output")
 
 
@@ -31,9 +32,12 @@ def setup_module(module):
     os.makedirs(str(OUTPUT_DIR))
 
 
-@pytest.fixture(scope="module")
+@pytest.yield_fixture(scope="function")
 def in_workspace():
-    return TEST_INPUT_GDB_PATH
+    # copy, yield, and delete in order to test for Arc locking files
+    shutil.copytree(str(TEST_INPUT_GDB_PATH), str(TEST_INPUT_COPY_GDB_PATH))
+    yield TEST_INPUT_COPY_GDB_PATH
+    shutil.rmtree(str(TEST_INPUT_COPY_GDB_PATH))
 
 
 @pytest.mark.parametrize(("output_path"), [(TEST_OUTPUT_PATH.joinpath("csv"))])
