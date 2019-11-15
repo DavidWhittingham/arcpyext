@@ -60,6 +60,8 @@ def test_convert_geopackage(in_workspace, output_path, version):
     output_path_str = str(output_path)
     arcpyext.conversion.to_geopackage.workspace(in_workspace_str, output_path_str, version=version)
     assert output_path.exists()
+    output_path.unlink()
+    assert not output_path.exists()
 
 
 @pytest.mark.parametrize(("output_path"), [(TEST_OUTPUT_PATH.joinpath("kml"))])

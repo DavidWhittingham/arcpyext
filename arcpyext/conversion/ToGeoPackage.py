@@ -13,6 +13,8 @@ install_aliases()
 # Third-party imports
 import arcpy
 
+from pathlib2 import Path
+
 # Local imports
 from ._ConvertBase import ConvertBase
 
@@ -20,24 +22,27 @@ from ._ConvertBase import ConvertBase
 class ToGeoPackage(ConvertBase):
     #region Public overrides
 
-    def feature_class(self, input_fc, output_fc, version=None):
-        return super().feature_class(input_fc, output_fc, version=version)
+    def feature_class(self, input_fc, output_fc):
+        super().feature_class(input_fc, output_fc)
+        self._clear_file_locks(Path(output_fc).parent)
 
     def table(self, input_table, output_table):
-        return super().table(input_table, output_table)
+        super().table(input_table, output_table)
+        self._clear_file_locks(Path(output_table).parent)
 
     def relationship_class(self, input_rel, output_rel):
-        return super().relationship_class(input_rel, output_rel)
+        super().relationship_class(input_rel, output_rel)
 
     def workspace(self, input_workspace, output_path, version=None):
-        return super().workspace(input_workspace, output_path, version=version)
+        super().workspace(input_workspace, output_path, version=version)
+        self._clear_file_locks(output_path)
 
     #endregion
 
     #region Private overrides
 
     def _create_output_workspace(self, output_path, **kwargs):
-        if arcpy.Exists(str(output_path)):
+        if output_path.exists():
             raise ValueError("Cannot create GeoPackage workspace, it already exists.")
 
         # create parent directory if it doesn't exist
@@ -70,5 +75,16 @@ class ToGeoPackage(ConvertBase):
         """
         # Output path will be a GeoPackage, have to get the parent folder
         return output_workspace.parent.joinpath(desc.name + ".txt")
+
+    #endregion
+
+    #region Private functions
+
+    def _clear_file_locks(self, output_path):
+        # arcpy holds a lock on the geopackage after creation.
+        # Despite the documentation saying it only works with Enterprise geodatabases, running the below function
+        # removes the lock, and is the only way I've found to do this (playing with the "Result" object returned from
+        # the function proved fruitless - note that the documentation doesn't mention the function returning anything).
+        arcpy.ClearWorkspaceCache_management(str(output_path))
 
     #endregion
