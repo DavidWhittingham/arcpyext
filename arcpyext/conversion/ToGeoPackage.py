@@ -14,10 +14,10 @@ install_aliases()
 import arcpy
 
 # Local imports
-from ._ToCsvBase import ToCsvBase
+from ._ConvertBase import ConvertBase
 
 
-class ToGeoPackage(ToCsvBase):
+class ToGeoPackage(ConvertBase):
     #region Public overrides
 
     def feature_class(self, input_fc, output_fc, version=None):
