@@ -1,5 +1,5 @@
 enum34>=1.0.4,<2 ; python_version<'3.4'
-future>=0.17.1
+future>=0.15.2
 olefile==0.46 ; python_version<'3.4'
 pathlib2>=2.3.4,<3
 pythonnet>=2.4.0,<3
