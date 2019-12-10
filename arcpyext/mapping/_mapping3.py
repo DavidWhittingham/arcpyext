@@ -49,11 +49,11 @@ def _change_data_source(layer, new_props):
             matched_conn_props = {}
 
             for k in new:
-                if k in layer.connectionProperties:
-                    if isinstance(layer.connectionProperties[k], collections.Mapping) and isinstance(new_props[k], collections.Mapping):
-                        matched_conn_props[k] = get_matching_existing_conn_props(layer.connectionProperties[k], new_props[k])
+                if k in original:
+                    if isinstance(original[k], collections.Mapping) and isinstance(new_props[k], collections.Mapping):
+                        matched_conn_props[k] = get_matching_existing_conn_props(original[k], new_props[k])
                     else:
-                        matched_conn_props[k] = layer.connectionProperties[k]
+                        matched_conn_props[k] = original[k]
             
             return matched_conn_props
 
