@@ -27,7 +27,6 @@ from ..exceptions import MapLayerError, ChangeDataSourcesError
 from .._json import JsonEnum
 from .._native import singlethreadapartment
 
-
 # Python-version dependent imports
 ARCPY_2 = sys.version_info[0] < 3
 if ARCPY_2:
@@ -55,7 +54,7 @@ def change_data_sources(mxd_or_proj, data_sources):
     # Ensure document is open before changing data sources
     if not isinstance(mxd_or_proj, Document):
         mxd_or_proj = open_document(mxd_or_proj)
-        document_was_opened = True   
+        document_was_opened = True
 
     errors = []
 
@@ -76,10 +75,11 @@ def change_data_sources(mxd_or_proj, data_sources):
                 if layer_source == None:
                     continue
 
-                logger.debug("Layer {0}: Attempting to change workspace path".format(layer.longName))
-                logger.debug("Current data source details: {0}".format(_mh._get_data_source_desc(layer)))
+                logger.debug("Layer {0}: Attempting to change data source info...".format(layer.longName))
+                logger.debug("  - current: %s", _mh._get_data_source_desc(layer))
+                logger.debug("  -  target: %s", layer_source)
                 _mh._change_data_source(layer, layer_source)
-                logger.debug("Layer {0}: data source updated to: {1}".format(layer.name, layer_source))
+                logger.debug("  - updated: %s", _mh._get_data_source_desc(layer))
 
             #TODO: Handle KeyError and AttributeError for badly written configs
             except MapLayerError as e:
@@ -97,16 +97,16 @@ def change_data_sources(mxd_or_proj, data_sources):
                 if data_table_source == None:
                     continue
 
-                logger.debug("Data Table {0}: Attempting to change workspace path".format(data_table.name))
-                logger.debug("Current data source details: {0}".format(_mh._get_data_source_desc(data_table)))
+                logger.debug("Data Table {0}: Attempting to change workspace path...".format(data_table.name))
+                logger.debug("  - current: %s", _mh._get_data_source_desc(data_table))
+                logger.debug("  -  target: %s", data_table_source)
                 _mh._change_data_source(data_table, data_table_source)
-                logger.debug("Data Table {0}: Workspace path updated to: {1}".format(
-                    data_table.name, data_table_source))
+                logger.debug("  - updated: %s", _mh._get_data_source_desc(data_table))
 
             except MapLayerError as mle:
                 logger.exception("An error occured changing the data source of a table.")
                 errors.append(mle)
-    
+
     if document_was_opened:
         # delete the variable in accordance with Esri guidelines
         del mxd_or_proj
@@ -191,6 +191,8 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
         return d
 
     def match_new_data_source(layer_or_table):
+        logger = _get_logger()
+
         if layer_or_table == None or layer_or_table.get("isGroupLayer") == True:
             # Layers that can't be described or are group layers can't have their data updated
             return None
@@ -205,24 +207,24 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
                 # deterministic naming convention that maps the layer's dataset name to a workspace.
                 if template.get("matchOptions", {}).get("isWorkspaceContainer") == True:
 
-                    _get_logger().debug("Data source template is workspace container.")
+                    logger.debug("Data source template is workspace container.")
 
                     tokens = tokenise_datasource(layer_or_table["dataSource"])
 
                     if tokens is not None:
 
-                        _get_logger().debug("Tokens are: %s", tokens)
+                        logger.debug("Tokens are: %s", tokens)
 
                         if tokens["dataSet"] is not None and tokens["schema"] is not None:
-                            _get_logger().debug(1.11)
+                            logger.debug(1.11)
                             new_conn["workspacePath"] = "{}\\{}.{}.gdb".format(new_conn["workspacePath"],
                                                                                tokens["schema"], tokens["dataSet"])
                         elif tokens["dataSet"] is not None:
-                            _get_logger().debug(1.12)
+                            logger.debug(1.12)
                             new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"],
                                                                             tokens["dataSet"])
                         else:
-                            _get_logger().debug(1.13)
+                            logger.debug(1.13)
                             new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"], tokens["table"])
 
                 break

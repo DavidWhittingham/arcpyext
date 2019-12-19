@@ -24,14 +24,13 @@ from ._cim import ProProject
 from .. import _native as _prosdk
 from ..exceptions import DataSourceUpdateError
 
-
 # Put the map document class here so we can access the per-version type in a consistent location across Python versions
 Document = arcpy.mp.ArcGISProject
 
 
 def open_document(project):
     """Open an ArcGIS Pro Project from a given path.
-    
+
     If the path is already a Project, this is a no-op.
     """
 
@@ -50,16 +49,16 @@ def _change_data_source(layer, new_props):
 
             for k in new:
                 if k in original:
-                    if isinstance(original[k], collections.Mapping) and isinstance(new_props[k], collections.Mapping):
-                        matched_conn_props[k] = get_matching_existing_conn_props(original[k], new_props[k])
+                    if isinstance(original[k], collections.Mapping) and isinstance(new[k], collections.Mapping):
+                        matched_conn_props[k] = get_matching_existing_conn_props(original[k], new[k])
                     else:
                         matched_conn_props[k] = original[k]
-            
+
             return matched_conn_props
 
-        matched_conn_props = get_matching_existing_conn_props(layer.connectionProperties, new_props)       
+        matched_conn_props = get_matching_existing_conn_props(layer.connectionProperties, new_props)
 
-        layer.updateConnectionProperties(matched_conn_props, new_props)
+        layer.updateConnectionProperties(matched_conn_props, new_props, validate=False)
 
     except Exception as e:
         raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
