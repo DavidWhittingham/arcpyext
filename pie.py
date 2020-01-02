@@ -4,31 +4,25 @@ pie - Python Interactive Executor
 Enables a user to execute predefined tasks that may accept parameters and options from the command line without any other required packages.
 Great for bootstrapping a development environment, and then interacting with it.
 """
-__VERSION__='0.2.6'
+__VERSION__='0.3.0h'
 
 
 import inspect
 import os
 import re
+import shutil
 import subprocess
 import sys
 import traceback
 import types
-from functools import wraps
 
 
-__all__=['task','Parameter','OptionsParameter','options','cmd','pip','venv']
+__all__=['task','Parameter','OptionsParameter','options','cmd','cd','env','pip','venv']
 
 
 # environment constants
 WINDOWS=(os.name=='nt')
 PY3=(sys.version_info>=(3,0))
-
-# function for input (also so that we can mock it tests)
-INPUT_FN=input if PY3 else raw_input
-# function to execute a command - must emulate the subprocess call method and return an error code on failure
-CMD_FN=subprocess.call
-
 
 
 # ----------------------------------------
@@ -80,7 +74,7 @@ class TaskWrapper(object):
         # for each param, get the value and add to provided if not already there, otherwise make sure it's converted
         for param in self.params:
             if param.name not in arg_names:
-                raise Exception('{} not a valid parameter of task {}'.format(param.name,fn.__name__))
+                raise Exception('{} not a valid parameter of task {}'.format(param.name,self.fn.__name__))
             if param.name not in provided:
                 # provide a default if one exists
                 default=defaults.get(param.name,Parameter.NO_VALUE)
@@ -150,6 +144,9 @@ def importTasks():
 class Parameter(object):
     """Parameter base class for specifying how to handle parameters for tasks"""
     NO_VALUE=object()
+    # function for input (also so that we can mock it tests) - TODO: move this to some more generic usable place - InputGetter?
+    INPUT_FN=input if PY3 else raw_input
+
 
     def __init__(self,name,prompt=None,inputFn=NO_VALUE,conversionFn=lambda o:o,use_default=False):
         """
@@ -162,7 +159,7 @@ class Parameter(object):
         """
         self.name=name
         self.prompt=prompt
-        self.inputFn=inputFn if inputFn is not self.NO_VALUE else INPUT_FN
+        self.inputFn=inputFn if inputFn is not self.NO_VALUE else self.INPUT_FN
         self.conversionFn=conversionFn
         self.use_default=use_default
 
@@ -201,17 +198,49 @@ class OptionsParameter(Parameter):
         setattr(options,self.name,v)
         return v
 
+
+
 # ----------------------------------------
 # operations
 # ----------------------------------------
+class CmdExecutor(object):
+    """
+    The CmdExecutor (singleton) actually executes a command.
+
+    Attributes:
+     - print_cmd: prints the command that will be executed
+     - dry_run: does not actually run the command, returns an error code of 0, assuming it passed
+     - cmd_fun: the function that runs the command
+    """
+    print_cmd=False
+    dry_run=False
+
+    @classmethod
+    def DEFAULT_CMD_FN(cls,c):
+        """The default cmd function using Popen and passing stdout and stderr through"""
+        if cls.print_cmd:
+            print(c)
+        if not cls.dry_run:
+            p=subprocess.Popen(c,shell=True,stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+            p.wait()
+            return p.returncode
+        return 0
+
+    # function to execute a command - can be overridden, must return an error code on failure
+    cmd_fn=DEFAULT_CMD_FN
+
+
 class CmdContextManager(object):
     """
     The CmdContextManager (singleton) is used to keep track of what context a command is being executed within:
 
         with venv('venv/build'):
             cmd('python -m pip')
+
+    It also has a class variable `python_cmd` which must be set by any CmdContext that causes the instance of python being used to change.
     """
     context=[]
+    python_cmd=sys.executable
 
 
     class CmdError(Exception):
@@ -229,7 +258,7 @@ class CmdContextManager(object):
     def cmd(cls,c,i=None):
         if i is None: i=len(cls.context)
         if i>0: return cls.context[i-1].cmd(c)
-        errorcode=CMD_FN(c,shell=True)
+        errorcode=CmdExecutor.cmd_fn(c)
         if errorcode!=0:
             raise cls.CmdError(errorcode,c)
 
@@ -243,9 +272,10 @@ def cmd(c):
     return CmdContextManager.cmd(c)
 
 
-def pip(c,pythonCmd='python'):
+def pip(c,pythonCmd=None):
     """Runs a pip command"""
-    cmd('{} -m pip {}'.format(pythonCmd,c))
+    if pythonCmd is None: pythonCmd=CmdContextManager.python_cmd
+    cmd('"{}" -m pip {}'.format(pythonCmd,c))
 
 
 class CmdContext(object):
@@ -253,34 +283,178 @@ class CmdContext(object):
     # make this a context manager
     def __enter__(self):
         self.contextPosition=CmdContextManager.enter(self)
+        self.enter_hook()
         return self
 
+    def enter_hook(self):
+        pass
+
     def __exit__(self,exc_type,exc_value,traceback):
+        self.exit_hook()
         CmdContextManager.exit()
         # we don't care about an exception
+
+    def exit_hook(self):
+        pass
+
+    def cmd(self,c):
+        """Execute the cmd within the context"""
+        return CmdContextManager.cmd(c,self.contextPosition)
 
 
 class venv(CmdContext):
     """A context class used to execute commands within a virtualenv"""
     def __init__(self,path):
-        self.path=path
+        self.path=os.path.abspath(path)
 
-    def create(self,extraArguments='',pythonCmd='python',py3=PY3):
+    def _binary_path(self,binary):
+        middle='\\Scripts\\' if WINDOWS else '/bin/'
+        return r'{}{}{}'.format(self.path,middle,binary)
+
+    def enter_hook(self):
+        self.old_python_cmd=CmdContextManager.python_cmd
+        CmdContextManager.python_cmd=self._binary_path('python')
+
+    def exit_hook(self):
+        CmdContextManager.python_cmd=self.old_python_cmd
+
+    def exists(self):
+        return os.path.isdir(self.path)
+
+    def create(self,extraArguments='',pythonCmd=None,py3=PY3):
         """Creates a virutalenv by running the `pythonCmd` and adding `extraArguments` if required. `py3` is used to flag whether this python interpreter is py3 or not. Defaults to whatever the current python version is."""
-        if py3:
-            c=r'{} -m venv {} "{}"'.format(pythonCmd,extraArguments,self.path)
-        else:
-            c=r'{} -m virtualenv {} "{}"'.format(pythonCmd,extraArguments,self.path)
+        if pythonCmd is None: pythonCmd=CmdContextManager.python_cmd
+        venv_module='venv' if py3 else 'virtualenv'
+        c=r'"{}" -m {} {} "{}"'.format(pythonCmd,venv_module,extraArguments,self.path)
         cmd(c)
+
+    def is_activated(self):
+        return self._get_sys_prefix().endswith(self.path)
+
+    def pip_update(self):
+        with self:
+            pip('install -U pip')
+
+    def pip_install_requirements(self,requirements_file='requirements.txt'):
+        with self:
+            pip('install -r "{}"'.format(requirements_file))
 
     def cmd(self,c):
         """Runs the command `c` in this virtualenv."""
         if WINDOWS:
-            c=r'cmd /c "{}\Scripts\activate.bat && {}"'.format(self.path,c)
+            # cmd.exe /C has real specific behaviour around quotes.
+            # The below double quote syntax is valid because it strips the outside quotes.
+            # The path to activate.bat must be quoted in case it contains spaces
+            c=r'''cmd /c ""{}" && {}"'''.format(self._binary_path('activate.bat'),c)
         else:
-            c=r'bash -c "{}/bin/activate && {}"'.format(self.path,c)
+            c=r'bash -c "source "{}" && {}"'.format(self._binary_path('activate'),c)
         return CmdContextManager.cmd(c,self.contextPosition)
 
+    def destroy(self):
+        if self.exists():
+            shutil.rmtree(self.path)
+
+    def _get_sys_prefix(self):
+        if not WINDOWS:
+            return sys.prefix
+
+        # On Windows, running via activate.bat, sys.prefix is converted to short-name format.
+        # In order to know the sys.prefix path, we need to ensure it's converted back to long name format.
+        import locale
+        from ctypes import create_unicode_buffer, FormatError, GetLastError, windll
+
+        # Start by getting prefix as unicode (it already is in PY3)
+        sys_prefix = sys.prefix if PY3 else unicode(sys.prefix)
+
+        # long names on Windows (before Windows 10 v1607, without GP changes) require a prefix if longer than MAX_PATH
+        # just use the prefix everywhere for convenience sake
+        long_name_prefix = u'\\\\?\\'
+        sys_prefix = sys_prefix if sys_prefix.startswith(long_name_prefix) else u'{}{}'.format(long_name_prefix, sys_prefix)
+
+        # find out how long the long name path is
+        sys_prefix_chars = windll.kernel32.GetLongPathNameW(sys_prefix, None, 0)
+
+        # if we have a char length return, the long name path can be retrieved
+        if sys_prefix_chars:
+            # create a buffer based on the char length to hold the long name
+            sys_prefix_long_name_buffer = create_unicode_buffer(sys_prefix_chars)
+
+            # get the long name, inside an if statement to handle the (unlikely) event that the path is deleted
+            # between the above call and now
+            if windll.kernel32.GetLongPathNameW(sys_prefix, sys_prefix_long_name_buffer, sys_prefix_chars):
+                # get the value and remove the prefix
+                sys_prefix = sys_prefix_long_name_buffer.value
+                if sys_prefix.startswith(long_name_prefix):
+                    sys_prefix = sys_prefix[len(long_name_prefix):]
+                return sys_prefix
+
+        # check to see if a Windows error was fired
+        e = GetLastError()
+        error_template = u'Failed to get long name for sys.prefix ({}): {{}}'.format(sys.prefix)
+        if e:
+            formatted_error = FormatError(e).decode(locale.getpreferredencoding(), 'replace')
+            raise WindowsError(e, error_template.format(formatted_error))
+
+        # if no Windows error, who knows what happend, fail
+        raise Exception(error_template.format('unknown error'))
+
+
+class cd(CmdContext):
+    """A context class used to execute commands within a different working dir"""
+    def __init__(self,path):
+        self.path=path
+        self.old_path=os.getcwd()
+
+    def enter_hook(self):
+        os.chdir(self.path)
+
+    def exit_hook(self):
+        os.chdir(self.old_path)
+
+
+class env(CmdContext):
+    """A context class used to execute commands with a different environment"""
+    def __init__(self,env_dict):
+        self.env_dict=env_dict
+
+    def enter_hook(self):
+        self.old_env_dict=self.get_multiple(self.env_dict.keys(),default=None)
+        self.set_multiple(self.env_dict)
+
+    def exit_hook(self):
+        self.set_multiple(self.old_env_dict)
+
+
+    # some convenience methods
+    @classmethod
+    def has(cls,k):
+        """Checks if an environment variable exists."""
+        return (cls.get(k,None) is not None)
+
+    @classmethod
+    def get(cls,k,default=None):
+        """Gets a single environment variable. Returns `default` if that variable doesn't exist."""
+        return os.environ.get(k,default)
+
+    @classmethod
+    def get_multiple(cls,ks,default=None):
+        """Accepts a list of keys and returns a dict of values"""
+        return {k:cls.get(k,default) for k in ks}
+
+    @classmethod
+    def set(cls,k,v):
+        """Sets a single environment variable. A value of None results in that environment variable being removed."""
+        if v is None:
+            if k in os.environ:
+                del os.environ[k]
+        else:
+            os.environ[k]=v
+
+    @classmethod
+    def set_multiple(cls,d):
+        """Accepts a dictionary of values to set"""
+        for k,v in d.items():
+            cls.set(k,v)
 
 
 # ----------------------------------------
@@ -303,6 +477,16 @@ class Version(Argument):
 
     def __repr__(self):
         return 'Version: {}'.format(__VERSION__)
+
+
+class Verbose(Argument):
+    def execute(self):
+        CmdExecutor.print_cmd=True
+
+
+class DryRun(Argument):
+    def execute(self):
+        CmdExecutor.dry_run=True
 
 
 class CreatePieVenv(Argument):
@@ -346,6 +530,7 @@ class CreateBatchFile(Argument):
                 fout.write('unset PIE_OLD_PYTHONHOME\n')
                 fout.write('export PATH=$PIE_OLD_PATH\n')
                 fout.write('unset PIE_OLD_PATH\n')
+            # TODO: set exec perms
 
 
 class ListTasks(Argument):
@@ -367,11 +552,11 @@ class ListTasks(Argument):
 
 class Help(Argument):
     def execute(self):
-        print('Usage:    pie [ -v | -h | -b | -l | -L | m <name> ]')
+        print('Usage:    pie [ -V | -h | -b | -l | -L | -m <name> | -R | -r | -n | -v ]')
         print('          pie [ -o <name>=<value> | <task>[(<args>...)] ]...')
         print('Version:  v{}'.format(__VERSION__))
         print('')
-        print('  -v      Display version')
+        print('  -V      Display version')
         print('  -h      Display this help')
         print('  -b      Create batch file shortcut')
         print('  -l      List available tasks with description')
@@ -379,6 +564,8 @@ class Help(Argument):
         print('  -m <n>  Change name of the pie_tasks module to import')
         print('  -R      Creates a .venv-pie venv using requirements.pie.txt')
         print('  -r      Updates the .venv-pie venv using requirements.pie.txt')
+        print('  -n      Dry run; don\'t actually execute the commands')
+        print('  -v      Verbose output')
         print('  -o      Sets an option with name to value')
         print('  <task>  Runs a task passing through arguments if required')
         print('')
@@ -440,7 +627,7 @@ def parseArguments(args):
         arg=args[i]
         if arg.startswith('-'):
             # although we say that these options are check that incompatible options aren't used together
-            if arg=='-v':
+            if arg=='-V':
                 parsed.append(Version())
             elif arg=='-h':
                 parsed.append(Help())
@@ -453,6 +640,10 @@ def parseArguments(args):
             elif arg=='-m':
                 parsed.append(ModuleName(args[i+1]))
                 i+=1
+            elif arg=='-v':
+                parsed.append(Verbose())
+            elif arg=='-n':
+                parsed.append(DryRun())
             elif arg=='-R':
                 parsed.append(CreatePieVenv())
                 parsed.append(UpdatePieVenv())
@@ -482,26 +673,22 @@ def parseArguments(args):
 # ----------------------------------------
 # pie venv
 # ----------------------------------------
-class PieVenv(object):
+class PieVenv(venv):
     PIE_REQUIREMENTS='requirements.pie.txt'
     PIE_VENV='.venv-pie'
+
+    def __init__(self):
+        super(PieVenv,self).__init__(self.PIE_VENV)
 
     def requirements_exists(self):
         return os.path.isfile(self.PIE_REQUIREMENTS)
 
-    def exists(self):
-        return os.path.isdir(self.PIE_VENV)
-
-    def is_activated(self):
-        return sys.prefix.endswith(self.PIE_VENV)
-
     def create(self):
-        venv(self.PIE_VENV).create('--system-site-packages')
+        super(PieVenv,self).create('--system-site-packages')
 
     def update(self):
-        with venv(self.PIE_VENV):
-            pip('install -U pip')
-            pip('install -r {}'.format(self.PIE_REQUIREMENTS))
+        self.pip_update()
+        self.pip_install_requirements(self.PIE_REQUIREMENTS)
 
     def run_pie(self,args):
         with venv(self.PIE_VENV):
