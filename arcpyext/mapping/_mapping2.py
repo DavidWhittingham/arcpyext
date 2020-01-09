@@ -174,17 +174,23 @@ def _native_add_data_connection_details(idataset, layer_details):
     import ESRI.ArcGIS.Geodatabase as esriGeoDatabase
     import ESRI.ArcGIS.esriSystem as esriSystem
 
-    if bool(idataset):
-        # can enrich with database details
-        workspace = _ao.cast_obj(idataset.Workspace, esriGeoDatabase.IWorkspace)
-        property_set = _ao.cast_obj(workspace.ConnectionProperties, esriSystem.IPropertySet)
-        _, property_keys, property_values = property_set.GetAllProperties(None, None)
+    if not bool(idataset):
+        return
 
-        connection_properties = dict(zip(property_keys, property_values))
-        layer_details["userName"] = connection_properties.get("USER")
-        layer_details["server"] = connection_properties.get("SERVER")
-        layer_details["service"] = connection_properties.get("INSTANCE")
-        layer_details["database"] = connection_properties.get("DATABASE")
+    # can enrich with database details
+    workspace = _ao.cast_obj(idataset.Workspace, esriGeoDatabase.IWorkspace)
+
+    if not workspace:
+        return
+
+    property_set = _ao.cast_obj(workspace.ConnectionProperties, esriSystem.IPropertySet)
+    _, property_keys, property_values = property_set.GetAllProperties(None, None)
+
+    connection_properties = dict(zip(property_keys, property_values))
+    layer_details["userName"] = connection_properties.get("USER")
+    layer_details["server"] = connection_properties.get("SERVER")
+    layer_details["service"] = connection_properties.get("INSTANCE")
+    layer_details["database"] = connection_properties.get("DATABASE")
 
     # TODO: Implement details for web service layer
 
@@ -228,10 +234,11 @@ def _native_describe_fields(layer_or_table_fields):
 def _native_describe_layer(layer_parts):
     # avoid boxing/unboxing issues
     # not sure if this is really necessary, but getting weird results without it
-    layer_is_valid = layer_parts["layer"].Valid
-    layer_is_visible = layer_parts["layer"].Visible
-    layer_name = layer_parts["layer"].Name
+    layer_is_valid = layer_parts["layer"].Valid if layer_parts["layer"] else False
+    layer_is_visible = layer_parts["layer"].Visible if layer_parts["layer"] else layer_parts["layer"].Visible
+    layer_name = layer_parts["layer"].Name if layer_parts["layer"] else layer_parts["layer"].Name
 
+    #yapf: disable
     layer_details = {
         "dataSource": _native_get_data_source(layer_parts),
         "database": None,
@@ -246,7 +253,7 @@ def _native_describe_layer(layer_parts):
         "isRasterLayer": bool(layer_parts["rasterLayer"]),
         "isRasterizingLayer": None,  # not implemented yet
         "isServiceLayer": None,  # not implemented yet
-        "isGroupLayer": layer_parts["groupLayer"] != None or layer_parts["networkAnalystLayer"] != None,
+        "isGroupLayer": layer_parts["groupLayer"] != None or layer_parts["networkAnalystLayer"] != None or layer_parts["mosaicLayer"] != None,
         "longName": "\\".join(_native_get_layer_name_parts(layer_parts)),
         "name": layer_name,
         "server": None,
@@ -255,6 +262,7 @@ def _native_describe_layer(layer_parts):
         "userName": None,
         "visible": layer_is_visible
     }
+    #yapf: enable
 
     _native_add_data_connection_details(layer_parts["dataset"], layer_details)
 
@@ -351,7 +359,7 @@ def _native_get_data_source(layer_or_table):
 
 
 def _native_get_dataset_name(layer_or_table):
-    import ESRI.ArcGIS.esriSystem as esriSystem
+    import ESRI.ArcGIS.Geodatabase as esriGeoDatabase
 
     dataset_name = None
 
@@ -361,10 +369,9 @@ def _native_get_dataset_name(layer_or_table):
     elif layer_or_table.get("table"):
         # should be gotten from tableDataset
         dataset_name = layer_or_table["tableDataset"].Name if layer_or_table["tableDataset"] is not None else None
-    elif layer_or_table.get("rasterLayer"):
-        # should be gotten from data layer interface
-        if layer_or_table["dataLayer"] is not None:
-            dataset_name = _ao.cast_obj(layer_or_table["dataLayer"].DataSourceName, esriSystem.IName).NameString
+    elif layer_or_table["dataLayer"] is not None:
+        # get DataSourceName, cast to IDatasetName
+        dataset_name = _ao.cast_obj(layer_or_table["dataLayer"].DataSourceName, esriGeoDatabase.IDatasetName).Name
 
     return dataset_name
 
@@ -445,9 +452,11 @@ def _native_list_layers(map_document, map_frame):
     def build_layer_parts(map_layer):
         layer_parts = {
             "children": [],
-            "dataset": None,
+            "compositeLayer": _ao.cast_obj(map_layer, esriCarto.ICompositeLayer),
+            "dataset": _ao.cast_obj(map_layer, esriGeoDatabase.IDataset),
             "dataLayer": _ao.cast_obj(map_layer, esriCarto.IDataLayer2),
-            "layer": _ao.cast_obj(map_layer, esriCarto.ILayer2),
+            "layer": _ao.cast_obj(map_layer, esriCarto.ILayer),
+            "layer2": _ao.cast_obj(map_layer, esriCarto.ILayer2),
             "layerFields": _ao.cast_obj(map_layer, esriCarto.ILayerFields),
             "featureLayer": _ao.cast_obj(map_layer, esriCarto.IFeatureLayer),
             "featureLayerDefinition": _ao.cast_obj(map_layer, esriCarto.IFeatureLayerDefinition2),
@@ -455,6 +464,7 @@ def _native_list_layers(map_document, map_frame):
             "index": len(layers),  # map index will be the same as the current length of this array
             "imageServerLayer": _ao.cast_obj(map_layer, esriCarto.IImageServerLayer),
             "mapServerLayer": _ao.cast_obj(map_layer, esriCarto.IMapServerLayer),
+            "mosaicLayer": _ao.cast_obj(map_layer, esriCarto.IMosaicLayer),
             "networkAnalystLayer": _ao.cast_obj(map_layer, esriNetworkAnalyst.INALayer),
             "parent": None,
             "rasterLayer": _ao.cast_obj(map_layer, esriCarto.IRasterLayer),
@@ -462,21 +472,16 @@ def _native_list_layers(map_document, map_frame):
         }
 
         # get the relevant dataset
-        dataset = None
         if bool(layer_parts["featureLayer"]):
-            dataset = _ao.cast_obj(layer_parts["featureLayer"].FeatureClass, esriGeoDatabase.IDataset)
-        elif bool(layer_parts["rasterLayer"]):
-            dataset = _ao.cast_obj(layer_parts["rasterLayer"], esriGeoDatabase.IDataset)
-
-        if not dataset is None:
-            layer_parts["dataset"] = dataset
+            layer_parts["dataset"] = _ao.cast_obj(layer_parts["featureLayer"].FeatureClass, esriGeoDatabase.IDataset)
 
         # Get server layer extensions
         layer_extensions = _ao.cast_obj(map_layer, esriCarto.ILayerExtensions)
-        layer_parts["serverLayerExtensions"] = [
-            sle for sle in (_ao.cast_obj(layer_extensions.get_Extension(i), esriCarto.IServerLayerExtension)
-                            for i in range(0, layer_extensions.get_ExtensionCount())) if sle is not None
-        ]
+        if layer_extensions:
+            layer_parts["serverLayerExtensions"] = [
+                sle for sle in (_ao.cast_obj(layer_extensions.get_Extension(i), esriCarto.IServerLayerExtension)
+                                for i in range(0, layer_extensions.get_ExtensionCount())) if sle is not None
+            ]
 
         layers.append(layer_parts)
 
@@ -486,15 +491,13 @@ def _native_list_layers(map_document, map_frame):
         # Set parent
         layer_parts["parent"] = parent_parts
 
-        if not (bool(layer_parts["groupLayer"]) or bool(layer_parts["networkAnalystLayer"])):
+        if not bool(layer_parts["compositeLayer"]):
             # layer is not a group layer, ignore
             return
 
-        # layer is a group layer, cast to ICompositeLayer to get access to child layers
-        composite_layer = _ao.cast_obj(layer_parts["layer"], esriCarto.ICompositeLayer)
-        for i in range(0, composite_layer.Count):
+        for i in range(0, layer_parts["compositeLayer"].Count):
             # get child layer
-            child_layer = _ao.cast_obj(composite_layer.get_Layer(i), esriCarto.ILayer2)
+            child_layer = layer_parts["compositeLayer"].get_Layer(i)
 
             # get child layer parts
             child_layer_parts = build_layer_parts(child_layer)
@@ -609,7 +612,6 @@ def _native_document_close(map_document):
 
 
 def _native_document_open(mxd_path):
-    #import comtypes.gen.esriCarto as esriCarto
     import ESRI.ArcGIS.Carto as esriCarto
 
     if _native_mxd_exists(mxd_path):
