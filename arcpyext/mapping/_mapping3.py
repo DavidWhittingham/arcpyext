@@ -44,21 +44,43 @@ def _change_data_source(layer, new_props):
     try:
         # updating of connection properties should always be assumed to be partial updates
         # must build dictionaries of partial attributes in order to update
-        def get_matching_existing_conn_props(original, new):
+        # the dictionary has to also deal with multiple levels of source/destination, to deal with relationships
+        def get_paired_conn_props(original, new):
             matched_conn_props = {}
+            new_conn_props = {}
+            skip_this_level = False
+
+            if "source" in original:
+                # Connection properties has the 'source' part of a relationship, going down to next level
+                source_matched, source_updated_conn_props = get_paired_conn_props(original["source"], new)
+                matched_conn_props["source"] = source_matched
+                new_conn_props["source"] = source_updated_conn_props
+                skip_this_level = True
+
+            if "destination" in original:
+                # Connection properties has the 'destination' part of a relationship, going down to next level
+                destination_matched, destination_updated_conn_props = get_paired_conn_props(
+                    original["destination"], new)
+                matched_conn_props["destination"] = destination_matched
+                new_conn_props["destination"] = destination_updated_conn_props
+                skip_this_level = True
+
+            if skip_this_level:
+                return (matched_conn_props, new_conn_props)
 
             for k in new:
                 if k in original:
                     if isinstance(original[k], collections.Mapping) and isinstance(new[k], collections.Mapping):
-                        matched_conn_props[k] = get_matching_existing_conn_props(original[k], new[k])
+                        matched_conn_props[k], new_conn_props[k] = get_paired_conn_props(original[k], new[k])
                     else:
                         matched_conn_props[k] = original[k]
+                        new_conn_props[k] = new[k]
 
-            return matched_conn_props
+            return (matched_conn_props, new_conn_props)
 
-        matched_conn_props = get_matching_existing_conn_props(layer.connectionProperties, new_props)
+        matched_conn_props, new_conn_props = get_paired_conn_props(layer.connectionProperties, new_props)
 
-        layer.updateConnectionProperties(matched_conn_props, new_props, validate=False)
+        layer.updateConnectionProperties(matched_conn_props, new_conn_props, validate=False)
 
     except Exception as e:
         raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
@@ -83,6 +105,10 @@ def _describe_map(file_path):
 
 def _get_data_source_desc(layer_or_table):
     return layer_or_table.connectionProperties
+
+
+def _get_logger():
+    return logging.getLogger("arcpyext.mapping")
 
 
 def _list_maps(proj):

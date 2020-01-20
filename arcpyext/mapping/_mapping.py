@@ -83,7 +83,7 @@ def change_data_sources(mxd_or_proj, data_sources):
 
             #TODO: Handle KeyError and AttributeError for badly written configs
             except MapLayerError as e:
-                logger.exception("An error occured changing the data source of a map layer.")
+                logger.exception("An error occured changing the data source of a map layer: %s", e)
                 errors.append(e)
 
         data_tables = _mh._list_tables(mxd_or_proj, map_frame)
@@ -104,7 +104,7 @@ def change_data_sources(mxd_or_proj, data_sources):
                 logger.debug("  - updated: %s", _mh._get_data_source_desc(data_table))
 
             except MapLayerError as mle:
-                logger.exception("An error occured changing the data source of a table.")
+                logger.exception("An error occured changing the data source of a table: %s", mle)
                 errors.append(mle)
 
     if document_was_opened:
