@@ -193,8 +193,9 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
     def match_new_data_source(layer_or_table):
         logger = _get_logger()
 
-        if layer_or_table == None or layer_or_table.get("isGroupLayer") == True:
-            # Layers that can't be described or are group layers can't have their data updated
+        if layer_or_table == None or (layer_or_table.get("isGroupLayer") == True
+                                      and layer_or_table.get("isNetworkAnalystLayer") != True):
+            # Layers that can't be described or are group layers (except NA layers) can't have their data updated
             return None
 
         new_conn = None
