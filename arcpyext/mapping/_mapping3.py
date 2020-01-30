@@ -21,6 +21,7 @@ import arcpy
 
 # Local imports
 from ._cim import ProProject
+from ._mapping_helpers import tokenise_table_name
 from .. import _native as _prosdk
 from ..exceptions import DataSourceUpdateError
 
@@ -75,6 +76,16 @@ def _change_data_source(layer, new_props):
                     else:
                         matched_conn_props[k] = original[k]
                         new_conn_props[k] = new[k]
+
+                        # process magic field updating
+                        if k == "dataset":
+                            # pass original value for parts
+                            dataset_parts = tokenise_table_name(original[k])
+
+                            # format new value, if necessary
+                            new_conn_props[k] = new_conn_props[k].format(**dataset_parts)
+                else:
+                    new_conn_props[k] = new[k]
 
             return (matched_conn_props, new_conn_props)
 

@@ -22,6 +22,7 @@ from enum import Enum  # comes from third-party package on Py 2
 
 # Local imports
 from ._compare_helpers import lowercase_dict
+from ._mapping_helpers import tokenise_datasource
 from .compare_types import *
 from ..exceptions import MapLayerError, ChangeDataSourcesError
 from .._json import JsonEnum
@@ -44,6 +45,14 @@ else:
 
 
 def change_data_sources(mxd_or_proj, data_sources):
+    """
+    Replaces data sources per-layer with the specified data source.
+
+    :param mxd_or_proj: The Map Document or ArcGIS Project to process.
+    :type mxd_or_proj: arcpy.mapping.MapDocument/arcpy.mapping.ArcGISProject (Python-version depedent) or str (file 
+                       path).  If a native arcpy object is passed in, changes are not saved.  If a file path is passed
+                       in, changes are saved.
+    """
     logger = _get_logger()
 
     logger.debug("Data sources: %s", data_sources)
@@ -107,12 +116,18 @@ def change_data_sources(mxd_or_proj, data_sources):
                 logger.exception("An error occured changing the data source of a table: %s", mle)
                 errors.append(mle)
 
-    if document_was_opened:
-        # delete the variable in accordance with Esri guidelines
-        del mxd_or_proj
+    try:
+        if not len(errors) == 0:
+            raise ChangeDataSourcesError("A number of errors were encountered whilst change layer data sources.",
+                                         errors)
 
-    if not len(errors) == 0:
-        raise ChangeDataSourcesError("A number of errors were encountered whilst change layer data sources.", errors)
+        if document_was_opened:
+            # If the document was opened by this function, the map has to be saved for changes to be persisted
+            mxd_or_proj.save()
+    finally:
+        if document_was_opened:
+            # delete the variable in accordance with Esri guidelines
+            del mxd_or_proj
 
 
 def compare(was_mxd_proj_or_desc, now_mxd_proj_or_desc):
@@ -136,34 +151,6 @@ def compare(was_mxd_proj_or_desc, now_mxd_proj_or_desc):
 
 
 def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates, raise_exception_no_change=False):
-    def tokenise_table_name(x):
-        """Given a feature class or feature dataset name, returns the schema (optional) and simple name"""
-
-        if "." in x:
-            return {"schema": x[:x.index(".")], "name": x[x.index(".") + 1:]}
-        else:
-            return {"schema": None, "name": x}
-
-    def tokenise_datasource(x):
-        """Given a fully qualified feature class path, returns the feature class' schema, simple name and parent dataset (optional)"""
-
-        regex = r"([\w\.]+)?(/|\\+)([\w\.]+$)"
-        parts = re.search(regex, x, re.MULTILINE | re.IGNORECASE)
-
-        if parts and len(parts.groups()) > 2:
-
-            dataset = None if ".gdb" in parts.group(1).lower() or ".sde" in parts.group(
-                1).lower() else tokenise_table_name(parts.group(1))
-            table = tokenise_table_name(parts.group(3))
-
-            return {
-                "schema": None if table["schema"] is None else table["schema"],
-                "dataSet": None if dataset is None else dataset["name"],
-                "table": table["name"]
-            }
-
-        else:
-            return None
 
     # ensure we have a description of the map, and not a map itself
     map_desc = mxd_proj_or_desc if isinstance(mxd_proj_or_desc, Mapping) else describe(mxd_proj_or_desc)
