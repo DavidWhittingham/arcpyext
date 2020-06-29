@@ -102,6 +102,16 @@ class conda(CmdContext):
 
         return CmdContextManager.cmd(c, self.contextPosition)
 
+    def enter_hook(self):
+        self.old_python_cmd=CmdContextManager.python_cmd
+        CmdContextManager.python_cmd=self._binary_path("python")
+
+    def exit_hook(self):
+        CmdContextManager.python_cmd=self.old_python_cmd
+    
+    def _binary_path(self, binary):
+        return r"{}{}{}".format(self.path, "\\", binary)
+
 
 def create_venv(python_path, venv_path):
     remove_dir(venv_path)
