@@ -88,19 +88,28 @@ def _change_data_source(layer, new_props):
 
                 elif k == "featureDataset":
                     # won't be in original, have to drop into CIM to get the feature dataset (as of 2.5.2)
-                    layer_cim = layer.getDefinition("V2")
-                    data_connection = layer_cim.featureTable.dataConnection
-                    feature_dataset = ""
-                    if hasattr(data_connection, "featureDataset"):
-                        feature_dataset = data_connection.featureDataset
 
-                        # pass original value for parts
-                        feature_dataset_parts = tokenise_table_name(feature_dataset)
+                    # determine if feature dataset value needs formatting
+                    fd_needs_format = eformat.needs_formatting(new[k])
 
-                        # format new value, if necessary
-                        _get_logger().debug("k = %s", k)
-                        _get_logger().debug("new = %s", new)
-                        feature_dataset = eformat.format(new[k], **feature_dataset_parts)
+                    if not fd_needs_format:
+                        # feature dataset has been hard-coded, just set it
+                        feature_dataset = new[k]
+                    else:
+                        # feature dataset needs to be read and formatted from layer
+                        # if it can't be formatted, set it to nothing
+                        feature_dataset = None
+
+                        layer_cim = layer.getDefinition("V2")
+                        data_connection = layer_cim.featureTable.dataConnection
+                        if hasattr(data_connection, "featureDataset"):
+                            feature_dataset = data_connection.featureDataset
+
+                            # pass original value for parts
+                            feature_dataset_parts = tokenise_table_name(feature_dataset)
+
+                            # format parts to new feature dataset string
+                            feature_dataset = eformat.format(new[k], **feature_dataset_parts)
 
                     # easiest to apply here, rather than step through again on updateConnectionProperties
                     # hopefully this code can be removed in some future ArcGIS Pro version

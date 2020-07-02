@@ -29,4 +29,16 @@ class ExtendedFormatter(Formatter):
             if not format_spec:
                 return value
 
+        if value is None:
+            return ""
+
         return super().format_field(value, format_spec)
+
+    def needs_formatting(self, s):
+        for (_, field_name, _, _) in self.parse(s):
+            if field_name != None:
+                return True
+
+            continue
+
+        return False
