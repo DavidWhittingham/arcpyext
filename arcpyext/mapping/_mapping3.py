@@ -23,6 +23,7 @@ import arcpy
 from ._cim import ProProject
 from ._mapping_helpers import tokenise_table_name
 from .. import _native as _prosdk
+from .._str import eformat
 from ..exceptions import DataSourceUpdateError
 
 # Put the map document class here so we can access the per-version type in a consistent location across Python versions
@@ -83,7 +84,34 @@ def _change_data_source(layer, new_props):
                             dataset_parts = tokenise_table_name(original[k])
 
                             # format new value, if necessary
-                            new_conn_props[k] = new_conn_props[k].format(**dataset_parts)
+                            new_conn_props[k] = eformat.format(new_conn_props[k], **dataset_parts)
+
+                elif k == "featureDataset":
+                    # won't be in original, have to drop into CIM to get the feature dataset (as of 2.5.2)
+                    layer_cim = layer.getDefinition("V2")
+                    data_connection = layer_cim.featureTable.dataConnection
+                    feature_dataset = ""
+                    if hasattr(data_connection, "featureDataset"):
+                        feature_dataset = data_connection.featureDataset
+
+                        # pass original value for parts
+                        feature_dataset_parts = tokenise_table_name(feature_dataset)
+
+                        # format new value, if necessary
+                        _get_logger().debug("k = %s", k)
+                        _get_logger().debug("new = %s", new)
+                        feature_dataset = eformat.format(new[k], **feature_dataset_parts)
+
+                    # easiest to apply here, rather than step through again on updateConnectionProperties
+                    # hopefully this code can be removed in some future ArcGIS Pro version
+                    if feature_dataset:
+                        #data_connection.featureDataset.replace(str(data_connection.featureDataset), newDatabase)
+                        data_connection.featureDataset = feature_dataset
+                    else:
+                        if hasattr(data_connection, "featureDataset"):
+                            del data_connection.featureDataset
+
+                    layer.setDefinition(layer_cim)
                 else:
                     new_conn_props[k] = new[k]
 
