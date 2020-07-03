@@ -23,7 +23,7 @@ import arcpy
 from ._cim import ProProject
 from ._mapping_helpers import tokenise_table_name
 from .. import _native as _prosdk
-from .._str import eformat
+from .._str import eformat, format_def_query
 from ..exceptions import DataSourceUpdateError
 
 # Put the map document class here so we can access the per-version type in a consistent location across Python versions
@@ -74,61 +74,49 @@ def _change_data_source(layer, new_props):
                 if k in original:
                     if isinstance(original[k], collections.Mapping) and isinstance(new[k], collections.Mapping):
                         matched_conn_props[k], new_conn_props[k] = get_paired_conn_props(original[k], new[k])
+                    elif k in ["dataset", "featureDataset"]:
+                        # process magic field updating
+                        new_value = new[k]
+
+                        # determine if dataset value needs formatting
+                        needs_format = eformat.needs_formatting(new[k])
+
+                        if needs_format:
+                            if original[k] is not None:
+                                # pass original value for parts
+                                dataset_parts = tokenise_table_name(original[k])
+
+                                # format new value, if necessary
+                                new_value = eformat.format(new[k], **dataset_parts)
+                                matched_conn_props[k] = original[k]
+                                new_conn_props[k] = new_value
+                        else:
+                            matched_conn_props[k] = original[k]
+                            new_conn_props[k] = new_value
                     else:
                         matched_conn_props[k] = original[k]
                         new_conn_props[k] = new[k]
-
-                        # process magic field updating
-                        if k == "dataset":
-                            # pass original value for parts
-                            dataset_parts = tokenise_table_name(original[k])
-
-                            # format new value, if necessary
-                            new_conn_props[k] = eformat.format(new_conn_props[k], **dataset_parts)
-
-                elif k == "featureDataset":
-                    # won't be in original, have to drop into CIM to get the feature dataset (as of 2.5.2)
-
-                    # determine if feature dataset value needs formatting
-                    fd_needs_format = eformat.needs_formatting(new[k])
-
-                    if not fd_needs_format:
-                        # feature dataset has been hard-coded, just set it
-                        feature_dataset = new[k]
-                    else:
-                        # feature dataset needs to be read and formatted from layer
-                        # if it can't be formatted, set it to nothing
-                        feature_dataset = None
-
-                        layer_cim = layer.getDefinition("V2")
-                        data_connection = layer_cim.featureTable.dataConnection
-                        if hasattr(data_connection, "featureDataset"):
-                            feature_dataset = data_connection.featureDataset
-
-                            # pass original value for parts
-                            feature_dataset_parts = tokenise_table_name(feature_dataset)
-
-                            # format parts to new feature dataset string
-                            feature_dataset = eformat.format(new[k], **feature_dataset_parts)
-
-                    # easiest to apply here, rather than step through again on updateConnectionProperties
-                    # hopefully this code can be removed in some future ArcGIS Pro version
-                    if feature_dataset:
-                        #data_connection.featureDataset.replace(str(data_connection.featureDataset), newDatabase)
-                        data_connection.featureDataset = feature_dataset
-                    else:
-                        if hasattr(data_connection, "featureDataset"):
-                            del data_connection.featureDataset
-
-                    layer.setDefinition(layer_cim)
                 else:
                     new_conn_props[k] = new[k]
 
             return (matched_conn_props, new_conn_props)
 
+        # pull out any options from new_props
+        transform_options = {}
+        if "transformOptions" in new_props:
+            transform_options = new_props.pop("transformOptions")
+
         matched_conn_props, new_conn_props = get_paired_conn_props(layer.connectionProperties, new_props)
 
         layer.updateConnectionProperties(matched_conn_props, new_conn_props, validate=False)
+
+        # process any transform options
+        if "definitionQuery" in transform_options:
+            # must format/replace definiton query
+            def_query_opts = transform_options["definitionQuery"]
+            layer.definitionQuery = format_def_query(layer.definitionQuery,
+                                                     identifier_case=def_query_opts.get("identifierCase"),
+                                                     identifier_quotes=def_query_opts.get("identifierQuotes"))
 
     except Exception as e:
         raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
