@@ -9,8 +9,8 @@ from ._version import *
 import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-from . import _patches as _patches
-_patches.apply()
+from ._patches import apply as _apply_patches
+_apply_patches()
 
 from . import _native
 from . import _str

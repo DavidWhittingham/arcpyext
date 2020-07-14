@@ -118,6 +118,27 @@ def _change_data_source(layer, new_props):
                                                      identifier_case=def_query_opts.get("identifierCase"),
                                                      identifier_quotes=def_query_opts.get("identifierQuotes"))
 
+        if "fields" in transform_options:
+            field_options = transform_options["fields"]
+
+            with layer.getManagedDefinition("V2") as layer_cim:
+                if hasattr(layer_cim, "featureTable"):
+                    for f in layer_cim.featureTable.fieldDescriptions:
+                        if "fieldNameMap" in field_options:
+                            if f.fieldName in field_options["fieldNameMap"]:
+                                f.fieldName = field_options["fieldNameMap"][f.fieldName]
+                                continue
+
+                        if "fieldNameCase" in field_options:
+                            field_name_template = "{}"
+                            if field_options["fieldNameCase"].lower() == "lower":
+                                field_name_template = "{:l}"
+                            if field_options["fieldNameCase"].lower() == "upper":
+                                field_name_template = "{:u}"
+
+                            # go through each field and alter field name case
+                            f.fieldName = eformat.format(field_name_template, f.fieldName)
+
     except Exception as e:
         raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
 

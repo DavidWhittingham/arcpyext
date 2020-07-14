@@ -1,64 +1,35 @@
 # coding=utf-8
 """
-This module handles applying patches to Esri's *arcpy* module.  These patches may insert functionality or fix issues
-directly in the *arcpy* module.
+This module contains patches to Esri's *arcpy._mp.Layer* class.  These patches may insert functionality or fix issues
+directly in the *arcpy._mp.Layer* class.
 """
 
-# Python 2/3 compatibility
-# pylint: disable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
-from __future__ import (absolute_import, division, print_function, unicode_literals)
-from future.builtins.disabled import *
-from future.builtins import *
-from future.standard_library import install_aliases
-install_aliases()
-# pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
-
 import arcpy
-import re
-import sys
 
-from decimal import Decimal
-
-
-def apply():
-    """
-    Applies all the patches contained is this module.
-    """
-
-    fix_mapping_versions()
-
-    if sys.version_info[0] == 3:
-        py3_enrich_connectionProperties()
-        py3_enrich_updateConnectionProperties()
+from .Field import Field
+from .CimEditor import CimEditor
 
 
-def fix_mapping_versions():
-    """
-    This function monkey patches the mapping version information in arcpy to support the currently installed version,
-    along with past versions if they are not included (arcpy 10.5 does not have 10.4 supported version, but the
-    support is there under the hood).
-    """
+def add_fields():
+    def fields_getter(self):
+        layer_cim = self.getDefinition("V2")
+        if hasattr(layer_cim, "featureTable"):
+            return [Field(fd.fieldName, fd.alias, fd.visible) for fd in layer_cim.featureTable.fieldDescriptions]
 
-    # get ArcGIS version as a number
-    ags_version = Decimal(re.search(r"^(\d+\.\d+)", arcpy.GetInstallInfo()['Version'], re.IGNORECASE).group(1))
+        return None
 
-    # surrounded in try/pass to fail gracefully in case Esri change the design of this internal API
-    try:
-        versions = arcpy._mapping.constants.__args__["version"]
-
-        if ags_version >= Decimal("10.4") and "10.4" not in versions:
-            versions["10.4"] = 104
-
-        if ags_version >= Decimal("10.5") and "10.5" not in versions:
-            versions["10.5"] = 105
-
-        if ags_version >= Decimal("10.6") and "10.6" not in versions:
-            versions["10.6"] = 106
-    except:
-        pass
+    fields_prop = property(fields_getter)
+    arcpy._mp.Layer.fields = fields_prop
 
 
-def py3_enrich_connectionProperties():
+def add_getManagedDefinition():
+    def get_managed_definition(self, cim_version):
+        return CimEditor(self, cim_version)
+
+    arcpy._mp.Layer.getManagedDefinition = get_managed_definition
+
+
+def enrich_connectionProperties():
     """On ArcGIS Pro, add support for feature dataset to the connectionProperties of the Layer class, via the CIM."""
 
     # save the original connectionProperties property so we can call it later
@@ -97,7 +68,7 @@ def py3_enrich_connectionProperties():
     arcpy._mp.Layer.connectionProperties = connection_properties_prop
 
 
-def py3_enrich_updateConnectionProperties():
+def enrich_updateConnectionProperties():
     """On ArcGIS Pro, add support for feature dataset to the updateConnectionProperties of the Layer class, via the CIM."""
 
     # save the original updateConnectionProperties function so we can call it later
@@ -138,3 +109,9 @@ def py3_enrich_updateConnectionProperties():
                                                      **kwargs)
 
     arcpy._mp.Layer.updateConnectionProperties = extended_update_connection_properties
+
+
+add_fields()
+add_getManagedDefinition()
+enrich_connectionProperties()
+enrich_updateConnectionProperties()
