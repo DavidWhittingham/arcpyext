@@ -122,8 +122,15 @@ def _change_data_source(layer, new_props):
             field_options = transform_options["fields"]
 
             with layer.getManagedDefinition("V2") as layer_cim:
-                if hasattr(layer_cim, "featureTable"):
-                    for f in layer_cim.featureTable.fieldDescriptions:
+                field_descriptions = None
+                # handle tables
+                if hasattr(layer_cim, "fieldDescriptions"):
+                    field_descriptions = layer_cim.fieldDescriptions
+                elif hasattr(layer_cim, "featureTable"):
+                    field_descriptions = layer_cim.featureTable.fieldDescriptions
+
+                if field_descriptions:
+                    for f in field_descriptions:
                         if "fieldNameMap" in field_options:
                             if f.fieldName in field_options["fieldNameMap"]:
                                 f.fieldName = field_options["fieldNameMap"][f.fieldName]
