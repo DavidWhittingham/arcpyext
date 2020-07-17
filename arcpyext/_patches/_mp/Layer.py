@@ -8,7 +8,7 @@ import arcpy
 
 from .Field import Field
 from .CimEditor import CimEditor
-from ._cim_helpers import enrich_conn_props, recursive_process_connection_info
+from ._cim_helpers import enrich_conn_props, recursive_process_connection_info, is_query_layer
 
 
 def add_fields():
@@ -64,10 +64,13 @@ def enrich_updateConnectionProperties():
             # only process if connection infos are dictionaries
             layer_conn_props = self.connectionProperties
             layer_cim = self.getDefinition("V2")
-            if hasattr(layer_cim, "featureTable"):
-                recursive_process_connection_info(layer_conn_props, current_connection_info, new_connection_info,
-                                                  layer_cim.featureTable.dataConnection)
-                self.setDefinition(layer_cim)
+
+            # query layers can't have their definition set, the layer ends up broken
+            if not is_query_layer(layer_cim):
+                if hasattr(layer_cim, "featureTable"):
+                    recursive_process_connection_info(layer_conn_props, current_connection_info, new_connection_info,
+                                                      layer_cim.featureTable.dataConnection)
+                    self.setDefinition(layer_cim)
 
         return orig_layer_updateConnectionProperties(self, current_connection_info, new_connection_info, *args,
                                                      **kwargs)

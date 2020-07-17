@@ -23,6 +23,7 @@ import arcpy
 from ._cim import ProProject
 from ._mapping_helpers import tokenise_table_name
 from .. import _native as _prosdk
+from .._patches._mp._cim_helpers import is_query_layer
 from .._str import eformat, format_def_query
 from ..exceptions import DataSourceUpdateError
 
@@ -108,7 +109,14 @@ def _change_data_source(layer, new_props):
 
         matched_conn_props, new_conn_props = get_paired_conn_props(layer.connectionProperties, new_props)
 
+        logger = _get_logger()
+        logger.debug("Matched conn props: %s", matched_conn_props)
+        logger.debug("New conn props    : %s", new_conn_props)
+
         layer.updateConnectionProperties(matched_conn_props, new_conn_props, validate=False)
+
+        if hasattr(layer, "isBroken") and layer.isBroken:
+            raise DataSourceUpdateError("Layer is now broken.", layer)
 
         # process any transform options
         if "definitionQuery" in transform_options:
@@ -118,33 +126,40 @@ def _change_data_source(layer, new_props):
                                                      identifier_case=def_query_opts.get("identifierCase"),
                                                      identifier_quotes=def_query_opts.get("identifierQuotes"))
 
-        if "fields" in transform_options:
-            field_options = transform_options["fields"]
+        # get the layer's CIM to process changes
+        layer_cim = layer.getDefinition("V2")
 
-            with layer.getManagedDefinition("V2") as layer_cim:
-                field_descriptions = None
-                # handle tables
-                if hasattr(layer_cim, "fieldDescriptions"):
-                    field_descriptions = layer_cim.fieldDescriptions
-                elif hasattr(layer_cim, "featureTable"):
-                    field_descriptions = layer_cim.featureTable.fieldDescriptions
+        # get the table part of the CIM, unless the layer is a table already
+        table_cim = layer_cim.featureTable if hasattr(layer_cim, "featureTable") else layer_cim
 
-                if field_descriptions:
-                    for f in field_descriptions:
-                        if "fieldNameMap" in field_options:
-                            if f.fieldName in field_options["fieldNameMap"]:
-                                f.fieldName = field_options["fieldNameMap"][f.fieldName]
-                                continue
+        # check if layer is a query layer, if so, don't continue, the definition can't be set safely
+        if not is_query_layer(table_cim):
+            if "fields" in transform_options:
+                field_options = transform_options["fields"]
 
-                        if "fieldNameCase" in field_options:
-                            field_name_template = "{}"
-                            if field_options["fieldNameCase"].lower() == "lower":
-                                field_name_template = "{:l}"
-                            if field_options["fieldNameCase"].lower() == "upper":
-                                field_name_template = "{:u}"
+                # function for processing field name
+                def get_field_name(field_name):
+                    if "fieldNameMap" in field_options:
+                        if field_name in field_options["fieldNameMap"]:
+                            return field_options["fieldNameMap"][field_name]
 
-                            # go through each field and alter field name case
-                            f.fieldName = eformat.format(field_name_template, f.fieldName)
+                    if "fieldNameCase" in field_options:
+                        field_name_template = "{}"
+                        if field_options["fieldNameCase"].lower() == "lower":
+                            field_name_template = "{:l}"
+                        if field_options["fieldNameCase"].lower() == "upper":
+                            field_name_template = "{:u}"
+
+                        return eformat.format(field_name_template, field_name)
+
+                    return field_name
+
+                # handle field descriptions
+                if hasattr(table_cim, "fieldDescriptions"):
+                    for f in table_cim.fieldDescriptions:
+                        f.fieldName = get_field_name(f.fieldName)
+
+            layer.setDefinition(layer_cim)
 
     except Exception as e:
         raise DataSourceUpdateError("Exception raised internally by ArcPy", layer, e)
