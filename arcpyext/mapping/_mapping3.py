@@ -159,6 +159,10 @@ def _change_data_source(layer, new_props):
                     for f in table_cim.fieldDescriptions:
                         f.fieldName = get_field_name(f.fieldName)
 
+                # handle display fields (doesn't handle display field expressions)
+                if hasattr(table_cim, "displayField"):
+                    table_cim.displayField = get_field_name(table_cim.displayField)
+
             layer.setDefinition(layer_cim)
 
     except Exception as e:
