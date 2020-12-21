@@ -217,6 +217,10 @@ def _native_add_data_connection_details(layer_table_parts, layer_table_details):
     if not conn_props:
         return
 
+    if "source" in conn_props:
+        #this is a complex layer, e.g. has a join
+        conn_props = conn_props.get("source")
+
     layer_table_details["datasetName"] = conn_props.get("dataset")
     layer_table_details["datasetType"] = conn_props.get("workspace_factory")
 
