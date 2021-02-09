@@ -8,7 +8,6 @@ from future.builtins.disabled import *
 from future.builtins import *
 from future.standard_library import install_aliases
 install_aliases()
-from future.moves.collections import Mapping
 from future.moves.itertools import chain, zip_longest
 from future.utils import iteritems
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
@@ -18,6 +17,10 @@ import json
 import re
 import sys
 
+try:
+    from collections.abc import Mapping
+except ImportError:
+    from collections import Mapping
 from enum import Enum  # comes from third-party package on Py 2
 
 # Local imports
