@@ -119,7 +119,11 @@ def _change_data_source(layer, new_props):
             raise DataSourceUpdateError("Layer is now broken.", layer)
 
         # process any transform options
-        if "definitionQuery" in transform_options and layer.supports("DEFINITIONQUERY"):
+        # if statement tries to handle layers that do support definition queries, and tables that do (but tables don't
+        # support the "supports" function)
+        if "definitionQuery" in transform_options and (
+            (hasattr(layer, "supports") and layer.supports("DEFINITIONQUERY")) or
+            (not hasattr(layer, "supports") and hasattr(layer, "definitionQuery"))):
             # must format/replace definiton query
             def_query_opts = transform_options["definitionQuery"]
             layer.definitionQuery = format_def_query(layer.definitionQuery,
