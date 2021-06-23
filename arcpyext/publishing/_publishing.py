@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 from future.builtins.disabled import *
 from future.builtins import *
 from future.standard_library import install_aliases
+
 install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,no-name-in-module
 
@@ -16,7 +17,6 @@ import os
 import arcpy
 
 from ..exceptions import MapDataSourcesBrokenError, ServDefDraftCreateError
-from .._multiprocessing import Process
 
 
 def check_analysis(analysis):
@@ -38,7 +38,6 @@ def convert_pro_map_to_service_draft(path_proj_or_map,
                                      summary=None,
                                      copy_data_to_server=False,
                                      portal_folder=None):
-    from ..mapping import is_valid
 
     if isinstance(path_proj_or_map, arcpy.mp.ArcGISProject):
         # assume we want to publish the first map
@@ -58,14 +57,19 @@ def convert_pro_map_to_service_draft(path_proj_or_map,
         os.remove(sd_draft_path)
 
     draft = arcpy.sharing.CreateSharingDraft(
-        'STANDALONE_SERVER',  # This is a fixed value and doesn't do anything
-        'MAP_SERVICE',
+        "STANDALONE_SERVER",  # This is a fixed value and doesn't do anything
+        "MAP_SERVICE",
         service_name,
         map_obj)
 
+    # set settings on service draft
+    draft.copyDataToServer = copy_data_to_server
     draft.offline = True
     draft.serverFolder = folder_name
     draft.portalFolder = portal_folder
+    draft.summary = summary
+
+    # export to file
     draft.exportToSDDraft(sd_draft_path)
 
     return sd_draft_path
@@ -85,7 +89,7 @@ def convert_desktop_map_to_service_draft(map_doc,
     """
 
     from ..mapping import is_valid
-    
+
     logger = _get_logger()
     was_opened = False
 
@@ -102,12 +106,12 @@ def convert_desktop_map_to_service_draft(map_doc,
             os.remove(sd_draft_path)
 
         analysis = arcpy.mapping.CreateMapSDDraft(map_doc,
-                                                sd_draft_path,
-                                                service_name,
-                                                server_type="ARCGIS_SERVER",
-                                                copy_data_to_server=copy_data_to_server,
-                                                folder_name=folder_name,
-                                                summary=summary)
+                                                  sd_draft_path,
+                                                  service_name,
+                                                  server_type="ARCGIS_SERVER",
+                                                  copy_data_to_server=copy_data_to_server,
+                                                  folder_name=folder_name,
+                                                  summary=summary)
 
         check_analysis(analysis)
 
@@ -146,6 +150,7 @@ def convert_toolbox_to_service_draft(toolbox_path,
     check_analysis(analysis)
 
     return sd_draft_path
+
 
 def _get_logger():
     return logging.getLogger(__name__)
