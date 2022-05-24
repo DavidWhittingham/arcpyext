@@ -1,0 +1,68 @@
+# coding=utf-8
+"""
+This module contains patches to Esri's *arcpy._mp.Map* class.  These patches may insert functionality or fix issues
+directly in the *arcpy._mp.Map* class.
+"""
+
+from decimal import Decimal
+import re
+import arcpy
+from arcpy._mp import Layer, Map
+
+from arcpyext._str.utils import caseless_equal
+
+
+def get_cim_version():
+    # get ArcGIS version as a number
+    ags_version = Decimal(re.search(r"^(\d+\.\d+)", arcpy.GetInstallInfo()['Version'], re.IGNORECASE).group(1))
+
+    # surrounded in try/pass to fail gracefully in case Esri change the design of this internal API
+    if ags_version >= Decimal("3.0"):
+        return "V3"
+    else:
+        return "V2"
+
+
+def add_set_layer_visibility():
+    def set_layer_visibility(self, layer_visibility):
+        # type: (Map, str) -> Map
+
+        # process the layer visiblity string (same as Map Service ExportMap specification)
+        try:
+            (layers_op, layers_list) = [s.strip() for s in layer_visibility.split(":")]
+            layers_list = [id.strip() for id in layers_list.split(",")]
+        except:
+            raise Exception("Could not parse layers list to determine layer visiblity: %s", layer_visibility)
+
+        for layer in self.listLayers():
+            layer = layer  # type: Layer
+            cim_version = get_cim_version()
+            layer_id = layer.getDefinition(cim_version).serviceLayerID
+
+            if caseless_equal(layers_op, "show"):
+                # make only the specified layers visible
+                if str(layer_id) in layers_list:
+                    layer.visible = True
+                else:
+                    layer.visible = False
+            # raise NotImplementedError()
+            elif caseless_equal(layers_op, "hide"):
+                # make all layers visible except those specified
+                if str(layer_id) in layers_list:
+                    layer.visible = False
+                else:
+                    layer.visible = True
+            elif caseless_equal(layers_op, "include"):
+                # make the specified layers visible, along with the defaults
+                if str(layer_id) in layers_list:
+                    layer.visible = True
+            elif caseless_equal(layers_op, "exclude"):
+                # make the specified layers invisible, along with the defaults
+                if str(layer_id) in layers_list:
+                    layer.visible = False
+            else:
+                raise ValueError("Layer visibility operation not recognized.")
+
+        return self
+
+    arcpy._mp.Map.set_layer_visibility = set_layer_visibility
