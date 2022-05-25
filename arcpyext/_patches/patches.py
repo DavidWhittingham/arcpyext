@@ -56,3 +56,16 @@ def fix_mapping_versions():
     except:
         pass
 
+
+def get_cim_version():
+    # get ArcGIS version as a number
+    ags_version = Decimal(re.search(r"^(\d+\.\d+)", arcpy.GetInstallInfo()['Version'], re.IGNORECASE).group(1))
+
+    # surrounded in try/pass to fail gracefully in case Esri change the design of this internal API
+    try:
+        if ags_version >= Decimal("3.0"):
+            return "V3"
+        else:
+            return "V2"
+    except:
+        pass
