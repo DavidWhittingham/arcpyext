@@ -26,9 +26,9 @@ def add_set_layer_visibility():
         
         def set_layer_visibility_2():
             from arcpyext.mapping import _mapping2 as _mh
-            ao_map_document = self
-            for map_frame in _mh._native_list_maps(ao_map_document):
-                layer_list = _mh._native_list_layers(ao_map_document, map_frame)
+            # self is a ao_map_document
+            for map_frame in _mh._native_list_maps(self):
+                layer_list = _mh._native_list_layers(self, map_frame)
                 
                 for index, layer in enumerate(layer_list):
                     layer_desc = _mh._native_describe_layer(layer)
@@ -97,3 +97,5 @@ def add_set_layer_visibility():
         return self
 
     arcpy._mp.Map.set_layer_visibility = set_layer_visibility
+
+add_set_layer_visibility()
