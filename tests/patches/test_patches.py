@@ -54,3 +54,12 @@ def test_set_layer_visibility(map_doc_a, layer_visibility_string, id_visibility_
     }
     print(id_visibility_dict_to_test, "should equal", id_visibility_dict)
     assert id_visibility_dict_to_test == id_visibility_dict
+
+
+def test_set_layer_visibility_errors(map_doc_a):
+    map = map_doc_a.listMaps()[0]  # type: Map
+    with pytest.raises(ValueError):
+        map.setLayerVisibility("foo:1")
+
+    with pytest.raises(Exception):
+        map.setLayerVisibility("bar")
