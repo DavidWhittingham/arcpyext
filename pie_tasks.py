@@ -66,18 +66,6 @@ def updatePackages():
         cmd(r'python setup.py develop')
 
 
-# @task
-# def test():
-#     with venv(".venvs\\test-py2-x86_32"):
-#         cmd("python -m pytest tests --cov=arcpyext --cov-report=")
-
-#     with venv(".venvs\\test-py2-x86_64"):
-#         cmd("python -m pytest tests --cov=arcpyext --cov-report=")
-
-#     with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
-#         cmd("e --cov=arcpyext --cov-append --cov-report=term --cov-report=html")
-
-
 @task([OptionsParameter('filter', use_default=True)])
 def test(filter=None):
     if not filter:
