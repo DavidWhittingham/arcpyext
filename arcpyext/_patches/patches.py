@@ -55,4 +55,3 @@ def fix_mapping_versions():
             versions["10.6"] = 106
     except:
         pass
-

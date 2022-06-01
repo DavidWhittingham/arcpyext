@@ -10,6 +10,7 @@ except ImportError as ie:
 from pie import *
 from pie import CmdContext, CmdContextManager
 
+
 @task
 def build():
     with venv(".venvs\\build"):
@@ -32,7 +33,8 @@ def createVenvs():
     create_venv(python2_64bit_path, ".venvs\\test-py2-x86_64")
 
     remove_dir(".venvs\\test-py3")
-    conda(".venvs\\test-py3", get_arcgis_pro_conda_path()).clone("arcgispro-py3", extraArguments="--copy --no-shortcuts --offline")
+    conda(".venvs\\test-py3",
+          get_arcgis_pro_conda_path()).clone("arcgispro-py3", extraArguments="--copy --no-shortcuts --offline")
 
 
 @task
@@ -64,16 +66,31 @@ def updatePackages():
         cmd(r'python setup.py develop')
 
 
-@task
-def test():
-    with venv(".venvs\\test-py2-x86_32"):
-        cmd("python -m pytest tests --cov=arcpyext --cov-report=")
+@task([OptionsParameter('filter', use_default=True)])
+def test(filter=None):
+    if not filter:
+        with venv(".venvs\\test-py2-x86_32"):
+            cmd("python -m pytest tests --cov=arcpyext --cov-report=")
 
-    with venv(".venvs\\test-py2-x86_64"):
-        cmd("python -m pytest tests --cov=arcpyext --cov-report=")
+        with venv(".venvs\\test-py2-x86_64"):
+            cmd("python -m pytest tests --cov=arcpyext --cov-report=")
 
-    with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
-        cmd("python -m pytest tests --cov=arcpyext --cov-append --cov-report=term --cov-report=html")
+        with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
+            cmd("python -m pytest --cov=arcpyext --cov-append --cov-report=term --cov-report=html")
+
+    else:
+        with venv(".venvs\\test-py2-x86_32"):
+            cmd("python -m pytest tests --cov=arcpyext --cov-report=html -k {}".format(filter.replace("'", "\\'")))
+
+        with venv(".venvs\\test-py2-x86_64"):
+            cmd("python -m pytest tests --cov=arcpyext --cov-report=html -k {}".format(filter.replace("'", "\\'")))
+
+        with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
+            cmd(
+                "python -m pytest --cov=arcpyext --cov-append --cov-report=term --cov-report=html -k {}".format(
+                    filter.replace("'", "\\'")
+                )
+            )
 
 
 @task([OptionsParameter('version')])
@@ -91,7 +108,11 @@ class conda(CmdContext):
 
     def clone(self, env_to_clone, extraArguments=''):
         """Creates a conda environment by running conda and cloning an existing named environment."""
-        cmd(r'"{}" create {} --prefix "{}" --clone "{}"'.format(self.conda_path, extraArguments, self.path, env_to_clone))
+        cmd(
+            r'"{}" create {} --prefix "{}" --clone "{}"'.format(
+                self.conda_path, extraArguments, self.path, env_to_clone
+            )
+        )
 
     def cmd(self, c):
         """Runs the command `c` in this conda environment."""
@@ -103,12 +124,12 @@ class conda(CmdContext):
         return CmdContextManager.cmd(c, self.contextPosition)
 
     def enter_hook(self):
-        self.old_python_cmd=CmdContextManager.python_cmd
-        CmdContextManager.python_cmd=self._binary_path("python")
+        self.old_python_cmd = CmdContextManager.python_cmd
+        CmdContextManager.python_cmd = self._binary_path("python")
 
     def exit_hook(self):
-        CmdContextManager.python_cmd=self.old_python_cmd
-    
+        CmdContextManager.python_cmd = self.old_python_cmd
+
     def _binary_path(self, binary):
         return r"{}{}{}".format(self.path, "\\", binary)
 
@@ -126,7 +147,10 @@ def get_arcpy2_python_path(get_64bit_path=False):
     try:
         # get root ArcGIS key
         if get_64bit_path:
-            arcgis_key = winreg.OpenKey(hklm_key, "SOFTWARE\\ESRI\\Desktop Background Geoprocessing (64-bit)", 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+            arcgis_key = winreg.OpenKey(
+                hklm_key, "SOFTWARE\\ESRI\\Desktop Background Geoprocessing (64-bit)", 0,
+                winreg.KEY_READ | winreg.KEY_WOW64_64KEY
+            )
         else:
             arcgis_key = winreg.OpenKey(hklm_key, "SOFTWARE\\ESRI\\ArcGIS", 0, winreg.KEY_READ | winreg.KEY_WOW64_32KEY)
 
@@ -134,9 +158,13 @@ def get_arcpy2_python_path(get_64bit_path=False):
         version_info = winreg.QueryValueEx(arcgis_key, "RealVersion")[0].split(".")
 
         if get_64bit_path:
-            return _get_python2_path(hklm_key, "ArcGISx64", version_info[0], version_info[1], winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+            return _get_python2_path(
+                hklm_key, "ArcGISx64", version_info[0], version_info[1], winreg.KEY_READ | winreg.KEY_WOW64_64KEY
+            )
         else:
-            return _get_python2_path(hklm_key, "ArcGIS", version_info[0], version_info[1], winreg.KEY_READ | winreg.KEY_WOW64_32KEY)
+            return _get_python2_path(
+                hklm_key, "ArcGIS", version_info[0], version_info[1], winreg.KEY_READ | winreg.KEY_WOW64_32KEY
+            )
     finally:
         # close the registry
         winreg.CloseKey(hklm_key)
@@ -157,8 +185,9 @@ def _get_arcgis_pro_conda_root_path():
 
     try:
         # attempt to get the ArcGIS Pro installation details
-        arcgis_pro_key = winreg.OpenKey(hklm_key, "SOFTWARE\\ESRI\\ArcGISPro", 0,
-                                        winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+        arcgis_pro_key = winreg.OpenKey(
+            hklm_key, "SOFTWARE\\ESRI\\ArcGISPro", 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY
+        )
         env_name = winreg.QueryValueEx(arcgis_pro_key, "PythonCondaEnv")[0]
         install_root = winreg.QueryValueEx(arcgis_pro_key, "PythonCondaRoot")[0]
         winreg.CloseKey(arcgis_pro_key)
@@ -167,7 +196,7 @@ def _get_arcgis_pro_conda_root_path():
     finally:
         # close the registry
         winreg.CloseKey(hklm_key)
-    
+
     return os.path.normpath(install_root)
 
 

@@ -1,6 +1,9 @@
 # coding=utf-8
 
 import arcpy
+import re
+
+from decimal import Decimal
 
 
 def enrich_conn_props(conn_props, cim_part):
@@ -22,14 +25,28 @@ def enrich_conn_props(conn_props, cim_part):
             conn_props["featureDataset"] = cim_part.featureDataset if hasattr(cim_part, "featureDataset") else None
 
 
+def get_cim_version():
+    # get ArcGIS version as a number
+    ags_version = Decimal(re.search(r"^(\d+\.\d+)", arcpy.GetInstallInfo()['Version'], re.IGNORECASE).group(1))
+
+    # surrounded in try/pass to fail gracefully in case Esri change the design of this internal API
+    try:
+        if ags_version >= Decimal("3.0"):
+            return "V3"
+        else:
+            return "V2"
+    except:
+        return None
+
+
 def is_query_layer(layer_cim):
 
     # get the table part of the CIM, unless the layer is a table already
     table_cim = layer_cim.featureTable if hasattr(layer_cim, "featureTable") else layer_cim
 
     if hasattr(table_cim, "dataConnection"):
-        return isinstance(table_cim.dataConnection, arcpy.cim.CIMSqlQueryDataConnection) or isinstance(
-            table_cim.dataConnection, arcpy.cim.CIMRelQueryTableDataConnection)
+        return isinstance(table_cim.dataConnection, arcpy.cim.CIMSqlQueryDataConnection
+                          ) or isinstance(table_cim.dataConnection, arcpy.cim.CIMRelQueryTableDataConnection)
 
     return False
 
@@ -44,8 +61,9 @@ def recursive_process_connection_info(conn_props, current, new, cim_part):
 
     if "destination" in current and "destination" in new:
         # need to process next level
-        recursive_process_connection_info(conn_props["destination"], current["destination"], new["destination"],
-                                          cim_part.destinationTable)
+        recursive_process_connection_info(
+            conn_props["destination"], current["destination"], new["destination"], cim_part.destinationTable
+        )
 
     if "featureDataset" in current and "featureDataset" in new:
         # need to process this level

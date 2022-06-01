@@ -16,8 +16,6 @@ def add_fields():
         table_cim = self.getDefinition("V2")
         return [Field(fd.fieldName, fd.alias, fd.visible) for fd in table_cim.fieldDescriptions]
 
-        return None
-
     fields_prop = property(fields_getter)
     arcpy._mp.Table.fields = fields_prop
 
@@ -64,12 +62,14 @@ def enrich_updateConnectionProperties():
             table_cim = self.getDefinition("V2")
             # query tables can't have their definition set, the layer ends up broken
             if not is_query_layer(table_cim):
-                recursive_process_connection_info(table_conn_props, current_connection_info, new_connection_info,
-                                                  table_cim.dataConnection)
+                recursive_process_connection_info(
+                    table_conn_props, current_connection_info, new_connection_info, table_cim.dataConnection
+                )
                 self.setDefinition(table_cim)
 
-        return orig_table_updateConnectionProperties(self, current_connection_info, new_connection_info, *args,
-                                                     **kwargs)
+        return orig_table_updateConnectionProperties(
+            self, current_connection_info, new_connection_info, *args, **kwargs
+        )
 
     arcpy._mp.Table.updateConnectionProperties = extended_update_connection_properties
 
