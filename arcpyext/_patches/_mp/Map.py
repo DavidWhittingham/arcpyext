@@ -6,12 +6,15 @@ directly in the *arcpy._mp.Map* class.
 
 import arcpy
 
+from arcpy._mp import Layer, Map
+
 from ..._str.utils import caseless_equal
 from ._cim_helpers import get_cim_version
 
 
 def add_set_layer_visibility():
-    def set_layer_visibility(self: arcpy._mp.Map, layer_visibility: str) -> None:
+    def set_layer_visibility(self, layer_visibility):
+        # type: (Map, str) -> None
         """Set layer visibility based on a string description.
 
         Args:
@@ -30,8 +33,8 @@ def add_set_layer_visibility():
         except:
             raise ValueError("Could not parse layers list to determine layer visiblity: %s", layer_visibility)
 
-        layer: arcpy._mp.Layer
         for layer in self.listLayers():
+            layer = layer  #type: Layer
             layer_id = str(layer.getDefinition(get_cim_version()).serviceLayerID)
 
             if caseless_equal(layers_op, "show"):
