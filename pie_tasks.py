@@ -10,10 +10,15 @@ except ImportError as ie:
 from pie import *
 from pie import CmdContext, CmdContextManager
 
+VENV_BUILD = ".venvs\\build"
+VENV_TEST_PY2_X86_32 = ".venvs\\test-py2-x86_32"
+VENV_TEST_PY2_X86_64 = ".venvs\\test-py2-x86_64"
+VENV_TEST_PY3_X86_64 = ".venvs\\test-py3"
+
 
 @task
 def build():
-    with venv(".venvs\\build"):
+    with venv(VENV_BUILD):
         cmd(r'python setup.py bdist_wheel clean --all')
 
 
@@ -28,37 +33,37 @@ def createVenvs():
     python2_32bit_path = os.path.join(get_arcpy2_python_path(), "Python.exe")
     python2_64bit_path = os.path.join(get_arcpy2_python_path(True), "Python.exe")
 
-    create_venv(python2_64bit_path, ".venvs\\build")
-    create_venv(python2_32bit_path, ".venvs\\test-py2-x86_32")
-    create_venv(python2_64bit_path, ".venvs\\test-py2-x86_64")
+    create_venv(python2_64bit_path, VENV_BUILD)
+    create_venv(python2_32bit_path, VENV_TEST_PY2_X86_32)
+    create_venv(python2_64bit_path, VENV_TEST_PY2_X86_64)
 
-    remove_dir(".venvs\\test-py3")
-    conda(".venvs\\test-py3",
+    remove_dir(VENV_TEST_PY3_X86_64)
+    conda(VENV_TEST_PY3_X86_64,
           get_arcgis_pro_conda_path()).clone("arcgispro-py3", extraArguments="--copy --no-shortcuts --offline")
 
 
 @task
 def updatePackages():
-    with venv(".venvs\\build"):
+    with venv(VENV_BUILD):
         pip(r'install -U pip')
         pip(r'install -U -r requirements.build.txt')
         pip(r'install -U -r requirements.txt')
 
-    with venv(".venvs\\test-py2-x86_32"):
-        pip(r'install -U pip')
-        pip(r'install -U -r requirements.build.txt')
-        pip(r'install -U -r requirements.test.txt')
-        pip(r'install -U -r requirements.txt')
-        cmd(r'python setup.py develop')
-
-    with venv(".venvs\\test-py2-x86_64"):
+    with venv(VENV_TEST_PY2_X86_32):
         pip(r'install -U pip')
         pip(r'install -U -r requirements.build.txt')
         pip(r'install -U -r requirements.test.txt')
         pip(r'install -U -r requirements.txt')
         cmd(r'python setup.py develop')
 
-    with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
+    with venv(VENV_TEST_PY2_X86_64):
+        pip(r'install -U pip')
+        pip(r'install -U -r requirements.build.txt')
+        pip(r'install -U -r requirements.test.txt')
+        pip(r'install -U -r requirements.txt')
+        cmd(r'python setup.py develop')
+
+    with conda(VENV_TEST_PY3_X86_64, get_arcgis_pro_conda_path()):
         pip(r'install -U pip')
         pip(r'install -r requirements.build.txt')
         pip(r'install -r requirements.test.txt')
@@ -69,33 +74,56 @@ def updatePackages():
 @task([OptionsParameter('filter', use_default=True)])
 def test(filter=None):
     if not filter:
-        with venv(".venvs\\test-py2-x86_32"):
-            cmd("python -m pytest tests --cov=arcpyext --cov-report=")
+        with venv(VENV_TEST_PY2_X86_32):
+            try:
+                cmd("python -m pytest tests --cov=arcpyext")
+            except CmdContextManager.CmdError:
+                # ignore cmd line errors for testing purposes
+                pass
 
-        with venv(".venvs\\test-py2-x86_64"):
-            cmd("python -m pytest tests --cov=arcpyext --cov-report=")
+        with venv(VENV_TEST_PY2_X86_64):
+            try:
+                cmd("python -m pytest tests --cov=arcpyext --cov-append")
+            except CmdContextManager.CmdError:
+                # ignore cmd line errors for testing purposes
+                pass
 
-        with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
-            cmd("python -m pytest --cov=arcpyext --cov-append --cov-report=term --cov-report=html")
+        with conda(VENV_TEST_PY3_X86_64, get_arcgis_pro_conda_path()):
+            try:
+                cmd("python -m pytest tests --cov=arcpyext --cov-append --cov-report=term --cov-report=html")
+            except CmdContextManager.CmdError:
+                # ignore cmd line errors for testing purposes
+                pass
 
     else:
-        with venv(".venvs\\test-py2-x86_32"):
-            cmd("python -m pytest tests --cov=arcpyext --cov-report=html -k {}".format(filter.replace("'", "\\'")))
+        with venv(VENV_TEST_PY2_X86_32):
+            try:
+                cmd("python -m pytest tests --cov=arcpyext -k {}".format(filter.replace("'", "\\'")))
+            except CmdContextManager.CmdError:
+                # ignore cmd line errors for testing purposes
+                pass
 
-        with venv(".venvs\\test-py2-x86_64"):
-            cmd("python -m pytest tests --cov=arcpyext --cov-report=html -k {}".format(filter.replace("'", "\\'")))
+        with venv(VENV_TEST_PY2_X86_64):
+            try:
+                cmd("python -m pytest tests --cov=arcpyext --cov-append -k {}".format(filter.replace("'", "\\'")))
+            except CmdContextManager.CmdError:
+                # ignore cmd line errors for testing purposes
+                pass
 
-        with conda(".venvs\\test-py3", get_arcgis_pro_conda_path()):
-            cmd(
-                "python -m pytest --cov=arcpyext --cov-append --cov-report=term --cov-report=html -k {}".format(
-                    filter.replace("'", "\\'")
+        with conda(VENV_TEST_PY3_X86_64, get_arcgis_pro_conda_path()):
+            try:
+                cmd(
+                    "python -m pytest tests --cov=arcpyext --cov-append --cov-report=term --cov-report=html -k {}".
+                    format(filter.replace("'", "\\'"))
                 )
-            )
+            except CmdContextManager.CmdError:
+                # ignore cmd line errors for testing purposes
+                pass
 
 
 @task([OptionsParameter('version')])
 def upload(version):
-    with venv(".venvs\\build"):
+    with venv(VENV_BUILD):
         cmd(r'python -m twine check dist\arcpyext-{}-py2.py3-none-any.whl'.format(version))
         cmd(r'python -m twine upload dist\arcpyext-{}-py2.py3-none-any.whl'.format(version))
 

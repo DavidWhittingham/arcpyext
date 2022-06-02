@@ -50,3 +50,4 @@ nosetests.xml
 /.venvs/
 .vscode
 logfile.log
+/tests/conversion/input/conversion.copy.gdb
