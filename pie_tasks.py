@@ -45,29 +45,29 @@ def createVenvs():
 @task
 def updatePackages():
     with venv(VENV_BUILD):
-        pip(r'install -U pip')
-        pip(r'install -U -r requirements.build.txt')
-        pip(r'install -U -r requirements.txt')
+        pip(r'install -U pip -c constraints.txt')
+        pip(r'install -U -r requirements.build.txt -c constraints.txt')
+        pip(r'install -U -r requirements.txt -c constraints.txt')
 
     with venv(VENV_TEST_PY2_X86_32):
-        pip(r'install -U pip')
-        pip(r'install -U -r requirements.build.txt')
-        pip(r'install -U -r requirements.test.txt')
-        pip(r'install -U -r requirements.txt')
+        pip(r'install -U pip -c constraints.txt')
+        pip(r'install -U -r requirements.build.txt -c constraints.txt')
+        pip(r'install -U -r requirements.test.txt -c constraints.txt')
+        pip(r'install -U -r requirements.txt -c constraints.txt')
         cmd(r'python setup.py develop')
 
     with venv(VENV_TEST_PY2_X86_64):
-        pip(r'install -U pip')
-        pip(r'install -U -r requirements.build.txt')
-        pip(r'install -U -r requirements.test.txt')
-        pip(r'install -U -r requirements.txt')
+        pip(r'install -U pip -c constraints.txt')
+        pip(r'install -U -r requirements.build.txt -c constraints.txt')
+        pip(r'install -U -r requirements.test.txt -c constraints.txt')
+        pip(r'install -U -r requirements.txt -c constraints.txt')
         cmd(r'python setup.py develop')
 
     with conda(VENV_TEST_PY3_X86_64, get_arcgis_pro_conda_path()):
-        pip(r'install -U pip')
-        pip(r'install -r requirements.build.txt')
-        pip(r'install -r requirements.test.txt')
-        pip(r'install -r requirements.txt')
+        pip(r'install -U pip -c constraints.txt')
+        pip(r'install -r requirements.build.txt -c constraints.txt')
+        pip(r'install -r requirements.test.txt -c constraints.txt')
+        pip(r'install -r requirements.txt -c constraints.txt')
         cmd(r'python setup.py develop')
 
 
