@@ -14,8 +14,32 @@ install_aliases()
 
 # Standard lib imports
 import os
+import re
+import sys
+
+from decimal import Decimal
 
 # Third-party imports
+import arcpy
+
+# clr import, must work out whether we are .NET 6 and setup coreclr first
+if sys.version_info[0] >= 3:
+    arcpy_install_info = arcpy.GetInstallInfo()
+    major_version = Decimal(re.search(r"^(\d+\.\d+)", arcpy.GetInstallInfo()['Version'], re.IGNORECASE).group(1))
+    from clr_loader import get_coreclr
+    from pythonnet import set_runtime
+
+    if arcpy_install_info["ProductName"] == "Server" and major_version >= Decimal(11.0):
+        # running against server, on Python 3, on version 11 or greater
+        dotnet_config = os.path.join(arcpy_install_info["InstallDir"], r"bin\ArcSOC.runtimeconfig.json")
+        rt = get_coreclr(dotnet_config)
+        set_runtime(rt)
+    elif major_version >= Decimal(3.0):
+        # if we're not on server, and the product version is 3 or greater (assume pro)
+        dotnet_config = os.path.join(arcpy_install_info["InstallDir"], r"bin\ArcGISPro.runtimeconfig.json")
+        rt = get_coreclr(dotnet_config)
+        set_runtime(rt)
+
 import clr
 
 # .NET Imports
@@ -70,7 +94,6 @@ class ComReleaser(object):
 def singlethreadapartment(func=None):
     def decorator(func):
         """Factory for creating the STA decorator."""
-
         def sta_wrapper(*args, **kwargs):
             """The STA wrapper function."""
 
@@ -113,8 +136,10 @@ def find_gac_assembly_path(simple_name):
         sorted_version_dirs = sorted(os.listdir(simple_assembly_path))
         len_sorted_version_dirs = len(sorted_version_dirs)
         if len_sorted_version_dirs > 0:
-            latest_version_dir = os.path.join(simple_assembly_path,
-                                              sorted(os.listdir(simple_assembly_path))[len_sorted_version_dirs - 1])
+            latest_version_dir = os.path.join(
+                simple_assembly_path,
+                sorted(os.listdir(simple_assembly_path))[len_sorted_version_dirs - 1]
+            )
             dll_path = os.path.join(latest_version_dir, simple_name + ".dll")
             if os.path.isfile(dll_path):
                 return dll_path

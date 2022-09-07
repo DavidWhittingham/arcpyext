@@ -1,4 +1,4 @@
-numpy>=1.16,<1.17 ; python_version>='3' # OOTB numpy is broken inside virtual envs for some reason, force install a version for Py3
+# numpy>=1.16,<1.17 ; python_version>='3' # OOTB numpy is broken inside virtual envs for some reason, force install a version for Py3
 pylint==1.9.4 ; python_version<'3'
 pylint>=2 ; python_version>='3'
 pytest==4.6.11 ; python_version<'3' # last version that works on Py2

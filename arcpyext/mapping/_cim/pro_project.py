@@ -19,7 +19,7 @@ import zipfile
 from ArcGIS.Core.CIM import CIMGISProject
 
 # Local imports
-from .helpers import get_xml
+from .helpers import read_file_in_zip
 from .pro_map import ProMap
 
 
@@ -53,17 +53,23 @@ class ProProject(object):
             map_paths = [pi.CatalogPath[8:] for pi in cimproject_items]
 
             # get XML for each map in archive, create ProMap object
-            self._pro_maps = [ProMap(self._proj_zip, get_xml(self._proj_zip, map_path)) for map_path in map_paths]
+            self._pro_maps = [
+                ProMap(self._proj_zip, read_file_in_zip(self._proj_zip, map_path)) for map_path in map_paths
+            ]
 
         # return a shallow copy so our internal list isn't altered
         return self._pro_maps.copy()
 
     @property
     def _cimgisproject(self):
-        if not "GISProject.xml" in self._cims:
-            self._cims["GISProject.xml"] = CIMGISProject.FromXml(get_xml(self._proj_zip, "GISProject.xml"))
+        if not "GISProject" in self._cims:
+            try:
+                self._cims["GISProject"] = CIMGISProject.FromXml(read_file_in_zip(self._proj_zip, "GISProject.xml"))
+            except AttributeError:
+                # probably running on ArcGIS Pro 3/ArcGIS Server 11, where the CIM on-disk format has moved to JSON, do that instead
+                self._cims["GISProject"] = CIMGISProject.FromJson(read_file_in_zip(self._proj_zip, "GISProject.json"))
 
-        return self._cims["GISProject.xml"]
+        return self._cims["GISProject"]
 
     #endregion
 

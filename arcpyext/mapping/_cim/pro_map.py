@@ -13,7 +13,7 @@ install_aliases()
 import arcpy
 
 # Local imports
-from .helpers import get_xml, passthrough_prop
+from .helpers import read_file_in_zip, passthrough_prop
 from .factories import create_layer
 from .tables import ProStandaloneTable
 
@@ -27,9 +27,13 @@ class ProMap(object):
     _spatial_reference = None
     _tables = None
 
-    def __init__(self, proj_zip, xml_string):
+    def __init__(self, proj_zip, map_string):
         self._proj_zip = proj_zip
-        self._cim_obj = CIMMap.FromXml(xml_string)
+        try:
+            self._cim_obj = CIMMap.FromXml(map_string)
+        except AttributeError:
+            # probably in JSON format, try that
+            self._cim_obj = CIMMap.FromJson(map_string)
 
     #region PROPERTIES
 
@@ -40,7 +44,7 @@ class ProMap(object):
     def spatial_reference(self):
         if not self._spatial_reference:
             self._spatial_reference = arcpy.SpatialReference(self._cim_obj.SpatialReference.Wkid)
-        
+
         return self._spatial_reference
 
     @property
@@ -57,32 +61,31 @@ class ProMap(object):
 
         # return a shallow copy so our internal list isn't altered
         return self._layers.copy()
-    
+
     @property
     def tables(self):
         if self._tables is None:
             self._tables = []
 
             # table paths are pre-pended with 'CIMPATH=', strip that to get the actual zip file path
-            table_paths = [tp[8:] for tp in self._cim_obj.StandaloneTables]
+            table_paths = [tp[8:] for tp in (self._cim_obj.StandaloneTables or [])]
 
             # build tables
             for tp in table_paths:
                 # get xml, determine type, create layer object, add to list
-                table_xml = get_xml(self._proj_zip, tp)
+                table_string = read_file_in_zip(self._proj_zip, tp)
 
-                self._tables.append(ProStandaloneTable(self._proj_zip, table_xml))
-        
+                self._tables.append(ProStandaloneTable(self._proj_zip, table_string))
+
         return self._tables.copy()
-
 
     #endregion
 
     def _create_layers(self, layer_path):
         # get xml, determine type, create layer object, add to list
-        layer_xml = get_xml(self._proj_zip, layer_path)
+        layer_string = read_file_in_zip(self._proj_zip, layer_path)
 
-        layer_obj = create_layer(self._proj_zip, layer_xml)
+        layer_obj = create_layer(self._proj_zip, layer_string)
         self._layers.append(layer_obj)
 
         if layer_obj:

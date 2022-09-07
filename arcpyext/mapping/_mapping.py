@@ -34,13 +34,13 @@ from .._native import singlethreadapartment
 # Python-version dependent imports
 ARCPY_2 = sys.version_info[0] < 3
 if ARCPY_2:
-    # import to get access to 'private' helper methds
+    # import to get access to 'private' helper methods
     from . import _mapping2 as _mh
 
     # import all 'public' methods into current namespace
     from ._mapping2 import *
 else:
-    # import to get access to 'private' helper methds
+    # import to get access to 'private' helper methods
     from . import _mapping3 as _mh
 
     # import all 'public' methods into current namespace
@@ -121,8 +121,9 @@ def change_data_sources(mxd_or_proj, data_sources):
 
     try:
         if not len(errors) == 0:
-            raise ChangeDataSourcesError("A number of errors were encountered whilst change layer data sources.",
-                                         errors)
+            raise ChangeDataSourcesError(
+                "A number of errors were encountered whilst change layer data sources.", errors
+            )
 
         if document_was_opened:
             # If the document was opened by this function, the map has to be saved for changes to be persisted
@@ -183,8 +184,9 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
     def match_new_data_source(layer_or_table):
         logger = _get_logger()
 
-        if layer_or_table == None or (layer_or_table.get("isGroupLayer") == True
-                                      and layer_or_table.get("isNetworkAnalystLayer") != True):
+        if layer_or_table == None or (
+            layer_or_table.get("isGroupLayer") == True and layer_or_table.get("isNetworkAnalystLayer") != True
+        ):
             # Layers that can't be described or are group layers (except NA layers) can't have their data updated
             return None
 
@@ -208,12 +210,14 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
 
                         if tokens["dataSet"] is not None and tokens["schema"] is not None:
                             logger.debug(1.11)
-                            new_conn["workspacePath"] = "{}\\{}.{}.gdb".format(new_conn["workspacePath"],
-                                                                               tokens["schema"], tokens["dataSet"])
+                            new_conn["workspacePath"] = "{}\\{}.{}.gdb".format(
+                                new_conn["workspacePath"], tokens["schema"], tokens["dataSet"]
+                            )
                         elif tokens["dataSet"] is not None:
                             logger.debug(1.12)
-                            new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"],
-                                                                            tokens["dataSet"])
+                            new_conn["workspacePath"] = "{}\\{}.gdb".format(
+                                new_conn["workspacePath"], tokens["dataSet"]
+                            )
                         else:
                             logger.debug(1.13)
                             new_conn["workspacePath"] = "{}\\{}.gdb".format(new_conn["workspacePath"], tokens["table"])
@@ -224,10 +228,12 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
 
         return new_conn
 
-    return [{
-        "layers": [match_new_data_source(layer) for layer in df["layers"]],
-        "tables": [match_new_data_source(table) for table in df["tables"]]
-    } for df in map_desc["maps"]]
+    return [
+        {
+            "layers": [match_new_data_source(layer) for layer in df["layers"]],
+            "tables": [match_new_data_source(table) for table in df["tables"]]
+        } for df in map_desc["maps"]
+    ]
 
 
 def describe(mxd_or_proj):
@@ -315,14 +321,12 @@ def _match_layers(was_layers, now_layers):
         },
         {
             # same name and id, datasource changed
-            'fn':
-            lambda a, b: b
+            'fn': lambda a, b: b
             if same_id(a, b) and same_name(a, b) and not is_resolved_was(a) and not is_resolved_now(b) else None
         },
         {
             # same id and datasource, name changed
-            'fn':
-            lambda a, b: b
+            'fn': lambda a, b: b
             if same_id(a, b) and same_datasource(a, b) and not is_resolved_was(a) and not is_resolved_now(b) else None
         },
         {
@@ -332,8 +336,7 @@ def _match_layers(was_layers, now_layers):
         },
         {
             # same name and datasource, id changed
-            'fn':
-            lambda a, b: b
+            'fn': lambda a, b: b
             if same_name(a, b) and same_datasource(a, b) and not is_resolved_was(a) and not is_resolved_now(b) else None
         },
         {

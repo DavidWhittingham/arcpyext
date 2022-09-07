@@ -83,18 +83,30 @@ class ProBasicFeatureLayer(ProLayerBase):
 
 
 class ProFeatureLayer(ProBasicFeatureLayer):
-    def __init__(self, proj_zip, xml_string):
-        super().__init__(proj_zip, CIMFeatureLayer.FromXml(xml_string))
+    def __init__(self, proj_zip, layer_string):
+        try:
+            super().__init__(proj_zip, CIMFeatureLayer.FromXml(layer_string))
+        except AttributeError:
+            # probably JSON, attempt that
+            super().__init__(proj_zip, CIMFeatureLayer.FromJson(layer_string))
 
 
 class ProRasterLayer(ProLayerBase):
-    def __init__(self, proj_zip, xml_string):
-        super().__init__(proj_zip, CIMRasterLayer.FromXml(xml_string))
+    def __init__(self, proj_zip, layer_string):
+        try:
+            super().__init__(proj_zip, CIMRasterLayer.FromXml(layer_string))
+        except AttributeError:
+            # probably JSON, attempt that
+            super().__init__(proj_zip, CIMRasterLayer.FromJson(layer_string))
 
 
 class ProGroupLayer(ProLayerBase):
-    def __init__(self, proj_zip, xml_string):
-        super().__init__(proj_zip, CIMGroupLayer.FromXml(xml_string))
+    def __init__(self, proj_zip, layer_string):
+        try:
+            super().__init__(proj_zip, CIMGroupLayer.FromXml(layer_string))
+        except AttributeError:
+            # probably JSON, attempt that
+            super().__init__(proj_zip, CIMGroupLayer.FromJson(layer_string))
 
     def _get_child_paths(self):
         return [cp[8:] for cp in self._cim_obj.Layers]
