@@ -60,7 +60,11 @@ class ProFeatureTable(ProDisplayTableBase):
 class ProStandaloneTable(ProDisplayTableBase):
     def __init__(self, proj_zip, xml_string):
         self._proj_zip = proj_zip
-        super().__init__(CIMStandaloneTable.FromXml(xml_string))
-    
+        try:
+            super().__init__(CIMStandaloneTable.FromXml(xml_string))
+        except AttributeError:
+            # probably JSON, attempt that
+            super().__init__(CIMStandaloneTable.FromJson(xml_string))
+
     name = passthrough_prop("Name")
     service_id = passthrough_prop("ServiceTableID")
