@@ -32,12 +32,12 @@ if sys.version_info[0] >= 3:
     if arcpy_install_info["ProductName"] == "Server" and major_version >= Decimal(11.0):
         # running against server, on Python 3, on version 11 or greater
         dotnet_config = os.path.join(arcpy_install_info["InstallDir"], r"bin\ArcSOC.runtimeconfig.json")
-        rt = get_coreclr(dotnet_config)
+        rt = get_coreclr(runtime_config=dotnet_config)
         set_runtime(rt)
     elif major_version >= Decimal(3.0):
         # if we're not on server, and the product version is 3 or greater (assume pro)
         dotnet_config = os.path.join(arcpy_install_info["InstallDir"], r"bin\ArcGISPro.runtimeconfig.json")
-        rt = get_coreclr(dotnet_config)
+        rt = get_coreclr(runtime_config=dotnet_config)
         set_runtime(rt)
 
 import clr

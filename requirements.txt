@@ -5,5 +5,5 @@ future>=0.15.2
 olefile==0.46 ; python_version<'3.4'
 pathlib2>=2.3.4,<3
 pythonnet>=2.4.0,<3 ; python_version<'3'
-pythonnet>=3.0.0rc4,<4 ; python_version>='3'
+pythonnet>=3.0.0,<4 ; python_version>='3'
 XlsxWriter>=1.0.0,<2
