@@ -10,7 +10,6 @@ install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 
 # Third-party imports
-import json
 import arcpy
 
 # Local imports
@@ -89,26 +88,12 @@ class ProMap(object):
         layer_obj = create_layer(self._proj_zip, layer_string)
         self._layers.append(layer_obj)
 
-        if layer_obj:            
-            
-            # Mosaic imagery datasets have different internal structures and need
-            # to be handled differently from other layers. 
-            layer_json = json.loads(layer_string)
-            if layer_json["type"] == "CIMMosaicLayer":
-                mosaic_children_paths = layer_obj._get_mosaic_child_paths()
-                
-                for mosaic_child_path in mosaic_children_paths:
-                    mosaic_child_layer = self._create_layers(mosaic_child_path)
+        if layer_obj:
+            for child_path in layer_obj._get_child_paths():
+                child_layer = self._create_layers(child_path)
 
-                    # build parent/child relationships
-                    mosaic_child_layer._parent = layer_obj
-                    layer_obj._children.append(mosaic_child_layer)
-            else:
-                for child_path in layer_obj._get_child_paths():
-                    child_layer = self._create_layers(child_path)
-
-                    # build parent/child relationships
-                    child_layer._parent = layer_obj
-                    layer_obj._children.append(child_layer)
+                # build parent/child relationships
+                child_layer._parent = layer_obj
+                layer_obj._children.append(child_layer)
 
         return layer_obj

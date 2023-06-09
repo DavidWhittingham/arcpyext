@@ -121,8 +121,8 @@ class ProMosaicLayer(ProLayerBase):
             # probably JSON, attempt that
             super().__init__(proj_zip, CIMMosaicLayer.FromJson(layer_string))
 
-    def _get_mosaic_child_paths(self):
-        return [self._cim_obj.BoundaryLayer[8:],self._cim_obj.FootprintLayer[8:],self._cim_obj.ImageLayer[8:]]
+    def _get_child_paths(self):
+        return [self._cim_obj.BoundaryLayer[8:], self._cim_obj.FootprintLayer[8:], self._cim_obj.ImageLayer[8:]]
 
 
 class ProFeatureMosaicSubLayer(ProLayerBase):
