@@ -19,7 +19,8 @@ from .helpers import passthrough_prop
 from .tables import ProFeatureTable
 
 # .NET Imports
-from ArcGIS.Core.CIM import CIMFeatureLayer, CIMGroupLayer, CIMRasterLayer
+from ArcGIS.Core.CIM import CIMFeatureLayer, CIMGroupLayer, CIMRasterLayer, \
+    CIMMosaicLayer, CIMImageMosaicSubLayer,CIMFeatureMosaicSubLayer
 
 
 class ProLayerBase(with_metaclass(ABCMeta, object)):
@@ -110,3 +111,33 @@ class ProGroupLayer(ProLayerBase):
 
     def _get_child_paths(self):
         return [cp[8:] for cp in self._cim_obj.Layers]
+
+
+class ProMosaicLayer(ProLayerBase):
+    def __init__(self, proj_zip, layer_string):
+        try:
+            super().__init__(proj_zip, CIMMosaicLayer.FromXml(layer_string))
+        except AttributeError:
+            # probably JSON, attempt that
+            super().__init__(proj_zip, CIMMosaicLayer.FromJson(layer_string))
+
+    def _get_mosaic_child_paths(self):
+        return [self._cim_obj.BoundaryLayer[8:],self._cim_obj.FootprintLayer[8:],self._cim_obj.ImageLayer[8:]]
+
+
+class ProFeatureMosaicSubLayer(ProLayerBase):
+    def __init__(self, proj_zip, layer_string):
+        try:
+            super().__init__(proj_zip, CIMFeatureMosaicSubLayer.FromXml(layer_string))
+        except AttributeError:
+            # probably JSON, attempt that
+            super().__init__(proj_zip, CIMFeatureMosaicSubLayer.FromJson(layer_string))
+
+
+class ProImageMosaicSubLayer(ProLayerBase):
+    def __init__(self, proj_zip, layer_string):
+        try:
+            super().__init__(proj_zip, CIMImageMosaicSubLayer.FromXml(layer_string))
+        except AttributeError:
+            # probably JSON, attempt that
+            super().__init__(proj_zip, CIMImageMosaicSubLayer.FromJson(layer_string))
