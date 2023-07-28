@@ -63,11 +63,15 @@ class ProProject(object):
     @property
     def _cimgisproject(self):
         if not "GISProject" in self._cims:
-            try:
+            # check what type of GISProject file we have
+            zp = zipfile.Path(self._proj_zip)
+            if (zp / "GISProject.xml").exists():
                 self._cims["GISProject"] = CIMGISProject.FromXml(read_file_in_zip(self._proj_zip, "GISProject.xml"))
-            except AttributeError:
+            elif (zp / "GISProject.json").exists():
                 # probably running on ArcGIS Pro 3/ArcGIS Server 11, where the CIM on-disk format has moved to JSON, do that instead
                 self._cims["GISProject"] = CIMGISProject.FromJson(read_file_in_zip(self._proj_zip, "GISProject.json"))
+            else:
+                raise NotImplementedError("This is an unknown type of ArcGIS Pro project.")
 
         return self._cims["GISProject"]
 

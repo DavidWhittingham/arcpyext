@@ -19,7 +19,7 @@ from pathlib2 import Path
 
 TEST_INPUT_GDB_PATH = Path(__file__).parent.joinpath("input/conversion.gdb")
 TEST_INPUT_COPY_GDB_PATH = Path(__file__).parent.joinpath("input/conversion.copy.gdb")
-TEST_OUTPUT_PATH = Path(__file__).parent.joinpath("output")
+TEST_OUTPUT_PATH = Path(__file__).parent.parent.joinpath("output")
 
 
 def setup_module(module):
@@ -31,7 +31,7 @@ def setup_module(module):
     os.makedirs(str(TEST_OUTPUT_PATH))
 
 
-@pytest.yield_fixture(scope="function")
+@pytest.fixture(scope="function")
 def in_workspace():
     # deletes can fail, try and delete if it exists
     if TEST_INPUT_COPY_GDB_PATH.exists():
@@ -42,7 +42,8 @@ def in_workspace():
     try:
         yield TEST_INPUT_COPY_GDB_PATH
     finally:
-        shutil.rmtree(str(TEST_INPUT_COPY_GDB_PATH))
+        if TEST_INPUT_COPY_GDB_PATH.exists():
+            shutil.rmtree(str(TEST_INPUT_COPY_GDB_PATH))
 
 
 @pytest.mark.parametrize(("output_path"), [(TEST_OUTPUT_PATH.joinpath("csv"))])
@@ -52,7 +53,7 @@ def test_convert_csv(in_workspace, output_path):
     arcpyext.conversion.to_csv.workspace(in_workspace_str, output_path_str)
     assert output_path.exists()
 
-    # check KML/KMZ exists
+    # check CSV files exist
     assert any(child.suffix.lower() in [".csv"] for child in output_path.iterdir())
 
 

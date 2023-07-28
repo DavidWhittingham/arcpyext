@@ -21,15 +21,12 @@ try:
     from collections.abc import Mapping
 except ImportError:
     from collections import Mapping
-from enum import Enum  # comes from third-party package on Py 2
 
 # Local imports
 from ._compare_helpers import lowercase_dict
 from ._mapping_helpers import tokenise_datasource
 from .compare_types import *
 from ..exceptions import MapLayerError, ChangeDataSourcesError
-from .._json import JsonEnum
-from .._native import singlethreadapartment
 
 # Python-version dependent imports
 ARCPY_2 = sys.version_info[0] < 3

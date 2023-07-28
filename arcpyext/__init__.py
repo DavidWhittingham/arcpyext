@@ -20,3 +20,4 @@ from . import toolbox
 from . import schematransform
 from . import mapping
 from . import publishing
+from .TopicCategory import TopicCategory

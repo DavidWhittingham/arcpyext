@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 from future.builtins.disabled import *
 from future.builtins import *
 from future.standard_library import install_aliases
+from future.utils import raise_from
 install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 
@@ -15,8 +16,8 @@ def read_file_in_zip(zip_file, file_path, decode="utf-8"):
     with zip_file.open(file_path) as fp:
         if decode:
             return fp.read().decode(decode)
-        else:
-            return fp.read()
+
+        return fp.read()
 
 
 def passthrough_prop(prop_name, doc=None, obj_name="_cim_obj"):
@@ -25,15 +26,11 @@ def passthrough_prop(prop_name, doc=None, obj_name="_cim_obj"):
         try:
             obj = getattr(self, obj_name)
             return getattr(obj, prop_name)
-        except AttributeError as ae:
-            raise AttributeError(
-                "Unable to get the {} property on this instance of {}.".format(prop_name, self.__class__.__name__)
+        except AttributeError as attr_err:
+            raise_from(
+                AttributeError(
+                    "Unable to get the {} property on this instance of {}.".format(prop_name, self.__class__.__name__)
+                ), attr_err
             )
-
-    def _set(self, val):
-        raise NotImplementedError("Property {} cannot be set".format(prop_name))
-
-    def _del(self, val):
-        raise NotImplementedError("Property {} cannot be deleted".format(prop_name))
 
     return property(_get, None, None, doc)

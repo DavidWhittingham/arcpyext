@@ -29,6 +29,7 @@ def apply():
 
     if sys.version_info[0] == 3:
         from . import _mp
+        from . import metadata
 
 
 def fix_mapping_versions():

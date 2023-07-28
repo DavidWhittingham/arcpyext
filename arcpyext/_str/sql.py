@@ -13,7 +13,6 @@ install_aliases()
 from sqlparse import engine
 from sqlparse import filters
 from sqlparse import filters, tokens
-from sqlparse.compat import text_type
 from sqlparse.exceptions import SQLParseError
 
 __all__ = ["format_def_query"]
@@ -53,11 +52,13 @@ class ExtendedIdentifierCaseFilter(object):
             self.convert = lambda v: v
         else:
             case = case.lower()
-            ignore_quotes_keywords = "_ignore_quotes"
-            if case.endswith(ignore_quotes_keywords):
-                self.ignore_quotes = True
-                case = case[:-len(ignore_quotes_keywords)]
-            self.convert = getattr(text_type, case)
+
+            if case.startswith("upper"):
+                self.convert = str.upper
+            elif case.startswith("lower"):
+                self.convert = str.lower
+            else:
+                raise ValueError("Could not determine case conversion option for the following value: {}".format(case))
 
     def process(self, stream):
         for ttype, value in stream:
@@ -95,8 +96,7 @@ def format_def_query(def_query, encoding=None, **options):
 def validate_options(options):
     identifier_case = options.get("identifier_case")
     if identifier_case not in [
-            None, "upper", "upper_ignore_quotes", "lower", "lower_ignore_quotes", "capitalize",
-            "capitalize_ignore_quotes"
+        None, "upper", "upper_ignore_quotes", "lower", "lower_ignore_quotes", "capitalize", "capitalize_ignore_quotes"
     ]:
         raise SQLParseError("Invalid value for identifier_case: {0!r}".format(identifier_case))
 
