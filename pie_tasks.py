@@ -18,7 +18,7 @@ VENV_TEST_PY3_X86_64 = ".venvs\\test-py3"
 
 @task
 def build():
-    with venv(VENV_BUILD):
+    with conda(VENV_BUILD, get_arcgis_pro_conda_path()):
         cmd(r'python setup.py bdist_wheel clean --all')
 
 
@@ -30,24 +30,33 @@ def setup():
 
 @task
 def createVenvs():
-    python2_32bit_path = os.path.join(get_arcpy2_python_path(), "Python.exe")
-    python2_64bit_path = os.path.join(get_arcpy2_python_path(True), "Python.exe")
-
-    create_venv(python2_64bit_path, VENV_BUILD)
-    create_venv(python2_32bit_path, VENV_TEST_PY2_X86_32)
-    create_venv(python2_64bit_path, VENV_TEST_PY2_X86_64)
+    remove_dir(VENV_BUILD)
+    conda(VENV_BUILD,
+          get_arcgis_pro_conda_path()).clone("arcgispro-py3", extraArguments="--copy --no-shortcuts --offline")
 
     remove_dir(VENV_TEST_PY3_X86_64)
     conda(VENV_TEST_PY3_X86_64,
           get_arcgis_pro_conda_path()).clone("arcgispro-py3", extraArguments="--copy --no-shortcuts --offline")
 
+    python2_32bit_path = os.path.join(get_arcpy2_python_path(), "Python.exe")
+    python2_64bit_path = os.path.join(get_arcpy2_python_path(True), "Python.exe")
+    create_venv(python2_32bit_path, VENV_TEST_PY2_X86_32)
+    create_venv(python2_64bit_path, VENV_TEST_PY2_X86_64)
+
 
 @task
 def updatePackages():
-    with venv(VENV_BUILD):
+    with conda(VENV_BUILD, get_arcgis_pro_conda_path()):
         pip(r'install -U pip -c constraints.txt')
         pip(r'install -U -r requirements.build.txt -c constraints.txt')
         pip(r'install -U -r requirements.txt -c constraints.txt')
+
+    with conda(VENV_TEST_PY3_X86_64, get_arcgis_pro_conda_path()):
+        pip(r'install -U pip -c constraints.txt')
+        pip(r'install -r requirements.build.txt -c constraints.txt')
+        pip(r'install -r requirements.test.txt -c constraints.txt')
+        pip(r'install -r requirements.txt -c constraints.txt')
+        cmd(r'python setup.py develop')
 
     with venv(VENV_TEST_PY2_X86_32):
         pip(r'install -U pip -c constraints.txt')
@@ -61,13 +70,6 @@ def updatePackages():
         pip(r'install -U -r requirements.build.txt -c constraints.txt')
         pip(r'install -U -r requirements.test.txt -c constraints.txt')
         pip(r'install -U -r requirements.txt -c constraints.txt')
-        cmd(r'python setup.py develop')
-
-    with conda(VENV_TEST_PY3_X86_64, get_arcgis_pro_conda_path()):
-        pip(r'install -U pip -c constraints.txt')
-        pip(r'install -r requirements.build.txt -c constraints.txt')
-        pip(r'install -r requirements.test.txt -c constraints.txt')
-        pip(r'install -r requirements.txt -c constraints.txt')
         cmd(r'python setup.py develop')
 
 
@@ -123,7 +125,7 @@ def test(filter=None):
 
 @task([OptionsParameter('version')])
 def upload(version):
-    with venv(VENV_BUILD):
+    with conda(VENV_BUILD, get_arcgis_pro_conda_path()):
         cmd(r'python -m twine check dist\arcpyext-{}-py2.py3-none-any.whl'.format(version))
         cmd(r'python -m twine upload dist\arcpyext-{}-py2.py3-none-any.whl'.format(version))
 
