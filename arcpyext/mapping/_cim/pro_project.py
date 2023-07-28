@@ -63,13 +63,28 @@ class ProProject(object):
     @property
     def _cimgisproject(self):
         if not "GISProject" in self._cims:
+            # check what format support we have on ArcGIS Pro
+            supports_json_proj = hasattr(CIMGISProject, "FromJson")
+            supports_xml_proj = hasattr(CIMGISProject, "FromXml")
+
             # check what type of GISProject file we have
             zp = zipfile.Path(self._proj_zip)
             if (zp / "GISProject.xml").exists():
-                self._cims["GISProject"] = CIMGISProject.FromXml(read_file_in_zip(self._proj_zip, "GISProject.xml"))
+                if supports_xml_proj:
+                    self._cims["GISProject"] = CIMGISProject.FromXml(read_file_in_zip(self._proj_zip, "GISProject.xml"))
+                else:
+                    raise NotImplementedError(
+                        "This version of ArcGIS Pro does not support XML-based Projects, project file must be opened in ArcGIS Pro and saved to convert to internal JSON structure."
+                    )
             elif (zp / "GISProject.json").exists():
-                # probably running on ArcGIS Pro 3/ArcGIS Server 11, where the CIM on-disk format has moved to JSON, do that instead
-                self._cims["GISProject"] = CIMGISProject.FromJson(read_file_in_zip(self._proj_zip, "GISProject.json"))
+                if supports_json_proj:
+                    self._cims["GISProject"] = CIMGISProject.FromJson(
+                        read_file_in_zip(self._proj_zip, "GISProject.json")
+                    )
+                else:
+                    raise NotImplementedError(
+                        "This version of ArcGIS Pro does not support JSON-based Projects, please upgrade your ArcGIS Pro install to open this project."
+                    )
             else:
                 raise NotImplementedError("This is an unknown type of ArcGIS Pro project.")
 
