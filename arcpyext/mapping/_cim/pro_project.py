@@ -6,10 +6,8 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 from future.builtins.disabled import *
 from future.builtins import *
 from future.standard_library import install_aliases
+from future.utils import raise_from
 install_aliases()
-from future.moves.collections import deque
-from future.moves.itertools import zip_longest
-from future.utils import with_metaclass
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 
 # Standard lib imports
@@ -67,26 +65,24 @@ class ProProject(object):
             supports_json_proj = hasattr(CIMGISProject, "FromJson")
             supports_xml_proj = hasattr(CIMGISProject, "FromXml")
 
-            # check what type of GISProject file we have
-            zp = zipfile.Path(self._proj_zip)
-            if (zp / "GISProject.xml").exists():
-                if supports_xml_proj:
-                    self._cims["GISProject"] = CIMGISProject.FromXml(read_file_in_zip(self._proj_zip, "GISProject.xml"))
-                else:
-                    raise NotImplementedError(
-                        "This version of ArcGIS Pro does not support XML-based Projects, project file must be opened in ArcGIS Pro and saved to convert to internal JSON structure."
-                    )
-            elif (zp / "GISProject.json").exists():
+            # read project based on supported file type
+            try:
                 if supports_json_proj:
                     self._cims["GISProject"] = CIMGISProject.FromJson(
                         read_file_in_zip(self._proj_zip, "GISProject.json")
                     )
+                elif supports_xml_proj:
+                    self._cims["GISProject"] = CIMGISProject.FromXml(read_file_in_zip(self._proj_zip, "GISProject.xml"))
                 else:
                     raise NotImplementedError(
-                        "This version of ArcGIS Pro does not support JSON-based Projects, please upgrade your ArcGIS Pro install to open this project."
+                        "This version of ArcGIS Pro is unknown and supports neither XML-based or JSON-based CIM Project loading."
                     )
-            else:
-                raise NotImplementedError("This is an unknown type of ArcGIS Pro project.")
+            except KeyError as ke:
+                raise_from(
+                    NotImplementedError(
+                        "This version of ArcGIS Pro does not support the type of Project you are attempting to open."
+                    ), ke
+                )
 
         return self._cims["GISProject"]
 

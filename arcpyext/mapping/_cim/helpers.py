@@ -11,13 +11,13 @@ install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 
 
-def read_file_in_zip(zip_file, file_path, decode="utf-8"):
+def read_file_in_zip(zip_file_obj, inner_file_path, decode="utf-8"):
     """Reads in an XML file as UTF-8 from a zip file."""
-    with zip_file.open(file_path) as fp:
+    with zip_file_obj.open(inner_file_path) as zip_file_handle:
         if decode:
-            return fp.read().decode(decode)
+            return zip_file_handle.read().decode(decode)
 
-        return fp.read()
+        return zip_file_handle.read()
 
 
 def passthrough_prop(prop_name, doc=None, obj_name="_cim_obj"):
