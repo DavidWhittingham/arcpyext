@@ -60,29 +60,37 @@ class ProProject(object):
 
     @property
     def _cimgisproject(self):
-        if not "GISProject" in self._cims:
-            # check what format support we have on ArcGIS Pro
-            supports_json_proj = hasattr(CIMGISProject, "FromJson")
-            supports_xml_proj = hasattr(CIMGISProject, "FromXml")
+        if "GISProject" in self._cims:
+            return self._cims["GISProject"]
 
-            # read project based on supported file type
+        # check what format support we have on ArcGIS Pro
+        supports_json_proj = hasattr(CIMGISProject, "FromJson")
+        supports_xml_proj = hasattr(CIMGISProject, "FromXml")
+
+        # attempt to read project based on supported file type
+        gis_project = None
+
+        if supports_json_proj:
             try:
-                if supports_json_proj:
-                    self._cims["GISProject"] = CIMGISProject.FromJson(
-                        read_file_in_zip(self._proj_zip, "GISProject.json")
-                    )
-                elif supports_xml_proj:
-                    self._cims["GISProject"] = CIMGISProject.FromXml(read_file_in_zip(self._proj_zip, "GISProject.xml"))
-                else:
-                    raise NotImplementedError(
-                        "This version of ArcGIS Pro is unknown and supports neither XML-based or JSON-based CIM Project loading."
-                    )
-            except KeyError as ke:
-                raise_from(
-                    NotImplementedError(
-                        "This version of ArcGIS Pro does not support the type of Project you are attempting to open."
-                    ), ke
-                )
+                gis_project = CIMGISProject.FromJson(read_file_in_zip(self._proj_zip, "GISProject.json"))
+            except KeyError:
+                # JSON file not in project, probably an XML file
+                pass
+
+        if not gis_project and supports_xml_proj:
+            try:
+                gis_project = CIMGISProject.FromXml(read_file_in_zip(self._proj_zip, "GISProject.xml"))
+            except KeyError:
+                # XML file not in project, probably a JSON file but maybe we don't have support for that on
+                # current ArcGIS Pro install
+                pass
+
+        if not gis_project:
+            raise NotImplementedError(
+                "This ArcGIS Pro project is either an unknown format or incompatible with the currently installed version of ArcGIS Pro."
+            )
+
+        self._cims["GISProject"] = gis_project
 
         return self._cims["GISProject"]
 
@@ -91,6 +99,7 @@ class ProProject(object):
     #region PUBLIC FUNCTIONS
 
     def close(self):
+        """Closes the ArcGIS Project, not required when used inside a 'with' statement."""
         if self._proj_zip:
             self._proj_zip.close()
             self._proj_zip = None
