@@ -9,11 +9,13 @@ from future.standard_library import install_aliases
 install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,no-name-in-module,import-error
 
-import sys,os
+import os
 import imp
-import xml.etree.ElementTree as etree
 
 import arcpy
+
+from lxml import etree as ET
+
 
 class PythonToolbox(object):
     def __init__(self, toolbox_path):
@@ -34,11 +36,12 @@ class PythonToolbox(object):
     @classmethod
     def get_or_create_element(cls, element, name, attributes={}):
         xpath = name
-        if attributes: xpath += '[' + ','.join(['@'+k+"='"+v+"'" for k, v in attributes.items()]) + ']'
+        if attributes: xpath += '[' + ','.join(['@' + k + "='" + v + "'" for k, v in attributes.items()]) + ']'
         e = element.find(xpath)
         if e is None:
-            e = etree.Element(name)
-            for k, v in attributes.items(): e.set(k, v)
+            e = ET.Element(name)
+            for k, v in attributes.items():
+                e.set(k, v)
             element.append(e)
         return e
 
@@ -52,7 +55,7 @@ class PythonToolbox(object):
             t.apply_tool_descriptions()
 
     def load_xml(self):
-        self.xml_tree = etree.parse(self.xml_path)
+        self.xml_tree = ET.parse(self.xml_path)
         # and load tools too
         for t in self.tools:
             t.load_xml()
@@ -60,24 +63,24 @@ class PythonToolbox(object):
     def save_definitions(self):
         #with open(self.xml_path,'w') as fout:
         #    self.xml_tree.write(fout,encoding = 'utf-8')
-        self.xml_tree.write(self.xml_path, encoding = 'utf-8')
+        self.xml_tree.write(self.xml_path, encoding='utf-8')
         # and save tools too
         for t in self.tools:
             t.save_definitions()
 
-    def set_description_in_xml(self,description):
+    def set_description_in_xml(self, description):
         e = self.get_or_create_element(self.xml_tree.getroot(), 'dataIdInfo')
         e = self.get_or_create_element(e, 'idAbs')
-        e.text=description
+        e.text = description
 
-    def set_summary_in_xml(self,summary):
+    def set_summary_in_xml(self, summary):
         e = self.get_or_create_element(self.xml_tree.getroot(), 'dataIdInfo')
         e = self.get_or_create_element(e, 'idAbs')
-        e.text=summary
+        e.text = summary
 
 
 class PythonTool(object):
-    def __init__(self, python_toolbox,tool):
+    def __init__(self, python_toolbox, tool):
         self.python_toolbox = python_toolbox
         self.tool = tool
         self.tool_name = self.tool.__class__.__name__
@@ -97,11 +100,11 @@ class PythonTool(object):
                 self.set_parameter_description_in_xml(p.name, p.description)
 
     def load_xml(self):
-        self.xml_tree = etree.parse(self.xml_path)
+        self.xml_tree = ET.parse(self.xml_path)
 
     def save_definitions(self):
-        with open(self.xml_path,'wb') as fout:
-            self.xml_tree.write(fout, encoding = 'utf-8')
+        with open(self.xml_path, 'wb') as fout:
+            self.xml_tree.write(fout, encoding='utf-8')
 
     def set_description_in_xml(self, description):
         e = PythonToolbox.get_or_create_element(self.xml_tree.getroot(), 'dataIdInfo')
@@ -109,13 +112,13 @@ class PythonTool(object):
         e.text = description
 
     def set_parameter_description_in_xml(self, param_name, description):
-        e = PythonToolbox.get_or_create_element(self.xml_tree.getroot(), 'tool', attributes = {'name': self.tool_name})
+        e = PythonToolbox.get_or_create_element(self.xml_tree.getroot(), 'tool', attributes={'name': self.tool_name})
         e = PythonToolbox.get_or_create_element(e, 'parameters')
-        e = PythonToolbox.get_or_create_element(e, 'param', attributes = {'name': param_name})
+        e = PythonToolbox.get_or_create_element(e, 'param', attributes={'name': param_name})
         e = PythonToolbox.get_or_create_element(e, 'dialogReference')
         e.text = description
 
     def set_summary_in_xml(self, summary):
-        e = PythonToolbox.get_or_create_element(self.xml_tree.getroot(), 'tool', attributes = {'name': self.tool_name})
+        e = PythonToolbox.get_or_create_element(self.xml_tree.getroot(), 'tool', attributes={'name': self.tool_name})
         e = PythonToolbox.get_or_create_element(e, 'summary')
         e.text = summary

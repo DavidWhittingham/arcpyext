@@ -11,10 +11,12 @@ install_aliases()
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 # Standard lib imports
-import collections
 import logging
-import re
-import zipfile
+
+try:
+    from collections.abc import Mapping
+except ImportError:
+    from collections import Mapping
 
 # Third-party imports
 import arcpy
@@ -63,7 +65,8 @@ def _change_data_source(layer, new_props):
             if "destination" in original:
                 # Connection properties has the 'destination' part of a relationship, going down to next level
                 destination_matched, destination_updated_conn_props = get_paired_conn_props(
-                    original["destination"], new)
+                    original["destination"], new
+                )
                 matched_conn_props["destination"] = destination_matched
                 new_conn_props["destination"] = destination_updated_conn_props
                 skip_this_level = True
@@ -73,7 +76,7 @@ def _change_data_source(layer, new_props):
 
             for k in new:
                 if k in original:
-                    if isinstance(original[k], collections.Mapping) and isinstance(new[k], collections.Mapping):
+                    if isinstance(original[k], Mapping) and isinstance(new[k], Mapping):
                         matched_conn_props[k], new_conn_props[k] = get_paired_conn_props(original[k], new[k])
                     elif k in ["dataset", "featureDataset"]:
                         # process magic field updating
@@ -123,12 +126,15 @@ def _change_data_source(layer, new_props):
         # support the "supports" function)
         if "definitionQuery" in transform_options and (
             (hasattr(layer, "supports") and layer.supports("DEFINITIONQUERY")) or
-            (not hasattr(layer, "supports") and hasattr(layer, "definitionQuery"))):
+            (not hasattr(layer, "supports") and hasattr(layer, "definitionQuery"))
+        ):
             # must format/replace definiton query
             def_query_opts = transform_options["definitionQuery"]
-            layer.definitionQuery = format_def_query(layer.definitionQuery,
-                                                     identifier_case=def_query_opts.get("identifierCase"),
-                                                     identifier_quotes=def_query_opts.get("identifierQuotes"))
+            layer.definitionQuery = format_def_query(
+                layer.definitionQuery,
+                identifier_case=def_query_opts.get("identifierCase"),
+                identifier_quotes=def_query_opts.get("identifierQuotes")
+            )
 
         # get the layer's CIM to process changes
         layer_cim = layer.getDefinition("V2")
@@ -183,8 +189,9 @@ def _describe_map(file_path):
         # build return object
         return {
             "filePath": file_path,
-            "maps":
-            [_native_describe_map(ao_map_document, map_frame) for map_frame in _native_list_maps(ao_map_document)]
+            "maps": [
+                _native_describe_map(ao_map_document, map_frame) for map_frame in _native_list_maps(ao_map_document)
+            ]
         }
     finally:
         _native_document_close(ao_map_document)
@@ -344,7 +351,8 @@ def _native_list_layers(pro_proj, map_frame):
     for index, (arcpy_layer, prosdk_layer) in enumerate(zip(arcpy_layers, prosdk_layers)):
         if not arcpy_layer.name == prosdk_layer.name:
             raise ValueError(
-                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct.")
+                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct."
+            )
 
         layers.append({"index": index, "arcpy": arcpy_layer, "prosdk": prosdk_layer})
 
@@ -363,7 +371,8 @@ def _native_list_maps(pro_proj):
     for arcpy_map, prosdk_map in zip(arcpy_maps, prosdk_maps):
         if not arcpy_map.name == prosdk_map.name:
             raise ValueError(
-                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct.")
+                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct."
+            )
 
         maps.append({"arcpy": arcpy_map, "prosdk": prosdk_map})
 
@@ -382,7 +391,8 @@ def _native_list_tables(pro_proj, map_frame):
     for index, (arcpy_table, prosdk_table) in enumerate(zip(arcpy_tables, prosdk_tables)):
         if not arcpy_table.name == prosdk_table.name:
             raise ValueError(
-                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct.")
+                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct."
+            )
 
         tables.append({"index": index, "arcpy": arcpy_table, "prosdk": prosdk_table})
 

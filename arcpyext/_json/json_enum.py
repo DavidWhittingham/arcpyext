@@ -12,10 +12,10 @@ from future.utils import iteritems
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position
 
 # Standard library imports
-from enum import Enum # this is a backport package on Py2
+from aenum import Enum  # this is a backport package on Py2
+
 
 class JsonEnum(Enum):
-
     def __iter__(self):
         return iteritems(self._to_jsonable())
 

@@ -29,14 +29,17 @@ class ConvertBase(with_metaclass(_ABCMeta, object)):
             raise ValueError("output_fc already exists.")
 
         # get input feature class description for copy process
-        d = arcpy.Describe(input_fc)
+        input_fc_desc = arcpy.Describe(input_fc)
 
-        if not d.dataType == "FeatureClass":
+        if not input_fc_desc.dataType == "FeatureClass":
             raise ValueError("input_fc is not of type 'FeatureClass'.")
 
         output_fc = Path(output_fc).resolve()
 
-        self._feature_class(d, output_fc, **kwargs)
+        self._feature_class(input_fc_desc, output_fc, **kwargs)
+
+        del input_fc_desc
+        arcpy.management.ClearWorkspaceCache()
 
     def table(self, input_table, output_table, **kwargs):
         if not arcpy.Exists(input_table):
@@ -46,14 +49,17 @@ class ConvertBase(with_metaclass(_ABCMeta, object)):
             raise ValueError("output_table already exists.")
 
         # get input feature class description for copy process
-        d = arcpy.Describe(input_table)
+        input_table_desc = arcpy.Describe(input_table)
 
-        if not d.dataType == "Table":
+        if not input_table_desc.dataType == "Table":
             raise ValueError("input_table is not of type 'Table'.")
 
         output_table = Path(output_table).resolve()
 
-        self._table(d, output_table, **kwargs)
+        self._table(input_table_desc, output_table, **kwargs)
+
+        del input_table_desc
+        arcpy.management.ClearWorkspaceCache()
 
     def relationship_class(self, input_rel, output_rel, **kwargs):
         if not arcpy.Exists(input_rel):
@@ -63,22 +69,25 @@ class ConvertBase(with_metaclass(_ABCMeta, object)):
             raise ValueError("output_rel already exists.")
 
         # get input feature class description for copy process
-        d = arcpy.Describe(input_rel)
+        rel_class_desc = arcpy.Describe(input_rel)
 
-        if not d.dataType == "RelationshipClass":
+        if not rel_class_desc.dataType == "RelationshipClass":
             raise ValueError("input_rel is not of type 'RelationshipClass'.")
 
         output_rel = Path(output_rel).resolve()
 
-        self._relationship(d, output_rel, **kwargs)
+        self._relationship_class(rel_class_desc, output_rel, **kwargs)
+
+        del rel_class_desc
+        arcpy.management.ClearWorkspaceCache()
 
     def workspace(self, input_workspace, output_path, **kwargs):
         if not arcpy.Exists(input_workspace):
             raise ValueError("input_workspace does not exist.")
 
-        d = arcpy.Describe(input_workspace)
+        workspace_desc = arcpy.Describe(input_workspace)
 
-        if not d.dataType == "Workspace":
+        if not workspace_desc.dataType == "Workspace":
             raise ValueError("input_workspace is not of type 'Workspace'.")
 
         # get output_path as a Path object
@@ -86,13 +95,18 @@ class ConvertBase(with_metaclass(_ABCMeta, object)):
 
         self._create_output_workspace(output_path, **kwargs)
 
-        for c in d.children:
-            if c.dataType == 'FeatureClass':
-                self._feature_class(c, self._feature_class_default_name(c, output_path, **kwargs), **kwargs)
-            elif c.dataType == 'Table':
-                self._table(c, self._table_default_name(c, output_path, **kwargs), **kwargs)
-            elif c.dataType == 'RelationshipClass':
-                self._relationship_class(c, self._relationship_class_default_name(c, output_path, **kwargs), **kwargs)
+        for child in workspace_desc.children:
+            if child.dataType == 'FeatureClass':
+                self._feature_class(child, self._feature_class_default_name(child, output_path, **kwargs), **kwargs)
+            elif child.dataType == 'Table':
+                self._table(child, self._table_default_name(child, output_path, **kwargs), **kwargs)
+            elif child.dataType == 'RelationshipClass':
+                self._relationship_class(
+                    child, self._relationship_class_default_name(child, output_path, **kwargs), **kwargs
+                )
+
+        del workspace_desc
+        arcpy.management.ClearWorkspaceCache()
 
     @abstractmethod
     def _create_output_workspace(self, output_path, **kwargs):

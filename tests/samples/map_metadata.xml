@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<metadata xml:lang="en">
+    <Esri>
+        <CreaDate>20230212</CreaDate>
+        <CreaTime>05410200</CreaTime>
+        <ArcGISFormat>1.0</ArcGISFormat>
+        <SyncOnce>TRUE</SyncOnce>
+        <scaleRange>
+            <minScale>625000</minScale>
+            <maxScale>5000</maxScale>
+        </scaleRange>
+        <ArcGISProfile>ISO19139</ArcGISProfile>
+        <DataProperties>
+            <itemProps>
+                <imsContentType export="False"></imsContentType>
+            </itemProps>
+        </DataProperties>
+    </Esri>
+    <dataIdInfo>
+        <idCitation>
+            <resTitle>Test service</resTitle>
+        </idCitation>
+        <searchKeys>
+            <keyword>test</keyword>
+        </searchKeys>
+        <idPurp>Test purpose for testing.</idPurp>
+        <idAbs>Test abstract for testing.</idAbs>
+        <idCredit>Test credits</idCredit>
+        <resConst>
+            <Consts>
+                <useLimit>Test use limit</useLimit>
+            </Consts>
+        </resConst>
+        <tpCat>
+            <TopicCatCd value="001"/>
+        </tpCat>
+    </dataIdInfo>
+    <mdHrLv>
+        <ScopeCd value="005"/>
+    </mdHrLv>
+    <mdDateSt Sync="TRUE">20230726</mdDateSt>
+</metadata>

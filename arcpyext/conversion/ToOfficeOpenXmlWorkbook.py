@@ -40,18 +40,21 @@ class ToOfficeOpenXmlWorkbook(ConvertBase):
             raise ValueError("output_workbook already exists.")
 
         # get input feature class description for copy process
-        d = arcpy.Describe(input_fc)
+        input_fc_desc = arcpy.Describe(input_fc)
 
-        if not d.dataType == "FeatureClass":
+        if not input_fc_desc.dataType == "FeatureClass":
             raise ValueError("input_fc is not of type 'FeatureClass'.")
 
         output_workbook = xlsxwriter.Workbook(str(output_workbook))
 
-        sheet_name = self._feature_class_default_name(d, output_workbook)
+        sheet_name = self._feature_class_default_name(input_fc_desc, output_workbook)
 
-        self._feature_class(d, output_workbook, sheet_name, use_field_alias_as_column_header)
+        self._feature_class(input_fc_desc, output_workbook, sheet_name, use_field_alias_as_column_header)
 
         output_workbook.close()
+
+        del input_fc_desc
+        arcpy.management.ClearWorkspaceCache()
 
     def table(self, input_table, output_workbook, use_field_alias_as_column_header=False):
         if not arcpy.Exists(input_table):
@@ -63,18 +66,21 @@ class ToOfficeOpenXmlWorkbook(ConvertBase):
             raise ValueError("output_table already exists.")
 
         # get input feature class description for copy process
-        d = arcpy.Describe(input_table)
+        input_table_desc = arcpy.Describe(input_table)
 
-        if not d.dataType == "Table":
+        if not input_table_desc.dataType == "Table":
             raise ValueError("input_table is not of type 'Table'.")
 
         output_workbook = xlsxwriter.Workbook(str(output_workbook))
 
-        sheet_name = self._table_default_name(d, output_workbook)
+        sheet_name = self._table_default_name(input_table_desc, output_workbook)
 
-        self._table(d, output_workbook, sheet_name, use_field_alias_as_column_header)
+        self._table(input_table_desc, output_workbook, sheet_name, use_field_alias_as_column_header)
 
         output_workbook.close()
+
+        del input_table_desc
+        arcpy.management.ClearWorkspaceCache()
 
     def relationship_class(self, input_rel, output_rel):
         return super().relationship_class(input_rel, output_rel)
@@ -83,34 +89,44 @@ class ToOfficeOpenXmlWorkbook(ConvertBase):
         if not arcpy.Exists(input_workspace):
             raise ValueError("input_workspace does not exist.")
 
-        d = arcpy.Describe(input_workspace)
+        input_workspace_desc = arcpy.Describe(input_workspace)
 
-        if not d.dataType == "Workspace":
+        if not input_workspace_desc.dataType == "Workspace":
             raise ValueError("input_workspace is not of type 'Workspace'.")
 
         # get output_path as a Path object
         output_path = Path(output_path).resolve()
 
         output_workbook = self._create_output_workspace(
-            output_path, use_field_alias_as_column_header=use_field_alias_as_column_header)
+            output_path, use_field_alias_as_column_header=use_field_alias_as_column_header
+        )
 
-        for c in d.children:
+        for c in input_workspace_desc.children:
             if c.dataType == 'FeatureClass':
-                self._feature_class(c,
-                                    output_workbook,
-                                    self._feature_class_default_name(c, output_workbook),
-                                    use_field_alias_as_column_header=use_field_alias_as_column_header)
+                self._feature_class(
+                    c,
+                    output_workbook,
+                    self._feature_class_default_name(c, output_workbook),
+                    use_field_alias_as_column_header=use_field_alias_as_column_header
+                )
             elif c.dataType == 'Table':
-                self._table(c,
-                            output_workbook,
-                            self._table_default_name(c, output_workbook),
-                            use_field_alias_as_column_header=use_field_alias_as_column_header)
+                self._table(
+                    c,
+                    output_workbook,
+                    self._table_default_name(c, output_workbook),
+                    use_field_alias_as_column_header=use_field_alias_as_column_header
+                )
             elif c.dataType == 'RelationshipClass':
-                self._relationship_class(c,
-                                         self._relationship_class_default_name(c, output_path),
-                                         use_field_alias_as_column_header=use_field_alias_as_column_header)
+                self._relationship_class(
+                    c,
+                    self._relationship_class_default_name(c, output_path),
+                    use_field_alias_as_column_header=use_field_alias_as_column_header
+                )
 
         output_workbook.close()
+
+        del input_workspace_desc
+        arcpy.management.ClearWorkspaceCache()
 
     #endregion
 
@@ -167,10 +183,12 @@ class ToOfficeOpenXmlWorkbook(ConvertBase):
         # create table layout, if any data was written
         if row_no > 0:
             header_attr = "name" if use_field_alias_as_column_header == False else "aliasName"
-            worksheet.add_table(0, 0, row_no - 1,
-                                len(fields) - 1, {"columns": [{
-                                    "header": getattr(f, header_attr)
-                                } for f in fields]})
+            worksheet.add_table(
+                0, 0, row_no - 1,
+                len(fields) - 1, {"columns": [{
+                    "header": getattr(f, header_attr)
+                } for f in fields]}
+            )
 
     def _get_default_name(self, desc, output_workbook, **kwargs):
         # get the default name for OOXML, respecting the 31 character limit and avoiding collisions

@@ -1,9 +1,10 @@
-sqlparse>=0.3.1,<0.4 ; python_version<'3'
-sqlparse==0.4.3 ; python_version>='3'
-enum34>=1.0.4,<2 ; python_version<'3.4'
-future>=0.15.2
+aenum>=3.1.15,<4
+future>=0.18.3
+lxml>=4.3.2,<5
 olefile==0.46 ; python_version<'3.4'
 pathlib2>=2.3.4,<3
 pythonnet>=2.4.0,<3 ; python_version<'3'
 pythonnet>=3.0.0,<4 ; python_version>='3'
-XlsxWriter>=1.0.0,<2
+sqlparse>=0.3.1,<0.4 ; python_version<'3'
+sqlparse>=0.4.4,<0.5 ; python_version>='3'
+XlsxWriter>=2.0.0,<3
