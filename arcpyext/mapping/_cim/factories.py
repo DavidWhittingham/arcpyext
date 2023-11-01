@@ -11,7 +11,8 @@ install_aliases()
 
 import json
 
-from .layers import ProFeatureLayer, ProGroupLayer, ProRasterLayer
+from .layers import ProFeatureLayer, ProGroupLayer, ProRasterLayer, \
+    ProMosaicLayer, ProFeatureMosaicSubLayer, ProImageMosaicSubLayer
 
 
 def create_layer(proj_zip, layer_string):
@@ -30,6 +31,12 @@ def create_layer(proj_zip, layer_string):
             layer_obj = ProGroupLayer(proj_zip, layer_string)
         elif layer_type == "CIMRasterLayer":
             layer_obj = ProRasterLayer(proj_zip, layer_string)
+        elif layer_type == "CIMMosaicLayer":
+            layer_obj = ProMosaicLayer(proj_zip, layer_string)
+        elif layer_type == "CIMFeatureMosaicSubLayer":
+            layer_obj = ProFeatureMosaicSubLayer(proj_zip, layer_string)
+        elif layer_type == "CIMImageMosaicSubLayer":
+            layer_obj = ProImageMosaicSubLayer(proj_zip, layer_string)
     else:
         # layer is probably XML, fallback to that
         if layer_string.startswith("<CIMFeatureLayer"):
@@ -38,5 +45,11 @@ def create_layer(proj_zip, layer_string):
             layer_obj = ProGroupLayer(proj_zip, layer_string)
         elif layer_string.startswith("<CIMRasterLayer"):
             layer_obj = ProRasterLayer(proj_zip, layer_string)
+        elif layer_string.startswith("<CIMMosaicLayer"):
+            layer_obj = ProMosaicLayer(proj_zip, layer_string)
+        elif layer_string.startswith("<CIMFeatureMosaicSubLayer"):
+            layer_obj = ProFeatureMosaicSubLayer(proj_zip, layer_string)
+        elif layer_string.startswith("<CIMImageMosaicSubLayer"):
+            layer_obj = ProImageMosaicSubLayer(proj_zip, layer_string)
 
     return layer_obj
