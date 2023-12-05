@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 from future.builtins.disabled import *
 from future.builtins import *
 from future.standard_library import install_aliases
+
 install_aliases()
 from future.moves.collections import deque
 from future.utils import with_metaclass
@@ -19,8 +20,7 @@ from .helpers import passthrough_prop
 from .tables import ProFeatureTable
 
 # .NET Imports
-from ArcGIS.Core.CIM import CIMFeatureLayer, CIMGroupLayer, CIMRasterLayer, \
-    CIMMosaicLayer, CIMImageMosaicSubLayer,CIMFeatureMosaicSubLayer
+from ArcGIS.Core.CIM import CIMFeatureLayer, CIMGroupLayer, CIMRasterLayer, CIMMosaicLayer, CIMImageMosaicSubLayer, CIMFeatureMosaicSubLayer
 
 
 class ProLayerBase(with_metaclass(ABCMeta, object)):
@@ -110,7 +110,8 @@ class ProGroupLayer(ProLayerBase):
             super().__init__(proj_zip, CIMGroupLayer.FromJson(layer_string))
 
     def _get_child_paths(self):
-        return [cp[8:] for cp in self._cim_obj.Layers]
+        # Layers can be a none if the group layer is empty, so guard against that
+        return [cp[8:] for cp in self._cim_obj.Layers or []]
 
 
 class ProMosaicLayer(ProLayerBase):
