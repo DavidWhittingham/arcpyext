@@ -52,12 +52,14 @@ class ProMap(object):
         if self._layers is None:
             self._layers = []
 
-            # layer paths are pre-pended with 'CIMPATH=', strip that to get the actual zip file path
-            layer_paths = [lp[8:] for lp in self._cim_obj.Layers]
+            # guard against no layers in map
+            if self._cim_obj.Layers:
+                # layer paths are pre-pended with 'CIMPATH=', strip that to get the actual zip file path
+                layer_paths = [lp[8:] for lp in self._cim_obj.Layers]
 
-            # build layers recursively
-            for lp in layer_paths:
-                self._create_layers(lp)
+                # build layers recursively
+                for lp in layer_paths:
+                    self._create_layers(lp)
 
         # return a shallow copy so our internal list isn't altered
         return self._layers.copy()

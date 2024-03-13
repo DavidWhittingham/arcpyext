@@ -351,7 +351,7 @@ def _native_list_layers(pro_proj, map_frame):
     for index, (arcpy_layer, prosdk_layer) in enumerate(zip(arcpy_layers, prosdk_layers)):
         if not arcpy_layer.name == prosdk_layer.name:
             raise ValueError(
-                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct."
+                "Layer from arcpy and layer from ArcGIS Pro SDK do not have the same name, order likely not correct."
             )
 
         layers.append({"index": index, "arcpy": arcpy_layer, "prosdk": prosdk_layer})
@@ -368,12 +368,15 @@ def _native_list_maps(pro_proj):
 
     maps = []
 
-    for arcpy_map, prosdk_map in zip(arcpy_maps, prosdk_maps):
-        if not arcpy_map.name == prosdk_map.name:
+    # get prosdk maps by name, so we can match up (not guaranteed to return same order as arcpy)
+    prosdk_maps_by_name = { m.name: m for m in prosdk_maps }
+    for arcpy_map in arcpy_maps:
+        prosdk_map = prosdk_maps_by_name.get(arcpy_map.name)
+        if not prosdk_map:
             raise ValueError(
-                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct."
+                "Map from arcpy ({}) could not be found by name in the ArcGIS Pro SDK, somthing unexpected happened."
+                .format(arcpy_map.name)
             )
-
         maps.append({"arcpy": arcpy_map, "prosdk": prosdk_map})
 
     return maps
@@ -391,7 +394,7 @@ def _native_list_tables(pro_proj, map_frame):
     for index, (arcpy_table, prosdk_table) in enumerate(zip(arcpy_tables, prosdk_tables)):
         if not arcpy_table.name == prosdk_table.name:
             raise ValueError(
-                "Map from arcpy and map from ArcGIS Pro SDK do not have the same name, order likely not correct."
+                "Table from arcpy and table from ArcGIS Pro SDK do not have the same name, order likely not correct."
             )
 
         tables.append({"index": index, "arcpy": arcpy_table, "prosdk": prosdk_table})

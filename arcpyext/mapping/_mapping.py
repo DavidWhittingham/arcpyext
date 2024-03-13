@@ -76,8 +76,8 @@ def change_data_sources(mxd_or_proj, data_sources):
         layers = _mh._list_layers(mxd_or_proj, map_frame)
         layer_sources = map_data_sources["layers"]
 
-        if layer_sources == None or len(layers) != len(layer_sources):
-            raise ChangeDataSourcesError("Number of layers does not match number of data sources.")
+        if len(layers) != len(layer_sources):
+            raise ChangeDataSourcesError("Number of layers ({}) does not match number of data sources ({}).".format(len(layers), len(layer_sources)))
 
         for layer, layer_source in zip_longest(layers, layer_sources):
             try:

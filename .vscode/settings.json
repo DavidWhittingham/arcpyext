@@ -1,8 +1,6 @@
 {
     "editor.formatOnSave": true,
     "python.defaultInterpreterPath": "${workspaceFolder}\\.venvs\\test-py3\\python.exe",
-    "python.formatting.provider": "yapf",
-    "python.formatting.yapfPath": "${workspaceFolder}\\.venvs\\test-py3\\scripts\\yapf.exe",
     "python.terminal.activateEnvironment": false,
     "python.testing.pytestArgs": [
         "tests"
@@ -12,6 +10,5 @@
     "search.exclude": {
         "**/.git": true,
         "**/.venvs": true
-    },
-    "python.linting.pylintEnabled": true
+    }
 }
