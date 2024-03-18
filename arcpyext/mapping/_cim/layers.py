@@ -20,7 +20,10 @@ from .helpers import passthrough_prop
 from .tables import ProFeatureTable
 
 # .NET Imports
-from ArcGIS.Core.CIM import CIMFeatureLayer, CIMGroupLayer, CIMRasterLayer, CIMMosaicLayer, CIMImageMosaicSubLayer, CIMFeatureMosaicSubLayer
+from ArcGIS.Core.CIM import (
+    CIMFeatureLayer, CIMFeatureMosaicSubLayer, CIMGroupLayer, CIMImageMosaicSubLayer, CIMMosaicLayer, CIMRasterLayer,
+    CIMTiledServiceLayer, CIMVectorTileLayer
+)
 
 
 class ProLayerBase(with_metaclass(ABCMeta, object)):
@@ -92,13 +95,13 @@ class ProFeatureLayer(ProBasicFeatureLayer):
             super().__init__(proj_zip, CIMFeatureLayer.FromJson(layer_string))
 
 
-class ProRasterLayer(ProLayerBase):
+class ProFeatureMosaicSubLayer(ProLayerBase):
     def __init__(self, proj_zip, layer_string):
         try:
-            super().__init__(proj_zip, CIMRasterLayer.FromXml(layer_string))
+            super().__init__(proj_zip, CIMFeatureMosaicSubLayer.FromXml(layer_string))
         except AttributeError:
             # probably JSON, attempt that
-            super().__init__(proj_zip, CIMRasterLayer.FromJson(layer_string))
+            super().__init__(proj_zip, CIMFeatureMosaicSubLayer.FromJson(layer_string))
 
 
 class ProGroupLayer(ProLayerBase):
@@ -114,6 +117,15 @@ class ProGroupLayer(ProLayerBase):
         return [cp[8:] for cp in self._cim_obj.Layers or []]
 
 
+class ProImageMosaicSubLayer(ProLayerBase):
+    def __init__(self, proj_zip, layer_string):
+        try:
+            super().__init__(proj_zip, CIMImageMosaicSubLayer.FromXml(layer_string))
+        except AttributeError:
+            # probably JSON, attempt that
+            super().__init__(proj_zip, CIMImageMosaicSubLayer.FromJson(layer_string))
+
+
 class ProMosaicLayer(ProLayerBase):
     def __init__(self, proj_zip, layer_string):
         try:
@@ -126,19 +138,28 @@ class ProMosaicLayer(ProLayerBase):
         return [self._cim_obj.BoundaryLayer[8:], self._cim_obj.FootprintLayer[8:], self._cim_obj.ImageLayer[8:]]
 
 
-class ProFeatureMosaicSubLayer(ProLayerBase):
+class ProRasterLayer(ProLayerBase):
     def __init__(self, proj_zip, layer_string):
         try:
-            super().__init__(proj_zip, CIMFeatureMosaicSubLayer.FromXml(layer_string))
+            super().__init__(proj_zip, CIMRasterLayer.FromXml(layer_string))
         except AttributeError:
             # probably JSON, attempt that
-            super().__init__(proj_zip, CIMFeatureMosaicSubLayer.FromJson(layer_string))
+            super().__init__(proj_zip, CIMRasterLayer.FromJson(layer_string))
 
 
-class ProImageMosaicSubLayer(ProLayerBase):
+class ProTiledServiceLayer(ProLayerBase):
     def __init__(self, proj_zip, layer_string):
         try:
-            super().__init__(proj_zip, CIMImageMosaicSubLayer.FromXml(layer_string))
+            super().__init__(proj_zip, CIMTiledServiceLayer.FromXml(layer_string))
         except AttributeError:
             # probably JSON, attempt that
-            super().__init__(proj_zip, CIMImageMosaicSubLayer.FromJson(layer_string))
+            super().__init__(proj_zip, CIMTiledServiceLayer.FromJson(layer_string))
+
+
+class ProVectorTileLayer(ProLayerBase):
+    def __init__(self, proj_zip, layer_string):
+        try:
+            super().__init__(proj_zip, CIMVectorTileLayer.FromXml(layer_string))
+        except AttributeError:
+            # probably JSON, attempt that
+            super().__init__(proj_zip, CIMVectorTileLayer.FromJson(layer_string))

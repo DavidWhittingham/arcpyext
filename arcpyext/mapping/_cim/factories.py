@@ -11,8 +11,10 @@ install_aliases()
 
 import json
 
-from .layers import ProFeatureLayer, ProGroupLayer, ProRasterLayer, \
-    ProMosaicLayer, ProFeatureMosaicSubLayer, ProImageMosaicSubLayer
+from .layers import (
+    ProFeatureLayer, ProFeatureMosaicSubLayer, ProGroupLayer, ProImageMosaicSubLayer, ProMosaicLayer, ProRasterLayer,
+    ProTiledServiceLayer, ProVectorTileLayer
+)
 
 
 def create_layer(proj_zip, layer_string):
@@ -37,6 +39,10 @@ def create_layer(proj_zip, layer_string):
             layer_obj = ProFeatureMosaicSubLayer(proj_zip, layer_string)
         elif layer_type == "CIMImageMosaicSubLayer":
             layer_obj = ProImageMosaicSubLayer(proj_zip, layer_string)
+        elif layer_type == "CIMTiledServiceLayer":
+            layer_obj = ProTiledServiceLayer(proj_zip, layer_string)
+        elif layer_type == "CIMVectorTileLayer":
+            layer_obj = ProVectorTileLayer(proj_zip, layer_string)
     else:
         # layer is probably XML, fallback to that
         if layer_string.startswith("<CIMFeatureLayer"):
@@ -51,5 +57,9 @@ def create_layer(proj_zip, layer_string):
             layer_obj = ProFeatureMosaicSubLayer(proj_zip, layer_string)
         elif layer_string.startswith("<CIMImageMosaicSubLayer"):
             layer_obj = ProImageMosaicSubLayer(proj_zip, layer_string)
+        elif layer_string.startswith("<CIMTiledServiceLayer"):
+            layer_obj = ProTiledServiceLayer(proj_zip, layer_string)
+        elif layer_string.startswith("<CIMVectorTileLayer"):
+            layer_obj = ProVectorTileLayer(proj_zip, layer_string)
 
     return layer_obj

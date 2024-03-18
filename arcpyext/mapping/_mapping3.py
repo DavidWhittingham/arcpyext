@@ -23,6 +23,7 @@ import arcpy
 
 # Local imports
 from ._cim import ProProject
+from ._cim.layers import ProVectorTileLayer
 from ._mapping_helpers import tokenise_table_name
 from .. import _native as _prosdk
 from .._patches._mp._cim_helpers import is_query_layer
@@ -284,7 +285,9 @@ def _native_describe_layer(layer_parts):
         "isNetworkAnalystLayer": layer_parts["arcpy"].isNetworkAnalystLayer,
         "isRasterLayer": layer_parts["arcpy"].isRasterLayer,
         "isRasterizingLayer": None,  # not implemented yet
-        "isServiceLayer": layer_parts["arcpy"].isWebLayer,
+
+        # Vector Tile layers are inheritently service-based, but "isWebLayer" doesn't return true for them as of Pro 3.0.6 - probable bug
+        "isServiceLayer": layer_parts["arcpy"].isWebLayer or isinstance(layer_parts["prosdk"], ProVectorTileLayer),
         "longName": layer_parts["arcpy"].longName,
         "name": layer_parts["arcpy"].name,
         "serviceId": layer_parts["prosdk"].service_id,
@@ -349,6 +352,12 @@ def _native_list_layers(pro_proj, map_frame):
     layers = []
 
     for index, (arcpy_layer, prosdk_layer) in enumerate(zip(arcpy_layers, prosdk_layers)):
+        if arcpy_layer == None:
+            raise ValueError("Could not get arpcy layer at index '{}' for map '{}'".format(index, map_frame["arcpy"].name))
+
+        if prosdk_layer == None:
+            raise ValueError("Could not get ArcGIS Pro SDK layer at index '{}' for map '{}'".format(index, map_frame["prosdk"].name))
+
         if not arcpy_layer.name == prosdk_layer.name:
             raise ValueError(
                 "Layer from arcpy and layer from ArcGIS Pro SDK do not have the same name, order likely not correct."
