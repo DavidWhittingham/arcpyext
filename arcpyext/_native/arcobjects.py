@@ -43,7 +43,7 @@ def cast_obj(obj, ao_interface):
         # Object can be casted
         return ao_interface(obj)
     except TypeError as te:
-        logger.exception("An error occured casting an object to an ArcObjects interface.", exc_info=True)
+        logger.exception("An error occurred casting an object to an ArcObjects interface.", exc_info=True)
         return None
 
 def create_obj(ao_class, ao_interface):

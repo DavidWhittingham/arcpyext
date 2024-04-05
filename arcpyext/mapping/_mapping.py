@@ -77,7 +77,11 @@ def change_data_sources(mxd_or_proj, data_sources):
         layer_sources = map_data_sources["layers"]
 
         if len(layers) != len(layer_sources):
-            raise ChangeDataSourcesError("Number of layers ({}) does not match number of data sources ({}).".format(len(layers), len(layer_sources)))
+            raise ChangeDataSourcesError(
+                "Number of layers ({}) does not match number of data sources ({}).".format(
+                    len(layers), len(layer_sources)
+                )
+            )
 
         for layer, layer_source in zip_longest(layers, layer_sources):
             try:
@@ -92,7 +96,7 @@ def change_data_sources(mxd_or_proj, data_sources):
 
             #TODO: Handle KeyError and AttributeError for badly written configs
             except MapLayerError as e:
-                logger.exception("An error occured changing the data source of a map layer: %s", e)
+                logger.exception("An error occurred changing the data source of a map layer: %s", e)
                 errors.append(e)
 
         data_tables = _mh._list_tables(mxd_or_proj, map_frame)
@@ -113,7 +117,7 @@ def change_data_sources(mxd_or_proj, data_sources):
                 logger.debug("  - updated: %s", _mh._get_data_source_desc(data_table))
 
             except MapLayerError as mle:
-                logger.exception("An error occured changing the data source of a table: %s", mle)
+                logger.exception("An error occurred changing the data source of a table: %s", mle)
                 errors.append(mle)
 
     try:
@@ -138,15 +142,14 @@ def compare(was_mxd_proj_or_desc, now_mxd_proj_or_desc):
     now_description = now_mxd_proj_or_desc if isinstance(now_mxd_proj_or_desc,
                                                          Mapping) else describe(now_mxd_proj_or_desc)
 
-    #yapf: disable
+
     differences = {
         "diff": DocumentChangeTypes.compare(was_description, now_description),
         "maps": [
             _compare_map_frames(was_frame, now_frame)
             for was_frame, now_frame in zip_longest(was_description["maps"], now_description["maps"])
         ]
-    }
-    #yapf: enable
+    } #yapf: disable
 
     return differences
 
@@ -157,15 +160,13 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
     map_desc = mxd_proj_or_desc if isinstance(mxd_proj_or_desc, Mapping) else describe(mxd_proj_or_desc)
 
     # Here we are rearranging the data_source_templates so that the match criteria can be compared as a set - in case there are more than one.
-    #yapf: disable
     template_sets = [
         dict(
             list(iteritems(template)) + [
                 ("matchCriteria", set(iteritems(lowercase_dict(template["matchCriteria"]))))
             ]
         ) for template in data_source_templates
-    ]
-    #yapf: enable
+    ] #yapf: disable
 
     # freeze values in dict for set comparison
     def freeze(d):
