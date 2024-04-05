@@ -19,7 +19,7 @@ VENV_TEST_PY3_X86_64 = ".venvs\\test-py3"
 @task
 def build():
     with conda(VENV_BUILD, get_arcgis_pro_conda_path()):
-        cmd(r'python setup.py bdist_wheel clean --all')
+        cmd(r'python -m build --wheel --no-isolation')
 
 
 @task

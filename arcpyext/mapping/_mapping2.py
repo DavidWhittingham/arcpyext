@@ -31,6 +31,7 @@ import System.Runtime.InteropServices
 
 # Put the map document class here so we can access the per-version type in a consistent location across Python versions
 Document = arcpy.mapping.MapDocument
+LayerFile = arcpy.mapping.Layer
 
 
 def get_version(map_document):
@@ -50,17 +51,25 @@ def get_version(map_document):
 
 
 def open_document(mxd):
-    """Open a arcpy.mapping.MapDocument from a given path.
+    """Open a arcpy.mapping.MapDocument or arcpy.mapping.Layer from a given path.
     
-    If the path is already a MapDocument, this is a no-op.
+    If the path is already a MapDocument or Layer, this is a no-op.
     """
-
-    import arcpy
 
     if isinstance(mxd, arcpy.mapping.MapDocument):
         return mxd
 
-    return arcpy.mapping.MapDocument(mxd)
+    if isinstance(mxd, arcpy.mapping.Layer):
+        return mxd
+
+    _, file_ext = os.path.splitext(mxd)
+
+    if file_ext.lower() == ".mxd":
+        return arcpy.mapping.MapDocument(mxd)
+    elif file_ext.lower() == ".lyr":
+        return arcpy.mapping.Layer(mxd)
+    else:
+        raise ValueError("Unknown file type for given path: {}".format(mxd))
 
 
 def _change_data_source(layer, new_layer_source):

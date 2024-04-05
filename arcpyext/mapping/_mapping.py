@@ -12,9 +12,7 @@ from future.moves.itertools import chain, zip_longest
 from future.utils import iteritems
 # pylint: enable=wildcard-import,unused-wildcard-import,wrong-import-order,wrong-import-position,import-error,no-name-in-module
 
-# Standard libary imports
-import json
-import re
+# Standard library imports
 import sys
 
 try:
@@ -49,7 +47,7 @@ def change_data_sources(mxd_or_proj, data_sources):
     Replaces data sources per-layer with the specified data source.
 
     :param mxd_or_proj: The Map Document or ArcGIS Project to process.
-    :type mxd_or_proj: arcpy.mapping.MapDocument/arcpy.mapping.ArcGISProject (Python-version depedent) or str (file 
+    :type mxd_or_proj: arcpy.mapping.MapDocument/arcpy.mp.ArcGISProject/arcpy.mp.LayerFile (Python-version dependent) or str (file 
                        path).  If a native arcpy object is passed in, changes are not saved.  If a file path is passed
                        in, changes are saved.
     """
@@ -61,69 +59,46 @@ def change_data_sources(mxd_or_proj, data_sources):
     document_was_opened = False
 
     # Ensure document is open before changing data sources
-    if not isinstance(mxd_or_proj, Document):
+    if not isinstance(mxd_or_proj, Document) and not isinstance(mxd_or_proj, LayerFile):
         mxd_or_proj = open_document(mxd_or_proj)
         document_was_opened = True
 
     errors = []
 
-    # match map with data sources
-    for map_frame, map_data_sources in zip_longest(_mh._list_maps(mxd_or_proj), data_sources):
+    if isinstance(mxd_or_proj, Document):
+        # match map with data sources
+        for map_frame, map_data_sources in zip_longest(_mh._list_maps(mxd_or_proj), data_sources):
 
-        if not 'layers' in map_data_sources or not 'tables' in map_data_sources:
-            raise ChangeDataSourcesError("Data sources dictionary does not contain both layers and tables keys")
+            if not 'layers' in map_data_sources or not 'tables' in map_data_sources:
+                raise ChangeDataSourcesError("Data sources dictionary does not contain both layers and tables keys")
 
-        layers = _mh._list_layers(mxd_or_proj, map_frame)
-        layer_sources = map_data_sources["layers"]
+            layers = _mh._list_layers(mxd_or_proj, map_frame)
+            layer_sources = map_data_sources["layers"]
+            errors.extend(_change_layer_data_sources(layers, layer_sources))
 
-        if len(layers) != len(layer_sources):
-            raise ChangeDataSourcesError(
-                "Number of layers ({}) does not match number of data sources ({}).".format(
-                    len(layers), len(layer_sources)
-                )
-            )
+            data_tables = _mh._list_tables(mxd_or_proj, map_frame)
+            data_table_sources = map_data_sources["tables"]
+            errors.extend(_change_data_table_data_sources(data_tables, data_table_sources))
+    else:
+        # must be a layer file
+        if ARCPY_2:
+            raise NotImplementedError("Updating data sources on an ArcGIS Desktop layer file is not supported.")
 
-        for layer, layer_source in zip_longest(layers, layer_sources):
-            try:
-                if layer_source == None:
-                    continue
+        # set a more appropriate variable name to make reading easier
+        layer_file = mxd_or_proj
 
-                logger.debug("Layer {0}: Attempting to change data source info...".format(layer.longName))
-                logger.debug("  - current: %s", _mh._get_data_source_desc(layer))
-                logger.debug("  -  target: %s", layer_source)
-                _mh._change_data_source(layer, layer_source)
-                logger.debug("  - updated: %s", _mh._get_data_source_desc(layer))
+        layers = layer_file.listLayers()
+        layer_sources = data_sources["layers"]
+        errors.extend(_change_layer_data_sources(layers, layer_sources))
 
-            #TODO: Handle KeyError and AttributeError for badly written configs
-            except MapLayerError as e:
-                logger.exception("An error occurred changing the data source of a map layer: %s", e)
-                errors.append(e)
-
-        data_tables = _mh._list_tables(mxd_or_proj, map_frame)
-        data_table_sources = map_data_sources["tables"]
-
-        if not len(data_tables) == len(data_table_sources):
-            raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
-
-        for data_table, data_table_source in zip_longest(data_tables, data_table_sources):
-            try:
-                if data_table_source == None:
-                    continue
-
-                logger.debug("Data Table {0}: Attempting to change workspace path...".format(data_table.name))
-                logger.debug("  - current: %s", _mh._get_data_source_desc(data_table))
-                logger.debug("  -  target: %s", data_table_source)
-                _mh._change_data_source(data_table, data_table_source)
-                logger.debug("  - updated: %s", _mh._get_data_source_desc(data_table))
-
-            except MapLayerError as mle:
-                logger.exception("An error occurred changing the data source of a table: %s", mle)
-                errors.append(mle)
+        data_tables = layer_file.listTables()
+        data_table_sources = data_sources["tables"]
+        errors.extend(_change_data_table_data_sources(data_tables, data_table_sources))
 
     try:
         if not len(errors) == 0:
             raise ChangeDataSourcesError(
-                "A number of errors were encountered whilst change layer data sources.", errors
+                "A number of errors were encountered whilst change layer data sources on '{}'.".format(mxd_or_proj.filePath), errors
             )
 
         if document_was_opened:
@@ -157,7 +132,7 @@ def compare(was_mxd_proj_or_desc, now_mxd_proj_or_desc):
 def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates, raise_exception_no_change=False):
 
     # ensure we have a description of the map, and not a map itself
-    map_desc = mxd_proj_or_desc if isinstance(mxd_proj_or_desc, Mapping) else describe(mxd_proj_or_desc)
+    mxd_proj_or_desc = mxd_proj_or_desc if isinstance(mxd_proj_or_desc, Mapping) else describe(mxd_proj_or_desc)
 
     # Here we are rearranging the data_source_templates so that the match criteria can be compared as a set - in case there are more than one.
     template_sets = [
@@ -226,28 +201,45 @@ def create_replacement_data_sources_list(mxd_proj_or_desc, data_source_templates
 
         return new_conn
 
-    return [
-        {
-            "layers": [match_new_data_source(layer) for layer in df["layers"]],
-            "tables": [match_new_data_source(table) for table in df["tables"]]
-        } for df in map_desc["maps"]
-    ]
+    # check if we're processing a map or a layer file
+    if "maps" in mxd_proj_or_desc:
+        return [
+            {
+                "layers": [match_new_data_source(layer) for layer in df["layers"]],
+                "tables": [match_new_data_source(table) for table in df["tables"]]
+            } for df in mxd_proj_or_desc["maps"]
+        ]
+    else:
+        # assume layer file
+        return {
+            "layers": [match_new_data_source(layer) for layer in mxd_proj_or_desc["layers"]],
+            "tables": [match_new_data_source(table) for table in mxd_proj_or_desc["tables"]]
+        }
 
 
 def describe(mxd_or_proj):
     """
-    Describe a Map Document or ArcGIS Pro project.
+    Describe a Map Document, ArcGIS Pro project or ArcGIS Pro Layer file.
 
     This will only describe the document as saved on disk, it will not include any unsaved changes.
 
     :param mxd_proj_or_desc: The map to be validated
-    :type mxd_proj_or_desc: arcpy.mapping.MapDocument/arcpy.mapping.ArcGISProject (Python-version depedent) or str (file path)
+    :type mxd_proj_or_desc: arcpy.mapping.MapDocument/arcpy.mapping.ArcGISProject (Python-version dependent) or str (file path)
     :returns: dict describing the object
     """
 
-    file_path = mxd_or_proj.filePath if isinstance(mxd_or_proj, Document) else mxd_or_proj
+    file_path = mxd_or_proj.filePath if (
+        isinstance(mxd_or_proj, Document) or isinstance(mxd_or_proj, LayerFile)
+    ) else mxd_or_proj
 
-    return _mh._describe_map(file_path)
+    _, file_ext = os.path.splitext(file_path)
+    if file_ext.lower() in (".mxd", ".aprx"):
+        return _mh._describe_map(file_path)
+    else:
+        if ARCPY_2:
+            raise NotImplementedError("Describing a layer file is not supported on ArcGIS Desktop.")
+
+        return _mh._describe_layer_file(file_path)
 
 
 def is_valid(mxd_proj_or_desc):
@@ -290,6 +282,91 @@ def _attr_shallow_eq(a, b, attr_key):
 
 def _attr_deep_eq(a, b, attr_key):
     return _recursive_sort(a[attr_key]) == _recursive_sort(b[attr_key]) if attr_key in a and attr_key in b else False
+
+
+def _change_data_table_data_sources(data_tables, data_table_sources):
+    errors = []
+    logger = _get_logger()
+
+    if not len(data_tables) == len(data_table_sources):
+        raise ChangeDataSourcesError("Number of data tables does not match number of data table data sources.")
+
+    for data_table, data_table_source in zip_longest(data_tables, data_table_sources):
+        try:
+            if data_table_source == None:
+                continue
+
+            logger.debug("Data Table {0}: Attempting to change workspace path...".format(data_table.name))
+            logger.debug("  - current: %s", _mh._get_data_source_desc(data_table))
+            logger.debug("  -  target: %s", data_table_source)
+            _mh._change_data_source(data_table, data_table_source)
+            logger.debug("  - updated: %s", _mh._get_data_source_desc(data_table))
+
+        except MapLayerError as mle:
+            logger.exception("An error occurred changing the data source of a table: %s", mle)
+            errors.append(mle)
+    
+    return errors
+
+
+def _change_layer_data_sources(layers, layer_sources):
+    errors = []
+    logger = _get_logger()
+
+    if len(layers) != len(layer_sources):
+        raise ChangeDataSourcesError(
+            "Number of layers ({}) does not match number of data sources ({}).".format(len(layers), len(layer_sources))
+        )
+
+    for layer, layer_source in zip_longest(layers, layer_sources):
+        try:
+            if layer_source == None:
+                continue
+
+            logger.debug("Layer {0}: Attempting to change data source info...".format(layer.longName))
+            logger.debug("  - current: %s", _mh._get_data_source_desc(layer))
+            logger.debug("  -  target: %s", layer_source)
+            _mh._change_data_source(layer, layer_source)
+            logger.debug("  - updated: %s", _mh._get_data_source_desc(layer))
+
+        #TODO: Handle KeyError and AttributeError for badly written configs
+        except MapLayerError as e:
+            logger.exception("An error occurred changing the data source of a map layer: %s", e)
+            errors.append(e)
+    
+    return errors
+
+
+def _compare_map_frames(was_map_desc, now_map_desc):
+    """
+    Compares two arcpy.mapping.DataFrame/arcpy.mp.Map objects for differences.
+
+    Intended to be used to compare a historical version of a map with a new version, chiefly to look for changes that
+    will impact the API of a map service built from the given map.
+    """
+
+    map_differences = {"diff": [], "layers": {"added": [], "updated": [], "removed": []}, "tables": []}
+
+    if was_map_desc is None:
+        # new map introduced, ignore
+        return map_differences
+
+    map_differences["diff"] = MapChangeTypes.compare(was_map_desc, now_map_desc)
+
+    (map_differences["layers"]["added"], matched,
+     map_differences["layers"]["removed"]) = _match_layers(was_map_desc["layers"], now_map_desc["layers"])
+    for (was_layer, now_layer) in matched:
+        # make a shallow copy so we don't change the input description
+        now_layer = now_layer.copy()
+        now_layer["diff"] = LayerChangeTypes.compare(was_layer, now_layer)
+        if len(now_layer["diff"]) > 0:
+            map_differences["layers"]["updated"].append(now_layer)
+
+    return map_differences
+
+
+def _get_logger():
+    return logging.getLogger("arcpyext.mapping")
 
 
 def _match_layers(was_layers, now_layers):
@@ -380,38 +457,6 @@ def _match_layers(was_layers, now_layers):
             matched.append((was_layer, resolved_layer))
 
     return (added, matched, removed)
-
-
-def _compare_map_frames(was_map_desc, now_map_desc):
-    """
-    Compares two arcpy.mapping.DataFrame/arcpy.mp.Map objects for differences.
-
-    Intended to be used to compare a historical version of a map with a new version, chiefly to look for changes that
-    will impact the API of a map service built from the given map.
-    """
-
-    map_differences = {"diff": [], "layers": {"added": [], "updated": [], "removed": []}, "tables": []}
-
-    if was_map_desc is None:
-        # new map introduced, ignore
-        return map_differences
-
-    map_differences["diff"] = MapChangeTypes.compare(was_map_desc, now_map_desc)
-
-    (map_differences["layers"]["added"], matched,
-     map_differences["layers"]["removed"]) = _match_layers(was_map_desc["layers"], now_map_desc["layers"])
-    for (was_layer, now_layer) in matched:
-        # make a shallow copy so we don't change the input description
-        now_layer = now_layer.copy()
-        now_layer["diff"] = LayerChangeTypes.compare(was_layer, now_layer)
-        if len(now_layer["diff"]) > 0:
-            map_differences["layers"]["updated"].append(now_layer)
-
-    return map_differences
-
-
-def _get_logger():
-    return logging.getLogger("arcpyext.mapping")
 
 
 def _recursive_sort(obj):

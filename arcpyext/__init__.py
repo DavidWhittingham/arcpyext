@@ -16,8 +16,9 @@ from . import _native
 from . import _str
 from . import conversion
 from . import data
-from . import toolbox
-from . import schematransform
 from . import mapping
 from . import publishing
+from . import schematransform
+from . import toolbox
+from ._utils import get_arcgis_version
 from .TopicCategory import TopicCategory

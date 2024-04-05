@@ -12,6 +12,7 @@ install_aliases()
 
 # Standard lib imports
 import logging
+import os.path
 
 try:
     from collections.abc import Mapping
@@ -22,20 +23,23 @@ except ImportError:
 import arcpy
 
 # Local imports
+
 from ._cim import ProProject
 from ._cim.layers import ProVectorTileLayer
 from ._mapping_helpers import tokenise_table_name
 from .. import _native as _prosdk
+from .._utils import get_arcgis_version
 from .._patches._mp._cim_helpers import is_query_layer
 from .._str import eformat, format_def_query
 from ..exceptions import DataSourceUpdateError
 
 # Put the map document class here so we can access the per-version type in a consistent location across Python versions
 Document = arcpy.mp.ArcGISProject
+LayerFile = arcpy.mp.LayerFile
 
 
 def open_document(project):
-    """Open an ArcGIS Pro Project from a given path.
+    """Open an ArcGIS Pro Project or ArcGIS Pro Layer File from a given path.
 
     If the path is already a Project, this is a no-op.
     """
@@ -43,7 +47,17 @@ def open_document(project):
     if isinstance(project, arcpy.mp.ArcGISProject):
         return project
 
-    return arcpy.mp.ArcGISProject(project)
+    if isinstance(project, arcpy.mp.LayerFile):
+        return project
+
+    _, file_ext = os.path.splitext(project)
+
+    if file_ext.lower() == ".aprx":
+        return arcpy.mp.ArcGISProject(project)
+    elif file_ext.lower() == ".lyrx":
+        return arcpy.mp.LayerFile(project)
+    else:
+        raise ValueError("Unknown file type for given path: {}".format(project))
 
 
 def _change_data_source(layer, new_props):
@@ -129,7 +143,7 @@ def _change_data_source(layer, new_props):
             (hasattr(layer, "supports") and layer.supports("DEFINITIONQUERY")) or
             (not hasattr(layer, "supports") and hasattr(layer, "definitionQuery"))
         ):
-            # must format/replace definiton query
+            # must format/replace definition query
             def_query_opts = transform_options["definitionQuery"]
             layer.definitionQuery = format_def_query(
                 layer.definitionQuery,
@@ -181,6 +195,35 @@ def _change_data_source(layer, new_props):
 
     if hasattr(layer, "isBroken") and layer.isBroken:
         raise DataSourceUpdateError("Layer is now broken.", layer)
+
+
+def _describe_layer_file(file_path):
+    layer_file = arcpy.mp.LayerFile(file_path)
+
+    # prevent repeated calls
+    arcgis_version = get_arcgis_version()
+
+    return {
+        "filePath": file_path,
+        "layers": [
+            _native_describe_layer(
+                {
+                    "arcpy": l,
+                    "index": index,
+                    "prosdk": l.getDefinition("V3" if arcgis_version >= 3 else "V2")
+                }
+            ) for (index, l) in enumerate(layer_file.listLayers())
+        ],
+        "tables": [
+            _native_describe_table(
+                {
+                    "arcpy": t,
+                    "index": index,
+                    "prosdk": t.getDefinition("V3" if arcgis_version >= 3 else "V2")
+                }
+            ) for (index, t) in enumerate(layer_file.listTables())
+        ]
+    }
 
 
 def _describe_map(file_path):
@@ -264,7 +307,7 @@ def _native_describe_fields(layer_or_table_fields):
         {
             "alias": f.alias,
             "index": i,
-            "name": f.name,
+            "name": f.name if hasattr(f, "name") else f.fieldName,
             "type": None,  # Can't get this information yet
             "visible": f.visible
         } for i, f in enumerate(layer_or_table_fields)
@@ -272,12 +315,38 @@ def _native_describe_fields(layer_or_table_fields):
 
 
 def _native_describe_layer(layer_parts):
+
+    # the "prosdk" variant in a layer from a layer file is actually the CIM object from getDefinition() in arcpy
+    # as such, we have to so some work to get access to the right properties, due to naming differences
+    # at some point, ideally, we'd port as much of this to pure-Python/arcpy as possible
+    
+    service_id = (
+        layer_parts["prosdk"].service_id
+        if hasattr(layer_parts["prosdk"], "service_id") else layer_parts["prosdk"].serviceLayerID
+    )
+
+    # Vector Tile layers are inherently service-based, but "isWebLayer" doesn't return true for them as of Pro 3.0.6 - probable bug
+    is_service_layer = (
+        layer_parts["arcpy"].isWebLayer or isinstance(layer_parts["prosdk"], ProVectorTileLayer)
+        or (hasattr(layer_parts["prosdk"], "layerType") and layer_parts["prosdk"].layerType == "CIMVectorTileLayer")
+    )
+
+    feature_table = (
+        layer_parts["prosdk"].feature_table if hasattr(layer_parts["prosdk"], "feature_table") else
+        layer_parts["prosdk"].featureTable if hasattr(layer_parts["prosdk"], "featureTable") else None
+    )
+
+    feature_table_fields = None
+    if hasattr(feature_table, "fields"):
+        feature_table_fields = feature_table.fields
+    elif hasattr(feature_table, "fieldDescriptions"):
+        feature_table_fields = feature_table.fieldDescriptions
+
     # yapf: disable
     layer_details = {
         "dataSource": layer_parts["arcpy"].dataSource if layer_parts["arcpy"].supports("DATASOURCE") else None,
         "definitionQuery": layer_parts["arcpy"].definitionQuery if layer_parts["arcpy"].supports("DEFINITIONQUERY") else None,
-        "fields":_native_describe_fields(layer_parts["prosdk"].feature_table.fields)
-            if hasattr(layer_parts["prosdk"], "feature_table") else [],
+        "fields": _native_describe_fields(feature_table_fields) if feature_table_fields else [],
         "index": layer_parts["index"],
         "isBroken": layer_parts["arcpy"].isBroken,
         "isFeatureLayer": layer_parts["arcpy"].isFeatureLayer,
@@ -285,12 +354,10 @@ def _native_describe_layer(layer_parts):
         "isNetworkAnalystLayer": layer_parts["arcpy"].isNetworkAnalystLayer,
         "isRasterLayer": layer_parts["arcpy"].isRasterLayer,
         "isRasterizingLayer": None,  # not implemented yet
-
-        # Vector Tile layers are inheritently service-based, but "isWebLayer" doesn't return true for them as of Pro 3.0.6 - probable bug
-        "isServiceLayer": layer_parts["arcpy"].isWebLayer or isinstance(layer_parts["prosdk"], ProVectorTileLayer),
+        "isServiceLayer": is_service_layer,
         "longName": layer_parts["arcpy"].longName,
         "name": layer_parts["arcpy"].name,
-        "serviceId": layer_parts["prosdk"].service_id,
+        "serviceId": service_id,
         "visible": layer_parts["arcpy"].visible,
 
         # these get added with the call to _native_add_data_connection_details
@@ -353,10 +420,14 @@ def _native_list_layers(pro_proj, map_frame):
 
     for index, (arcpy_layer, prosdk_layer) in enumerate(zip(arcpy_layers, prosdk_layers)):
         if arcpy_layer == None:
-            raise ValueError("Could not get arpcy layer at index '{}' for map '{}'".format(index, map_frame["arcpy"].name))
+            raise ValueError(
+                "Could not get arpcy layer at index '{}' for map '{}'".format(index, map_frame["arcpy"].name)
+            )
 
         if prosdk_layer == None:
-            raise ValueError("Could not get ArcGIS Pro SDK layer at index '{}' for map '{}'".format(index, map_frame["prosdk"].name))
+            raise ValueError(
+                "Could not get ArcGIS Pro SDK layer at index '{}' for map '{}'".format(index, map_frame["prosdk"].name)
+            )
 
         if not arcpy_layer.name == prosdk_layer.name:
             raise ValueError(
@@ -378,13 +449,13 @@ def _native_list_maps(pro_proj):
     maps = []
 
     # get prosdk maps by name, so we can match up (not guaranteed to return same order as arcpy)
-    prosdk_maps_by_name = { m.name: m for m in prosdk_maps }
+    prosdk_maps_by_name = {m.name: m for m in prosdk_maps}
     for arcpy_map in arcpy_maps:
         prosdk_map = prosdk_maps_by_name.get(arcpy_map.name)
         if not prosdk_map:
             raise ValueError(
-                "Map from arcpy ({}) could not be found by name in the ArcGIS Pro SDK, somthing unexpected happened."
-                .format(arcpy_map.name)
+                "Map from arcpy ({}) could not be found by name in the ArcGIS Pro SDK, somthing unexpected happened.".
+                format(arcpy_map.name)
             )
         maps.append({"arcpy": arcpy_map, "prosdk": prosdk_map})
 
