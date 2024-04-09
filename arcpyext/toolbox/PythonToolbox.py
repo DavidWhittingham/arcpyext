@@ -14,7 +14,7 @@ import imp
 
 import arcpy
 
-from lxml import etree as ET
+import xml.etree.ElementTree as ET
 
 
 class PythonToolbox(object):
@@ -61,9 +61,9 @@ class PythonToolbox(object):
             t.load_xml()
 
     def save_definitions(self):
-        #with open(self.xml_path,'w') as fout:
-        #    self.xml_tree.write(fout,encoding = 'utf-8')
-        self.xml_tree.write(self.xml_path, encoding='utf-8')
+        with open(self.xml_path, 'wb') as fout:
+            self.xml_tree.write(fout, encoding='utf-8', xml_declaration=True)
+
         # and save tools too
         for t in self.tools:
             t.save_definitions()
@@ -104,7 +104,7 @@ class PythonTool(object):
 
     def save_definitions(self):
         with open(self.xml_path, 'wb') as fout:
-            self.xml_tree.write(fout, encoding='utf-8')
+            self.xml_tree.write(fout, encoding='utf-8', xml_declaration=True)
 
     def set_description_in_xml(self, description):
         e = PythonToolbox.get_or_create_element(self.xml_tree.getroot(), 'dataIdInfo')
