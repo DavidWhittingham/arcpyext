@@ -12,8 +12,15 @@ install_aliases()
 
 # Standard lib imports
 import logging
+import json
 import os.path
+import shutil
+import tempfile
+import xml.etree.ElementTree as ET
+import zipfile
 
+from decimal import Decimal
+from pathlib2 import Path
 try:
     from collections.abc import Mapping
 except ImportError:
@@ -36,6 +43,181 @@ from ..exceptions import DataSourceUpdateError
 # Put the map document class here so we can access the per-version type in a consistent location across Python versions
 Document = arcpy.mp.ArcGISProject
 LayerFile = arcpy.mp.LayerFile
+
+
+def fix_datum_transforms(arc_file):
+    """For various ArcGIS-type files (currently APRX and MAPX), 'fix' datum transform information so that it is 
+    compatible for the document version by re-writing datum transformation information.
+
+    In ArcGIS Pro 3.0, various datum transforms had there WKIDs changed in line with official EPSG designation.
+    In doing so, Esri broke compatibility with APRXs/MAPXs generated out of ArcGIS Pro 3.0 even when exported (via 
+    sharing) to the ArcGIS Pro 2.x level. This function attempts to safely revert WKID/WKT information for older
+    APRX/MAPX versions.
+
+    Args:
+        arc_file (str|Path): The ArcGIS file to operate on.
+    """
+
+    # treat file as Path
+    arc_file = Path(str(arc_file))
+
+    # store datum transform changes by version level that they changed at
+    # in other words, if the file is older than that, proceed:
+    transforms_to_fix = [
+        {
+            "version": Decimal(3),
+            "transformFixes": [
+                {
+                    "currentWkt": 'GEOGTRAN["GDA_1994_To_GDA2020_1",GEOGCS["GCS_GDA_1994",DATUM["D_GDA_1994",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],GEOGCS["GDA2020",DATUM["GDA2020",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],METHOD["Coordinate_Frame"],PARAMETER["X_Axis_Translation",0.06155],PARAMETER["Y_Axis_Translation",-0.01087],PARAMETER["Z_Axis_Translation",-0.04019],PARAMETER["X_Axis_Rotation",-0.0394924],PARAMETER["Y_Axis_Rotation",-0.0327221],PARAMETER["Z_Axis_Rotation",-0.0328979],PARAMETER["Scale_Difference",-0.009994],OPERATIONACCURACY[0.01],AUTHORITY["EPSG",8048]]',
+                    "currentWkid": "8048",
+                    "name": "GDA_1994_To_GDA2020_1",
+                    "oldWkt": 'GEOGTRAN["GDA_1994_To_GDA2020_1",GEOGCS["GCS_GDA_1994",DATUM["D_GDA_1994",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],GEOGCS["GDA2020",DATUM["GDA2020",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],METHOD["Coordinate_Frame"],PARAMETER["X_Axis_Translation",0.06155],PARAMETER["Y_Axis_Translation",-0.01087],PARAMETER["Z_Axis_Translation",-0.04019],PARAMETER["X_Axis_Rotation",-0.0394924],PARAMETER["Y_Axis_Rotation",-0.0327221],PARAMETER["Z_Axis_Rotation",-0.0328979],PARAMETER["Scale_Difference",-0.009994],OPERATIONACCURACY[0.01],AUTHORITY["EPSG",108060]]',
+                    "oldWkid": "108060"
+                }, {
+                    "currentWkt": 'GEOGTRAN["GDA_1994_To_GDA2020_NTv2_3_Conformal",GEOGCS["GCS_GDA_1994",DATUM["D_GDA_1994",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],GEOGCS["GDA2020",DATUM["GDA2020",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],METHOD["NTv2"],PARAMETER["Dataset_australia/GDA94_GDA2020_conformal",0.0],OPERATIONACCURACY[0.05],AUTHORITY["EPSG",8446]]',
+                    "currentWkid": "8446",
+                    "name": "GDA_1994_To_GDA2020_NTv2_3_Conformal",
+                    "oldWkt": 'GEOGTRAN["GDA_1994_To_GDA2020_NTv2_3_Conformal",GEOGCS["GCS_GDA_1994",DATUM["D_GDA_1994",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],GEOGCS["GDA2020",DATUM["GDA2020",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],METHOD["NTv2"],PARAMETER["Dataset_australia/GDA94_GDA2020_conformal",0.0],OPERATIONACCURACY[0.05],AUTHORITY["EPSG",108446]]',
+                    "oldWkid": "108446"
+                }, {
+                    "currentWkt": 'GEOGTRAN["GDA_1994_To_GDA2020_NTv2_2_Conformal_and_Distortion",GEOGCS["GCS_GDA_1994",DATUM["D_GDA_1994",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],GEOGCS["GDA2020",DATUM["GDA2020",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],METHOD["NTv2"],PARAMETER["Dataset_australia/GDA94_GDA2020_conformal_and_distortion",0.0],OPERATIONACCURACY[0.05],AUTHORITY["EPSG",8447]]',
+                    "currentWkid": "8447",
+                    "name": "GDA_1994_To_GDA2020_NTv2_2_Conformal_and_Distortion",
+                    "oldWkt": 'GEOGTRAN["GDA_1994_To_GDA2020_NTv2_2_Conformal_and_Distortion",GEOGCS["GCS_GDA_1994",DATUM["D_GDA_1994",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],GEOGCS["GDA2020",DATUM["GDA2020",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],METHOD["NTv2"],PARAMETER["Dataset_australia/GDA94_GDA2020_conformal_and_distortion",0.0],OPERATIONACCURACY[0.05],AUTHORITY["EPSG",108447]]',
+                    "oldWkid": "108447"
+                }
+            ]
+        }
+    ]
+
+    def register_xml_namespaces(filename):
+        namespaces = dict([node for _, node in ET.iterparse(filename, events=['start-ns'])])
+        for ns in namespaces:
+            ET.register_namespace(ns, namespaces[ns])
+        return namespaces
+
+    if arc_file.suffix.lower() == ".aprx":
+        # process as ArcGIS Project
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir_path = Path(temp_dir)
+
+            # extract contents to temporary directory
+            shutil.unpack_archive(str(arc_file), str(temp_dir), format="zip")
+
+            # check version of the archive to see whether we need to process
+            doc_info_xml_tree = ET.parse(str(temp_dir_path / "DocumentInfo.xml"))
+            doc_version = Decimal(".".join(doc_info_xml_tree.find("./Version").text.split(".")[:2]))
+
+            # track if the project has changed
+            project_made_changes = False
+
+            for tf in transforms_to_fix:
+                if not doc_version < tf["version"]:
+                    # set of changes doesn't apply to this version
+                    continue
+
+                # process this APRX against this set of transform changes
+
+                # get paths to all maps in the project
+                gis_project_xml_tree = ET.parse(str(temp_dir_path / "GISProject.xml"))
+                project_items_xpath = "./ProjectItems/CIMProjectItem"
+                project_items = gis_project_xml_tree.findall(project_items_xpath)
+                map_project_items = [pi for pi in project_items if pi.find("./ItemType").text == "Map"]
+                map_paths = [pi.find("./CatalogPath").text.replace("CIMPATH=", "") for pi in map_project_items]
+
+                # for each map, check if the datum transforms need winding back
+                for map_path in map_paths:
+                    # track whether changes were made to the map
+                    map_made_changes = False
+
+                    # parse the map file, get the datum transforms
+                    map_xml_path = str(temp_dir_path / map_path)
+                    map_xml_namespaces = register_xml_namespaces(map_xml_path)
+                    map_xml_tree = ET.parse(map_xml_path)
+                    datum_transforms = map_xml_tree.findall("./DatumTransforms/CIMDatumTransform")
+
+                    # for each datum transform, compare current WKT to check if we need to wind back
+                    for dt in datum_transforms:
+                        transformation_items = dt.findall("./GeoTransformation/XForms/TransformationItem")
+                        for ti in transformation_items:
+                            transform = ti.find("./XForm")
+                            if transform == None:
+                                continue
+
+                            wkt_element = transform.find("./WKT")
+                            if wkt_element == None:
+                                continue
+
+                            wkt = wkt_element.text.strip()
+
+                            for fix_info in tf["transformFixes"]:
+                                if not wkt == fix_info["currentWkt"]:
+                                    continue
+
+                                # fix the transform
+                                wkt_element.text = fix_info["oldWkt"]
+                                wkid_element = transform.find("./WKID")
+                                wkid_element.text = fix_info["oldWkid"]
+                                map_made_changes = True
+
+                    if map_made_changes:
+                        # save the map back out
+                        # ensure all the original attributes are written out on the root
+                        map_xml_root = map_xml_tree.getroot()
+                        existing_uris = [k.split('}')[0].strip('{') for k in map_xml_root.keys()]
+                        for prefix, uri in map_xml_namespaces.items():
+                            if not uri in existing_uris:
+                                tag = f"xmlns:{prefix}" if prefix else "xmlns"
+                                map_xml_root.set(tag, uri)
+
+                        map_xml_tree.write(str(temp_dir_path / map_path), encoding="UTF-8")
+                        # with (temp_dir_path / map_path).open("w") as output_file_handle:
+                        #     output_file_handle.write(ET.tostring(map_xml_tree.getroot(), encoding="unicode"))
+                        # note that we made changes to the project
+                        project_made_changes = True
+
+            if project_made_changes:
+                # need to zip the APRX back up
+                with zipfile.ZipFile(
+                    str(arc_file), "w", compression=zipfile.ZIP_DEFLATED, allowZip64=True
+                ) as output_file_handle:
+                    # glob the input extracted directory
+                    files_to_archive = temp_dir_path.glob("**/*")
+                    for f in files_to_archive:
+                        if not f.is_dir():
+                            # write file in zip to relative path
+                            output_file_handle.write(f, f.relative_to(temp_dir_path))
+
+    elif arc_file.suffix.lower() == ".mapx":
+        mapx_modified = False
+
+        # get the version of the map
+        map_json = json.loads(arc_file.read_text())
+        doc_version = Decimal(".".join(map_json["version"].split(".")[:2]))
+
+        for tf in transforms_to_fix:
+            if not doc_version < tf["version"]:
+                # set of changes doesn't apply to this version
+                continue
+
+            # process this MAPX against this set of transform fixes
+
+            datum_transforms = map_json.get("mapDefinition", {}).get("datumTransforms", [])
+            for dt in datum_transforms:
+                geo_transforms = dt.get("geoTransformation", {}).get("geoTransforms", [])
+                for gt in geo_transforms:
+                    for fix_info in tf["transformFixes"]:
+                        if str(gt.get("name")) == fix_info["name"]:
+                            gt["latestWkid"] = int(fix_info["oldWkid"])
+                            gt["wkid"] = int(fix_info["oldWkid"])
+                            mapx_modified = True
+
+        if mapx_modified:
+            with arc_file.open("w") as output_file_handle:
+                output_file_handle.write(
+                    json.dumps(map_json, sort_keys=True, indent=4, separators=(',', ': '),
+                               ensure_ascii=False).encode("UTF-8").decode("UTF-8")
+                )
 
 
 def open_document(project):
@@ -319,7 +501,7 @@ def _native_describe_layer(layer_parts):
     # the "prosdk" variant in a layer from a layer file is actually the CIM object from getDefinition() in arcpy
     # as such, we have to so some work to get access to the right properties, due to naming differences
     # at some point, ideally, we'd port as much of this to pure-Python/arcpy as possible
-    
+
     service_id = (
         layer_parts["prosdk"].service_id
         if hasattr(layer_parts["prosdk"], "service_id") else layer_parts["prosdk"].serviceLayerID
