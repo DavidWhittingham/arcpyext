@@ -276,11 +276,13 @@ A list of templates can be used to create a replacement list of data sources for
     path_to_mxd_or_project = "path/to/arcgis/map_doc.mxd" # or *.aprx file on ArcGIS Pro
     data_source_templates = [
         # one or more templates goes hear
-        "dataSource": {
-            "workspacePath": "./newDatabaseConnection.sde"
-        },
-        "matchCriteria": {
-            # match everything
+        {
+            "dataSource": {
+                "workspacePath": "./newDatabaseConnection.sde"
+            },
+            "matchCriteria": {
+                # match everything
+            }
         }
     ]
 
