@@ -106,7 +106,7 @@ def to_gdb(in_file, out_gdb):
     arcpy.CreateFileGDB_management(out_path, out_name)
 
     _get_logger().info("Parsing json")
-    schema = json.loads(Path(in_file).read_text())
+    schema = json.loads(Path(in_file).read_text(encoding="utf-8"))
 
     # Domains
     _get_logger().info("Domains")
@@ -180,7 +180,7 @@ def to_xml(in_file, out_file):
         os.remove(out_file)
 
     _get_logger().info("Parsing json")
-    schema = json.loads(Path(in_file).read_text())
+    schema = json.loads(Path(in_file).read_text(encoding="utf-8"))
 
     _get_logger().info("Creating output xml workspace")
     with io.open(out_file, 'w', encoding="utf-8") as fo:

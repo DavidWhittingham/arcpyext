@@ -192,7 +192,7 @@ def fix_datum_transforms(arc_file):
         mapx_modified = False
 
         # get the version of the map
-        map_json = json.loads(arc_file.read_text())
+        map_json = json.loads(arc_file.read_text(encoding="utf-8"))
         doc_version = Decimal(".".join(map_json["version"].split(".")[:2]))
 
         for tf in transforms_to_fix:
