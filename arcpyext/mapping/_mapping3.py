@@ -213,10 +213,9 @@ def fix_datum_transforms(arc_file):
                             mapx_modified = True
 
         if mapx_modified:
-            with arc_file.open("w") as output_file_handle:
+            with arc_file.open("w", encoding="utf-8") as output_file_handle:
                 output_file_handle.write(
-                    json.dumps(map_json, sort_keys=True, indent=4, separators=(',', ': '),
-                               ensure_ascii=False).encode("UTF-8").decode("UTF-8")
+                    json.dumps(map_json, sort_keys=True, indent=4, separators=(',', ': '), ensure_ascii=False)
                 )
 
 
